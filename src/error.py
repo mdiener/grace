@@ -25,6 +25,14 @@ class CreateFolderError(Error):
     pass
 
 
+class RemoveFolderError(Error):
+    pass
+
+
+class FolderNotFoundError(Error):
+    pass
+
+
 class WrongFormatError(Error):
     pass
 
