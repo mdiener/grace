@@ -1,6 +1,8 @@
 grace
 =====
 
+DOES NOT WORK COMPLETELY YET! PLEASE ONLY USE TO TEST OR TRY OUT! THIS NOTICE WILL BE REMOVED AS SOON AS I THINK IT REACHED A PRODUCTIVE POINT.
+
 **Grace** is a development toolkit for JavaScript, HTML and SCSS (Sass CSS).
 The name **grace** comes from a sweet puppy, which is always coming to my room whenever I start working to get the little attention that is left.
 
@@ -12,6 +14,11 @@ The goal is that you do not have to worry about things going on around your proj
 
 How It Works
 ============
+
+Install
+-------
+
+To install grace, pull it from github create an alias for the respective executable in your shell rc file. I provide a compiled binary for debian wheezy 64 bit and Ubuntu 12.04 64 bit. At a later point I will try to incorporate more OS's and more distributions. If someone is willing to take up this task, feel free to make a pull request. You can also reference the executable.py, but then you need to have the respective python libraries installed.
 
 Setup
 -----
@@ -25,4 +32,11 @@ This create a new folder in your current folder with the correct structure and f
 Building Your Project
 ---------------------
 
-To build your project, you have to invoke grace with the build task. The build task takes two options: project and test. If you ommit both, both will be built after each other. The project option will build your project and allow
+To build your project, you have to invoke grace with the build task. The build task takes two options: project and test. If you ommit both, both will be built after each other. The project option will build your project and put it into a build folder inside your project
+```shell
+grace build project
+```
+or
+```shell
+grace build test
+```
