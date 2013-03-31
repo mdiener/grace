@@ -4,6 +4,30 @@ from sys import exit
 import argparse
 from new import New
 from build import Build
+from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError
+
+
+def build_project(b, restrict):
+    try:
+        b.build_project(restrict)
+    except FileNotFoundError as e:
+        print e.msg
+        exit()
+    except FileNotWritableError as e:
+        print e.msg
+        exit()
+    except CreateFolderError as e:
+        print e.msg
+        exit()
+    except FolderNotFoundError as e:
+        print e.msg
+        exit()
+    except WrongFormatError as e:
+        print e.msg
+        exit()
+    except RemoveFolderError as e:
+        print e.msg
+        exit()
 
 parser = argparse.ArgumentParser(description='Tasks to execute')
 parser.add_argument('args', action='store', nargs='*')
@@ -34,18 +58,37 @@ if args.args[0] == 'new':
         name = 'MyProject'
     New(name)
 elif args.args[0] == 'build':
-    b = Build()
+    try:
+        b = Build()
+    except MissingKeyError as e:
+        print e.msg
+        exit()
+    except FileNotFoundError as e:
+        print e.msg
+        exit()
+    except WrongFormatError as e:
+        print e.msg
+        exit()
+
     try:
         task = args.args[1]
     except:
-        b.build_project()
-        b.build_test()
-        exit()
+        build_project(b, None)
 
     if task == 'project':
-        b.build_project()
-    elif task == 'test':
-        b.build_test()
+        try:
+            subtask = args.args[2]
+        except:
+            build_project(b, None)
+            exit()
+
+        build_project(b, subtask)
+    elif task == 'clean':
+        try:
+            b.clean()
+        except RemoveFolderError as e:
+            print e.msg
+            exit()
     else:
         print help
 else:
