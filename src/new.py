@@ -175,7 +175,7 @@ class Files:
     def _prepare_write_arrays(self):
         projectPath = self._cwd + '/' + self._projectName
 
-        self._string = [{
+        self._string_write_array = [{
             'path': projectPath + '/src/application.js',
             'content': self._js_string
         }, {
@@ -189,7 +189,7 @@ class Files:
             'content': self._config_string
         }]
 
-        self._copy = [{
+        self._copy_array = [{
             'source': self._root + '/files/jquery.min.js',
             'dest': projectPath + '/src/lib/jquery/jquery.min.js'
         }, {
@@ -213,7 +213,7 @@ class Files:
         }]
 
     def write(self):
-        for entry in self._string:
+        for entry in self._string_write_array:
             try:
                 f = open(entry['path'], 'w+')
             except:
@@ -221,7 +221,7 @@ class Files:
 
             f.write(entry['content'])
 
-        for entry in self._copy:
+        for entry in self._copy_array:
             try:
                 copy(entry['source'], entry['dest'])
             except:
