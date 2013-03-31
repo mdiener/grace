@@ -16,8 +16,8 @@
  *   application.js
  *
  * In your application.js, the first line would be: //include MyClass
- * In your MyClass.js the first line would be: //include MySecondClass.js
- * In your MySecondClass.js your would include the
+ * In your MyClass.js the first line would be: //include MySecondClass
+ * In your MySecondClass.js you would include the
  * Utils class: //include utils/MyUtilsClass
  *
  * The output will be the concatenated files, attached at the top of your
