@@ -1,7 +1,7 @@
 grace
 =====
 
-DOES NOT WORK COMPLETELY YET! PLEASE ONLY USE TO TEST OR TRY OUT! THIS NOTICE WILL BE REMOVED AS SOON AS I THINK IT REACHED A PRODUCTIVE POINT.
+*DOES NOT WORK COMPLETELY YET! PLEASE ONLY USE TO TEST OR TRY OUT! THIS NOTICE WILL BE REMOVED AS SOON AS I THINK IT REACHED A PRODUCTIVE POINT.*
 
 **Grace** is a development toolkit for JavaScript, HTML and SCSS (Sass CSS).
 The name **grace** comes from a sweet puppy, which is always coming to my room whenever I start working to get the little attention that is left.
