@@ -56,8 +56,11 @@ class Build:
                 self._build_html()
             elif restrict == 'images':
                 self._build_images()
+            elif restrict == 'libraries':
+                self._build_libraries()
             elif restrict is None:
                 self._build_javascript()
+                self._build_libraries()
                 self._build_css()
                 self._build_html()
                 self._build_images()
