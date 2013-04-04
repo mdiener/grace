@@ -52,7 +52,8 @@ build:javascript\tBuild only the JavaScript.\n\
 build:html\t\tBuild only the HTML.\n\
 build:css\t\tBuild only the CSS.\n\
 build:libraries\t\tBuild all the libraries.\n\
-build:images\t\tBuild all the images.'
+build:images\t\tBuild all the images.\n\
+clean\t\t\tClean the directory of any build artefacts.'
 
 if len(args.args) < 1:
     print help
