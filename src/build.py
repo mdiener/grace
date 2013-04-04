@@ -93,11 +93,6 @@ class Build:
 
         f.write(self._js_string)
 
-        try:
-            self._build_libraries()
-        except:
-            raise
-
     def _concat_javascript(self):
         f = None
         lines = []
