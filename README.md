@@ -32,11 +32,25 @@ This create a new folder in your current folder with the correct structure and f
 Building Your Project
 ---------------------
 
-To build your project, you have to invoke grace with the build task. The build task takes two options: project and test. If you ommit both, both will be built after each other. The project option will build your project and put it into a build folder inside your project
+To build your project, you have to invoke grace with the build task. You can also specify what exact build step you want to execute.
 ```shell
-grace build project
+grace build
 ```
 or
 ```shell
-grace build test
+grace build:javascript
+```
+
+Available Commands
+------------------
+```shell
+grace help
+grace new [projectname]
+grace build
+grace build:javascript
+grace build:html
+grace build:css
+grace build:libraries
+grace build:images
+grace clean
 ```
