@@ -3,7 +3,7 @@
 from sys import exit
 import argparse
 from new import New
-from build import Build
+from build import Build, clean
 from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError
 
 
@@ -37,18 +37,22 @@ parser.add_argument('args', action='store', nargs='*')
 
 args = parser.parse_args()
 
-if len(args.args) < 1:
-    argument = ''
-else:
-    argument = str(args.args)
+help = ''
+helpargs = ' '.join(args.args)
+if helpargs != 'help':
+    help = '`' + helpargs + '` is not a valid command.\n\n'
 
-help = '\
-`' + argument + '` is not a valid argument.\n\
---------------------------\n\n\
-Valid arguments:\n\
+help = help + 'Syntax: grace command\n\n\
+commands\n\
+--------\n\
 help\t\t\tDisplay this help.\n\
-new\t[name]\t\tCreate a new project with project name. Default is `MyProject`.\n\
-build\tproject, test\tBuild the project or the tests. Ommit both and build both.'
+new [name]\t\tCreate a new project with project name. Default is `MyProject`.\n\
+build\t\t\tBuild the project.\n\
+build:javascript\tBuild only the JavaScript.\n\
+build:html\t\tBuild only the HTML.\n\
+build:css\t\tBuild only the CSS.\n\
+build:libraries\t\tBuild all the libraries.\n\
+build:images\t\tBuild all the images.'
 
 if len(args.args) < 1:
     print help
@@ -60,39 +64,39 @@ if args.args[0] == 'new':
     except:
         name = 'MyProject'
     New(name)
-elif args.args[0] == 'build':
-    try:
-        b = Build()
-    except MissingKeyError as e:
-        print e.msg
-        exit()
-    except FileNotFoundError as e:
-        print e.msg
-        exit()
-    except WrongFormatError as e:
-        print e.msg
-        exit()
+else:
+    tasks = args.args[0].split(':')
 
-    try:
-        task = args.args[1]
-    except:
-        build_project(b, None)
-
-    if task == 'project':
+    if tasks[0] == 'build':
         try:
-            subtask = args.args[2]
-        except:
-            build_project(b, None)
+            b = Build()
+        except MissingKeyError as e:
+            print e.msg
+            exit()
+        except FileNotFoundError as e:
+            print e.msg
+            exit()
+        except WrongFormatError as e:
+            print e.msg
             exit()
 
-        build_project(b, subtask)
-    elif task == 'clean':
         try:
-            b.clean()
+            subtask = tasks[1]
+        except IndexError:
+            subtask = None
+
+        if len(tasks) < 3:
+            build_project(b, subtask)
+            exit()
+        else:
+            print help
+            exit()
+    elif tasks[0] == 'clean':
+        try:
+            clean()
         except RemoveFolderError as e:
             print e.msg
             exit()
     else:
         print help
-else:
-    print help
+        exit()
