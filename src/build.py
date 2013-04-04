@@ -140,6 +140,12 @@ class Build:
         if not os.path.exists(self._cwd + '/src/index.html'):
             return
 
+        if os.path.exists(self._project_build_path + '/index.html'):
+            try:
+                os.remove(self._project_build_path + '/index.html')
+            except:
+                raise RemoveFileError('Could not remove the existing html build file.')
+
         try:
             copy2(self._cwd + '/src/index.html', self._project_build_path + '/index.html')
         except:
