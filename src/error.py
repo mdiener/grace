@@ -39,3 +39,7 @@ class WrongFormatError(Error):
 
 class MissingKeyError(Error):
     pass
+
+
+class RemoveFileError(Error):
+    pass

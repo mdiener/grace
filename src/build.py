@@ -1,5 +1,5 @@
 import os
-from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError
+from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError
 import json
 from shutil import copy2, copytree, rmtree
 import re
@@ -84,7 +84,7 @@ class Build:
             try:
                 os.remove(self._project_build_path + '/application.js')
             except:
-                raise FileNotWritableError('Could not delete the existing javascript application file.')
+                raise RemoveFileError('Could not delete the existing javascript application file.')
 
         try:
             f = open(self._project_build_path + '/application.js', 'w+')
@@ -164,7 +164,7 @@ class Build:
             try:
                 os.remove(self._project_build_path + '/style/style.css')
             except:
-                raise FileNotWritableError('Could not remove the existing css file.')
+                raise RemoveFileError('Could not remove the existing css file.')
 
         if os.path.exists(self._cwd + '/src/style/style.scss'):
             try:

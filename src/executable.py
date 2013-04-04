@@ -4,7 +4,7 @@ from sys import exit
 import argparse
 from new import New
 from build import Build
-from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError
+from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError
 
 
 def build_project(b, restrict):
@@ -26,6 +26,9 @@ def build_project(b, restrict):
         print e.msg
         exit()
     except RemoveFolderError as e:
+        print e.msg
+        exit()
+    except RemoveFileError as e:
         print e.msg
         exit()
 
