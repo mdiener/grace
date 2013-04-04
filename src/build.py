@@ -222,11 +222,12 @@ class Build:
         except:
             raise FileNotWritableError('Could not copy all the libraries.')
 
-    def clean(self):
-        if not os.path.exists(self._cwd + '/build'):
-            return
 
-        try:
-            rmtree(self._cwd + '/build')
-        except:
-            raise RemoveFolderError('Could not remove the build folder.')
+def clean():
+    if not os.path.exists(os.getcwd() + '/build'):
+        return
+
+    try:
+        rmtree(os.getcwd() + '/build')
+    except:
+        raise RemoveFolderError('Could not remove the build folder.')
