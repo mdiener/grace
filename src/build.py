@@ -165,8 +165,7 @@ class Build:
             try:
                 _css_string = sass.compile(filename=self._cwd + '/src/style/style.scss')
             except:
-                raise
-                #raise FileNotFoundError('Could not find your scss style file.')
+                raise FileNotFoundError('Could not find your scss style file.')
 
             try:
                 f = open(self._project_build_path + '/style/style.css', 'w+')
