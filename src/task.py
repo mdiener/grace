@@ -206,6 +206,6 @@ class Task:
             try:
                 z.zip_project()
                 plugin.after_zip()
-                print 'Successfully zipped th eproject.'
+                print 'Successfully zipped the project.'
             except:
                 raise
