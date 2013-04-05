@@ -209,9 +209,3 @@ class Task:
                 print 'Successfully zipped th eproject.'
             except:
                 raise
-
-        if self._bad:
-            try:
-                clean()
-            except:
-                raise
