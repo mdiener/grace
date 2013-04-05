@@ -76,7 +76,7 @@ class New:
         p = fileObject['path']
 
         outfilename = f.replace('_X', '')
-        with open(os.path.join(p, outfilename), 'wr') as out:
+        with open(os.path.join(p, outfilename), 'w+') as out:
             infile = open(os.path.join(p, f))
             for line in infile:
                 newline = line.replace('#DEPLOYMENTPATH', self._deployment_path)
