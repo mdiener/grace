@@ -3,6 +3,7 @@ Class("#PROJECTNAME.Dizmo", {
         initialize: function() {
             var me = this;
 
+            // Show front and hide back on first load
             jQuery("#back").hide();
             jQuery("#front").show();
 
