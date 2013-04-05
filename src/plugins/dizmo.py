@@ -7,6 +7,9 @@ from shutil import move, rmtree
 class Dizmo:
     def __init__(self):
         self._dizmo_deployment_path = os.path.join(os.path.expanduser('~'), '.local', 'share', 'data', 'futureLAB', 'dizmode', 'InstalledWidgets')
+        if os.name == 'nt':
+            self._dizmo_deployment_path = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', 'futureLAB', 'dizmode', 'InstalledWidgets')
+            self._dizmo_deployment_path = self._dizmo_deployment_path.replace('/', '//')
 
     def pass_config(self, config):
         self._config = config

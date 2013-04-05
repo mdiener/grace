@@ -27,6 +27,11 @@ class New:
 
         self._projectPath = os.path.join(self._cwd, self._projectName)
         self._deployment_path = os.path.join(os.path.expanduser('~'))
+        self._zip_path = os.path.join(os.path.expanduser('~'))
+
+        if os.name == 'nt':
+            self._deployment_path = self._deployment_path.replace('/', '//')
+            self._zip_path = self._zip_path.replace('/', '//')
 
         try:
             self._copy_structure()
@@ -75,7 +80,7 @@ class New:
             infile = open(os.path.join(p, f))
             for line in infile:
                 newline = line.replace('#DEPLOYMENTPATH', self._deployment_path)
-                newline = newline.replace('#ZIPPATH', os.path.join(os.path.expanduser('~')))
+                newline = newline.replace('#ZIPPATH', self._zip_path)
                 newline = newline.replace('#PROJECTNAME', self._projectName)
 
                 if self._plugin:
