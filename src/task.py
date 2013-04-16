@@ -2,6 +2,7 @@ from error import CommandLineArgumentError
 from new import New
 from build import Build, BuildDizmo, clean
 from deploy import Deploy
+from zipit import Zip
 
 
 class Task:
@@ -48,6 +49,10 @@ class Task:
             self._task = 'clean'
         elif args[0] == 'deploy':
             self._task = 'deploy'
+            self._subtask = None
+        elif args[0] == 'zip':
+            self._task = 'zip'
+            self._subtask = None
         else:
             raise CommandLineArgumentError()
 
@@ -68,12 +73,23 @@ class Task:
             except:
                 raise
 
-
             try:
-                d = Deploy()
-                d.deploy_project(self._with_dizmo)
+                d = Deploy(self._with_dizmo)
+                d.deploy_project()
             except:
                 raise
+        elif self._task == 'zip':
+            try:
+                self._build()
+            except:
+                raise
+
+            try:
+                z = Zip(self._with_dizmo)
+                z.zip_project()
+            except:
+                raise
+
         elif self._task == 'clean':
             try:
                 clean()
