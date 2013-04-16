@@ -59,30 +59,15 @@ class Task:
                 raise
         elif self._task == 'build':
             try:
-                b = Build()
-                b.build_project(self._subtask)
+                self._build()
             except:
                 raise
-
-            if self._with_dizmo:
-                try:
-                    bd = BuildDizmo()
-                    bd.build_dizmo()
-                except:
-                    raise
         elif self._task == 'deploy':
             try:
-                b = Build()
-                b.build_project(self._subtask)
+                self._build()
             except:
                 raise
 
-            if self._with_dizmo:
-                try:
-                    bd = BuildDizmo()
-                    bd.build_dizmo()
-                except:
-                    raise
 
             try:
                 d = Deploy()
@@ -92,5 +77,19 @@ class Task:
         elif self._task == 'clean':
             try:
                 clean()
+            except:
+                raise
+
+    def _build(self):
+        try:
+            b = Build()
+            b.build_project(self._subtask)
+        except:
+            raise
+
+        if self._with_dizmo:
+            try:
+                bd = BuildDizmo()
+                bd.build_dizmo()
             except:
                 raise
