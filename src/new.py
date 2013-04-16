@@ -1,6 +1,5 @@
 from error import FileNotFoundError, FolderAlreadyExistsError, CreateFolderError, FileNotWritableError
 import os
-from sys import exit
 from shutil import copy
 import sys
 
@@ -32,15 +31,13 @@ class New:
 
         try:
             self._structure.create()
-        except CreateFolderError as e:
-            print e.msg
-            exit()
+        except:
+            raise
 
         try:
             self._files.write()
-        except FileNotWritableError as e:
-            print e.msg
-            exit()
+        except:
+            raise
 
 
 class Structure:
@@ -133,9 +130,8 @@ class Files:
 
         try:
             self._load_string()
-        except FileNotFoundError as e:
-            print e.msg
-            exit()
+        except:
+            raise
 
         self._prepare_write_arrays()
 
