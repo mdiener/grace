@@ -1,5 +1,5 @@
 class Error(Exception):
-    def __init__(self, msg, arg=None):
+    def __init__(self, msg='', arg=None):
         if arg:
             self.msg = msg + arg
         else:
@@ -42,4 +42,8 @@ class MissingKeyError(Error):
 
 
 class RemoveFileError(Error):
+    pass
+
+
+class CommandLineArgumentError(Error):
     pass
