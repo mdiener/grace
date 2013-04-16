@@ -1,13 +1,14 @@
 from error import FileNotFoundError, WrongFormatError, MissingKeyError, RemoveFolderError, FileNotWritableError
 import json
 import os
-from shutil import copytree, rmtree
+from shutil import rmtree
+import distutils.core
 
 
 class Deploy:
     def __init__(self, with_dizmo):
         self._with_dizmo = with_dizmo
-        self._cwd = os.getCwd()
+        self._cwd = os.getcwd()
 
         try:
             config_file = open(self._cwd + '/config.json')
@@ -53,6 +54,6 @@ class Deploy:
                 raise RemoveFolderError('Could not remove the existing deployment path.')
 
         try:
-            copytree(self._build_path, self._deployment_path)
+            distutils.dir_util.copy_tree(self._build_path, self._deployment_path)
         except:
-            raise FileNotWritableError('Could not copy all the libraries.')
+            raise FileNotWritableError('Could not copy the build directory to the deployment path.')
