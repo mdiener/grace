@@ -4,6 +4,7 @@ import json
 from shutil import copy2, copytree, rmtree
 import re
 import sass
+import plistlib
 
 
 class Build:
@@ -221,6 +222,78 @@ class Build:
             copytree(self._cwd + '/src/lib', self._project_build_path + '/lib')
         except:
             raise FileNotWritableError('Could not copy all the libraries.')
+
+
+class BuildDizmo:
+    def __init__(self):
+        self._cwd = os.getcwd()
+
+        try:
+            config_file = open(self._cwd + '/config.json')
+        except:
+            raise FileNotFoundError('Could not find a config file in this directory.')
+
+        try:
+            self._config = json.load(config_file)
+        except:
+            raise WrongFormatError('The provided config file could not be parsed.')
+
+        if 'name' not in self._config:
+            raise MissingKeyError('Name of the project needs to be in the config file.')
+
+        if 'version' not in self._config:
+            raise MissingKeyError('Please specify a version in your config file.')
+
+        try:
+            dizmo_config_file = open(self._cwd + '/dizmo_config.json')
+        except:
+            raise FileNotFoundError('Could not find a dizmo config file in this directory.')
+
+        try:
+            self._dizmo_config = json.load(dizmo_config_file)
+        except:
+            raise WrongFormatError('The provided config file could not be parsed.')
+
+        if 'bundle' not in self._dizmo_config:
+            raise MissingKeyError('Bundle is missing in dizmo config file.')
+
+        self._build_path = self._cwd + '/build'
+        self._project_build_path = self._build_path + '/' + self._config['name']
+
+        self._prepare_plist()
+
+    def _prepare_plist(self):
+        if 'width' not in self._dizmo_config:
+            self._dizmo_config['width'] = 200
+        if 'height' not in self._dizmo_config:
+            self._dizmo_config['height'] = 200
+        if 'closeBoxInsetX' not in self._dizmo_config:
+            self._dizmo_config['closeBoxInsetX'] = 0
+        if 'closeBoxInsetY' not in self._dizmo_config:
+            self._dizmo_config['closeBoxInsetY'] = 1
+        if 'developmentRegion' not in self._dizmo_config:
+            self._dizmo_config['developmentRegion'] = 'English'
+
+        self._plist = dict(
+            CFBundleDevelopmentRegion=self._dizmo_config['developmentRegion'],
+            CFBundleDisplayName=self._config['name'],
+            CFBundleIdentifier=self._dizmo_config['bundle'] + '.' + self._config['name'],
+            CFBundleName=self._config['name'],
+            CFBundleShortVersionString=self._config['version'],
+            CFBundleVersion=self._config['version'],
+            CloseBoxInsetX=self._dizmo_config['closeBoxInsetX'],
+            CloseBoxInsetY=self._dizmo_config['closeBoxInsetY'],
+            MainHTML='index.html',
+            Width=self._dizmo_config['width'],
+            Height=self._dizmo_config['height'],
+            KastellanAPIVersion='1.0'
+        )
+
+    def build_dizmo(self):
+        try:
+            plistlib.writePlist(self._plist, self._project_build_path + '/Info.plist')
+        except:
+            raise FileNotWritableError('Could not write plist to target location: ', self._project_build_path)
 
 
 def clean():
