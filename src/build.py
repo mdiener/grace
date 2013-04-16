@@ -213,7 +213,7 @@ class Build:
 
         if os.path.exists(self._project_build_path + '/lib'):
             try:
-                os.remove(self._project_build_path + '/lib')
+                rmtree(self._project_build_path + '/lib')
             except:
                 raise RemoveFolderError('Could not remove the existing libraries folder.')
 
