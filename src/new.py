@@ -18,11 +18,16 @@ def get_path():
 
 
 class New:
-    def __init__(self, projectName):
+    def __init__(self, projectName, with_dizmo):
         self._projectName = projectName
         self._root = get_path()
         self._cwd = os.getcwd()
-        self._files = Files(projectName, self._root, self._cwd)
+        self._with_dizmo = with_dizmo
+        try:
+            self._files = Files(projectName, self._with_dizmo, self._root, self._cwd)
+        except:
+            raise
+
         self._structure = Structure(projectName, self._cwd)
 
         try:
@@ -120,10 +125,11 @@ class Structure:
 
 
 class Files:
-    def __init__(self, projectName, root, cwd):
+    def __init__(self, projectName, with_dizmo, root, cwd):
         self._projectName = projectName
         self._root = root
         self._cwd = cwd
+        self._with_dizmo = with_dizmo
 
         try:
             self._load_string()
@@ -211,6 +217,12 @@ class Files:
             'source': self._root + '/files/style.scss',
             'dest': projectPath + '/src/style/style.scss'
         }]
+
+        if self._with_dizmo:
+            self._copy_array.append({
+                'source': self._root + '/files/dizmo_config.json',
+                'dest': projectPath + '/dizmo_config.json'
+            })
 
     def write(self):
         for entry in self._string_write_array:
