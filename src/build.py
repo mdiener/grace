@@ -102,6 +102,7 @@ class Build:
         except:
             raise FileNotFoundError('The specified file does not exist: ', 'src/application.js')
 
+        self._included_js_files = []
         try:
             lines = self._gather_javascript_lines(f)
         except FileNotFoundError:
@@ -120,6 +121,11 @@ class Build:
 
                 sub_path = self._cwd + '/src/javascript/' + re.split(' ', line)[1]
                 sub_path = sub_path[:-1] + '.js'
+
+                if sub_path in self._included_js_files:
+                    return ''
+
+                self._included_js_files.append(sub_path)
                 try:
                     sub_f = open(sub_path)
                 except:
