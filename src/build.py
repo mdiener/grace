@@ -76,9 +76,7 @@ class Build:
 
         try:
             self._js_string = self._concat_javascript()
-        except FileNotFoundError:
-            raise
-        except FolderNotFoundError:
+        except:
             raise
 
         if os.path.exists(self._project_build_path + '/application.js'):
