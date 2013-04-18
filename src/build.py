@@ -1,5 +1,5 @@
 import os
-from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError
+from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FileNotWritableError, RemoveFolderError, RemoveFileError
 import json
 from shutil import copy2, copytree, rmtree
 import re
