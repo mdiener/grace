@@ -91,6 +91,7 @@ class Build:
             raise FileNotWritableError('Could not write the javascript file.')
 
         f.write(self._js_string)
+        f.close()
 
     def _concat_javascript(self):
         f = None
