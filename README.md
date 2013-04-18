@@ -58,6 +58,11 @@ Upon building a new dizmo, there will be a special config file placed in your pr
 
 **The config file provided needs to include the version of your project, otherwise the building of a dizmo will fail**.
 
+Building Tests
+--------------
+
+To build tests, execute the command _grace test_. If you supply a test name, grace will only build that test and ignore all other. For now you can not supply multiple tests. Either one or all will be built. With the _grace test deploy_ you can build and instantly deploy your test to the deployment_path specified in the config file.
+
 Available Commands
 ------------------
 ```shell
@@ -71,5 +76,71 @@ grace [dizmo] build:libraries
 grace [dizmo] build:images
 grace [dizmo] deploy
 grace [dizmo] zip
+grace [dizmo] test {testname}
+grace [dizmo] test deploy {testname}
 grace clean
 ```
+
+JavaScript Setup
+----------------
+
+It is important that you follow the JavaScript setup, or you will not be able to use **Grace**. You can either write all your code in the provided application.js file, or use the structure to split it up. It is highly recommended to split your JavaScript code into single classes, giving each class its own file. This way you will have a much better overview. To do this, **Grace** parse your application.js file and sees if the first line as a _//include MyClass_ in it. This is the starting point, meaning that your first class file should be something like a _main_ in other languages. In every JavaScript file you create, you can add the _//include Path/To/Class/File_ at the beginning, to include another file. It is important that you do not add the .js at the end. The following is an example set up:
+
+application.js
+```javascript
+//include MyMain
+
+jQuery(document).ready(function() {
+    main = new MyProject.MyMain()
+});
+```
+
+MyMain.js
+```javascript
+//include utils/MyUtils.js
+
+Class('MyProject.MyMain', {
+    has: {
+        log: {
+            is: 'r',
+            init: MyProject.utils.MyUtils.logWithType
+        }
+    }
+
+    after: {
+        initialize: function() {
+            var self = this;
+
+            self.draw('circle'))
+        }
+    }
+});
+```
+
+utils/MyUtils.js
+```javascript
+Class('MyProject.utils.MyUtils', {
+    my: {
+        methods: {
+            logWithType: function(val) {
+                console.log(jQuery.type(val), val);
+            }
+        }
+    }
+});
+```
+
+The folder structure for this would look as following:
+MyProject
+|-- config.js
+`-- src
+    |-- index.html
+    |-- javascript
+    |   |-- MyMain.js
+    |   `-- utils
+    |       `-- MyUtils.js
+    `-- lib
+        |-- jquery
+        |   `-- jquery.min.js
+        `-- joose
+            `-- joose.min.js
