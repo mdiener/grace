@@ -116,7 +116,7 @@ class Build:
         lines = []
 
         for line in f:
-            if re.match('\/\/include:[a-zA-Z\/]+', line):
+            if re.match('\/\/include [a-zA-Z\/]+', line):
                 sub_f = None
 
                 sub_path = self._cwd + '/src/javascript/' + re.split(' ', line)[1]
