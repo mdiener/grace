@@ -57,9 +57,18 @@ class Task:
         elif args[0] == 'test':
             self._task = 'test'
             try:
-                self._testname = args[1]
+                if args[1] == 'deploy':
+                    self._subtask = 'deploy'
+                    try:
+                        self._testname = args[2]
+                    except:
+                        self._testname = None
+                else:
+                    self._subtask = None
+                    self._testname = args[1]
             except:
-                self._testname = None
+                self._subtask = None
+                self._testname = args[1]
         else:
             raise CommandLineArgumentError()
 
@@ -81,7 +90,7 @@ class Task:
                 raise
 
             try:
-                d = Deploy(self._with_dizmo)
+                d = Deploy(self._with_dizmo, False)
                 d.deploy_project()
             except:
                 raise
@@ -112,6 +121,13 @@ class Task:
                 try:
                     td = TestDizmo()
                     td.build_dizmo()
+                except:
+                    raise
+
+            if self._subtask == 'deploy':
+                try:
+                    d = Deploy(self._with_dizmo, True)
+                    d.deploy_project()
                 except:
                     raise
 

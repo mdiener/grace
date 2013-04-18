@@ -6,7 +6,7 @@ import distutils.core
 
 
 class Deploy:
-    def __init__(self, with_dizmo):
+    def __init__(self, with_dizmo, as_test):
         self._with_dizmo = with_dizmo
         self._cwd = os.getcwd()
 
@@ -22,6 +22,9 @@ class Deploy:
 
         if 'name' not in self._config:
             raise MissingKeyError('Name of the project needs to be in the config file.')
+
+        if as_test:
+            self._config['name'] = self._config['name'] + '_test'
 
         if 'deployment_path' not in self._config:
             raise MissingKeyError('Could not find deployment path in config file.')

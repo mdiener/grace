@@ -32,6 +32,7 @@ help\t\t\t\tDisplay this help.\n\
 [dizmo] deploy\t\t\tDeploy the project or dizmo\n\
 [dizmo] zip\t\t\tZip the dizmo\n\
 [dizmo] test {testname}\t\tBuild the specified test, or all if none specified\n\
+[dizmo] test deploy {testname}\tBuild the specified test and deploy it\n\
 clean\t\t\t\tClean the directory of any build artefacts.'
 
 try:
