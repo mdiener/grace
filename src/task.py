@@ -3,6 +3,7 @@ from new import New
 from build import Build, BuildDizmo, clean
 from deploy import Deploy
 from zipit import Zip
+from test import Test, TestDizmo
 
 
 class Task:
@@ -53,6 +54,12 @@ class Task:
         elif args[0] == 'zip':
             self._task = 'zip'
             self._subtask = None
+        elif args[0] == 'test':
+            self._task = 'test'
+            try:
+                self._testname = args[1]
+            except:
+                self._testname = None
         else:
             raise CommandLineArgumentError()
 
@@ -89,12 +96,24 @@ class Task:
                 z.zip_project()
             except:
                 raise
-
         elif self._task == 'clean':
             try:
                 clean()
             except:
                 raise
+        elif self._task == 'test':
+            try:
+                t = Test(self._testname)
+                t.build_test()
+            except:
+                raise
+
+            if self._with_dizmo:
+                try:
+                    td = TestDizmo()
+                    td.build_dizmo()
+                except:
+                    raise
 
     def _build(self):
         try:
