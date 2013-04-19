@@ -1,7 +1,8 @@
-from error import FileNotFoundError, FolderAlreadyExistsError, CreateFolderError, FileNotWritableError
+from error import FileNotWritableError, FolderAlreadyExistsError, FolderNotFoundError, CreateFolderError
 import os
-from shutil import copy
+from shutil import copytree
 import sys
+import re
 
 
 def we_are_frozen():
@@ -17,220 +18,69 @@ def get_path():
 
 
 class New:
-    def __init__(self, projectName, with_dizmo):
+    def __init__(self, projectName, newtype='default'):
         self._projectName = projectName
         self._root = get_path()
         self._cwd = os.getcwd()
-        self._with_dizmo = with_dizmo
-        try:
-            self._files = Files(projectName, self._with_dizmo, self._root, self._cwd)
-        except:
-            raise
+        self._type = newtype
 
-        self._structure = Structure(projectName, self._cwd)
+        self._projectPath = os.path.join(self._cwd, self._projectName)
 
         try:
-            self._structure.create()
+            self._copy_structure()
         except:
             raise
 
         try:
-            self._files.write()
+            self._replace_strings()
         except:
             raise
 
+    def _copy_structure(self):
+        if os.path.exists(os.path.join(self._cwd, self._projectName)):
+            raise FolderAlreadyExistsError('There is already a folder with the projectname present!')
 
-class Structure:
-    def __init__(self, projectName, cwd):
-        self._projectName = projectName
-        self._cwd = cwd
-
-    def create(self):
-        projectPath = self._cwd + '/' + self._projectName
-        if os.path.exists(projectPath):
-            raise FolderAlreadyExistsError('The folder for this project already exists.')
+        if not os.path.exists(os.path.join(self._root, 'skeletons', self._type)):
+            raise FolderNotFoundError('Could not find the skeleton: ', self._type)
 
         try:
-            os.makedirs(projectPath)
+            copytree(os.path.join(self._root, 'skeletons', self._type), os.path.join(self._cwd, self._projectName))
         except:
-            raise CreateFolderError('Could not create the folder: ', projectPath)
+            raise CreateFolderError('Could not create the folders for the new project.')
+
+    def _replace_strings(self):
+        file_list = []
+        for path, dirs, files in os.walk(self._projectPath):
+            for f in files:
+                file_list.append({
+                    'file': f,
+                    'path': path
+                })
+
+        for entry in file_list:
+            if re.search('_X.', entry['file']):
+                try:
+                    self._replace(entry)
+                except:
+                    raise
+
+    def _replace(self, fileObject):
+        f = fileObject['file']
+        p = fileObject['path']
+
+        outfilename = f.replace('_X', '')
+        with open(os.path.join(p, outfilename), 'wr') as out:
+            infile = open(os.path.join(p, f))
+            for line in infile:
+                newline = line.replace('#DEPLOYMENTPATH', os.path.join(os.path.expanduser('~'), '.local', 'share', 'data', 'futureLAB', 'dizmode', 'InstalledWidgets'))
+                newline = newline.replace('#ZIPPATH', os.path.join(os.path.expanduser('~'), 'Documents', 'dizmos'))
+                newline = newline.replace('#PROJECTNAME', self._projectName)
+
+                out.write(newline)
+
+            infile.close()
 
         try:
-            os.makedirs(projectPath + '/src')
+            os.remove(os.path.join(p, f))
         except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/src')
-
-        try:
-            os.makedirs(projectPath + '/src/lib')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/src/lib')
-
-        try:
-            os.makedirs(projectPath + '/src/lib/jquery')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/src/lib/jquery')
-
-        try:
-            os.makedirs(projectPath + '/src/lib/joose')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/src/lib/joose')
-
-        try:
-            os.makedirs(projectPath + '/src/style')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/src/style')
-
-        try:
-            os.makedirs(projectPath + '/src/style/images')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/src/images')
-
-        try:
-            os.makedirs(projectPath + '/src/javascript')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/src/javascript')
-
-        try:
-            os.makedirs(projectPath + '/test')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/test')
-
-        try:
-            os.makedirs(projectPath + '/test/lib')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/test/lib')
-
-        try:
-            os.makedirs(projectPath + '/test/lib/jquery')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/test/lib/jquery')
-
-        try:
-            os.makedirs(projectPath + '/test/lib/joose')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/test/lib/joose')
-
-        try:
-            os.makedirs(projectPath + '/test/lib/qunit')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/test/lib/qunit')
-
-        try:
-            os.makedirs(projectPath + '/test/javascript')
-        except:
-            raise CreateFolderError('Could not create the folder: ', projectPath + '/test/javascript')
-
-
-class Files:
-    def __init__(self, projectName, with_dizmo, root, cwd):
-        self._projectName = projectName
-        self._root = root
-        self._cwd = cwd
-        self._with_dizmo = with_dizmo
-
-        try:
-            self._load_string()
-        except:
-            raise
-
-        self._prepare_write_arrays()
-
-    def _load_string(self):
-        try:
-            _jsfile = open(self._root + '/files/application.js')
-        except:
-            raise FileNotFoundError('Could not find the main javascript file.')
-
-        try:
-            _htmlfile = open(self._root + '/files/main.html')
-        except:
-            raise FileNotFoundError('Could not find the html source file.')
-
-        try:
-            _testhtmlfile = open(self._root + '/files/test.html')
-        except:
-            raise FileNotFoundError('Could not find the test html source file.')
-
-        try:
-            _configfile = open(self._root + '/files/config.json')
-        except:
-            raise FileNotFoundError('Could not find the config source file.')
-
-        self._js_string = self._parse(_jsfile)
-        self._html_string = self._parse(_htmlfile)
-        self._test_html_string = self._parse(_testhtmlfile)
-        self._config_string = self._parse(_configfile)
-
-        _jsfile.close()
-        _htmlfile.close()
-        _testhtmlfile.close()
-        _configfile.close()
-
-    def _parse(self, f):
-        lines = []
-
-        for line in f:
-            lines.append(line.replace('#PROJECTNAME', self._projectName))
-
-        return ''.join(lines)
-
-    def _prepare_write_arrays(self):
-        projectPath = self._cwd + '/' + self._projectName
-
-        self._string_write_array = [{
-            'path': projectPath + '/src/application.js',
-            'content': self._js_string
-        }, {
-            'path': projectPath + '/src/index.html',
-            'content': self._html_string
-        }, {
-            'path': projectPath + '/test/index.html',
-            'content': self._test_html_string
-        }, {
-            'path': projectPath + '/config.json',
-            'content': self._config_string
-        }]
-
-        self._copy_array = [{
-            'source': self._root + '/files/jquery.min.js',
-            'dest': projectPath + '/src/lib/jquery/jquery.min.js'
-        }, {
-            'source': self._root + '/files/jquery.js',
-            'dest': projectPath + '/test/lib/jquery/jquery.js'
-        }, {
-            'source': self._root + '/files/qunit.js',
-            'dest': projectPath + '/test/lib/qunit/qunit.js'
-        }, {
-            'source': self._root + '/files/qunit.css',
-            'dest': projectPath + '/test/lib/qunit/qunit.css'
-        }, {
-            'source': self._root + '/files/joose.min.js',
-            'dest': projectPath + '/src/lib/joose/joose.min.js'
-        }, {
-            'source': self._root + '/files/joose.js',
-            'dest': projectPath + '/test/lib/joose/joose.js'
-        }, {
-            'source': self._root + '/files/style.scss',
-            'dest': projectPath + '/src/style/style.scss'
-        }]
-
-        if self._with_dizmo:
-            self._copy_array.append({
-                'source': self._root + '/files/dizmo_config.json',
-                'dest': projectPath + '/dizmo_config.json'
-            })
-
-    def write(self):
-        for entry in self._string_write_array:
-            try:
-                f = open(entry['path'], 'w+')
-            except:
-                raise FileNotWritableError('Could not write to file location: ', entry['path'])
-
-            f.write(entry['content'])
-
-        for entry in self._copy_array:
-            try:
-                copy(entry['source'], entry['dest'])
-            except:
-                raise FileNotWritableError('Could not write to file location: ', entry['dest'])
+            raise FileNotWritableError('Could not delete the initial replace file.')

@@ -75,9 +75,14 @@ class Task:
     def execute(self):
         if self._task == 'new':
             try:
-                New(self._name, self._with_dizmo)
+                if self._with_dizmo:
+                    New(self._name, 'dizmo')
+                else:
+                    New(self._name)
             except:
                 raise
+
+            print 'Created a new project with the name ' + self._name + '!'
         elif self._task == 'build':
             try:
                 self._build()
