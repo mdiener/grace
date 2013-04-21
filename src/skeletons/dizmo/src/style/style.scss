@@ -1,2 +1,64 @@
-.no-dizmo-drag
-    -apple-dashboard-region: dashboard-region(control rectangle)
+.no-dizmo-drag {
+    -apple-dashboard-region: dashboard-region(control rectangle);
+}
+
+html, body {
+    font-family: sans-serif;
+}
+
+button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    outline: none;
+    font-size: 16px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    width: 150px;
+    height: 30px;
+    background-image: url('images/button.png');
+    background-repeat: no-repeat;
+    background-position: right top;
+    color: white;
+    padding: 0px;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-image: url('images/button_hover.png');
+}
+
+button:active {
+    background-image: url('images/button_active.png');
+}
+
+#front {
+    width: 100%;
+
+    .center {
+        margin-left: auto;
+        margin-right: auto;
+        width: 112px;
+        margin-top: 50px;
+
+        p {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+    }
+}
+
+#back {
+    .done-btn-wrapper {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        width: 100%;
+
+        .done-btn {
+            margin-bottom: 20px;
+        }
+    }
+}

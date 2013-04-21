@@ -3,6 +3,9 @@ Class("#PROJECTNAME.Dizmo", {
         initialize: function() {
             var me = this;
 
+            jQuery("#back").hide();
+            jQuery("#front").show();
+
             me._setAttributes();
             me._initEvents();
 

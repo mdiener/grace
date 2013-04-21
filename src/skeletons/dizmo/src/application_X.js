@@ -1,4 +1,5 @@
 //include MyDizmo
+//include Main
 
 // Needed for the dizmo menu to work
 function showBack() {
@@ -15,4 +16,5 @@ var events = {};
 
 jQuery(document).ready(function() {
     var mydizmo = new #PROJECTNAME.Dizmo();
+    new #PROJECTNAME.Main(mydizmo);
 });
