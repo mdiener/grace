@@ -1,45 +1,34 @@
 #! /usr/bin/env python
 
-from sys import exit
 import argparse
 from task import Task
-from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, CommandLineArgumentError, FolderAlreadyExistsError
+from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError
 
-
-parser = argparse.ArgumentParser(description='Tasks to execute')
-parser.add_argument('args', action='store', nargs='*')
-
-args = parser.parse_args().args
-
-help = ''
-helpargs = ' '.join(args)
-if helpargs != 'help':
-    help = '`' + helpargs + '` is not a valid command.\n\n'
-
-help = help + 'Syntax: grace [option] command\n\
-You can put `dizmo` in front of every command (except help and clean)\n\
-to build the project as a dizmo.\n\n\
-commands\n\
---------\n\
-help\t\t\t\tDisplay this help.\n\
-[dizmo] new {name}\t\tCreate a new project with the given name (`MyProject default`)\n\
-[dizmo] build\t\t\tBuild the project.\n\
-[dizmo] build javascript\tBuild only the JavaScript.\n\
-[dizmo] build html\t\tBuild only the HTML.\n\
-[dizmo] build css\t\tBuild only the CSS.\n\
-[dizmo] build libraries\t\tBuild all the libraries.\n\
-[dizmo] build images\t\tBuild all the images.\n\
-[dizmo] deploy\t\t\tDeploy the project or dizmo\n\
-[dizmo] zip\t\t\tZip the dizmo\n\
-[dizmo] test {testname}\t\tBuild the specified test, or all if none specified\n\
-[dizmo] test deploy {testname}\tBuild the specified test and deploy it\n\
-clean\t\t\t\tClean the directory of any build artefacts.'
+parser = argparse.ArgumentParser(description='Tasks to execute', prog='grace')
+parser.add_argument('--new', help='Create a new project in the current directory with a project name or `MyProject` as default.', action='store_true')
+parser.add_argument('--name', help='Provide a name for the project. Only used with --new option.', action='store', default='MyProject')
+parser.add_argument('--type', help='Decide what type of project you want to create. Only used with --new', action='store', default='default')
+parser.add_argument('--build', '-b', help='Build the project.', action='store_true')
+parser.add_argument('--deploy', '-d', help='Deploy the project.', action='store_true')
+parser.add_argument('--zip', '-z', help='Zip the project.', action='store_true')
+parser.add_argument('--test', '-t', help='Build the tests.', action='store_true')
+parser.add_argument('--html', help='Only use html for the task.', action='store_true')
+parser.add_argument('--js', help='Only use js for the task.', action='store_true')
+parser.add_argument('--css', help='Only use css for the task.', action='store_true')
+parser.add_argument('--img', help='Only use images for the task.', action='store_true')
+parser.add_argument('--lib', help='Only use libraries for the task.', action='store_true')
+parser.add_argument('--specific-test', help='Only build the specified test', action='store')
+parser.add_argument('--clean', '-c', help='Clean the build environment', action='store_true')
+parser.add_argument('--bad', help='Execute all tasks: build, test, deploy, zip and clean.', action='store_true')
 
 try:
-    task = Task(args)
-except CommandLineArgumentError as e:
-    print help
-    exit()
+    task = Task(parser.parse_args())
+except FileNotFoundError as e:
+    print e.msg
+except WrongFormatError as e:
+    print e.msg
+except MissingKeyError as e:
+    print e.msg
 
 try:
     task.execute()
@@ -60,4 +49,6 @@ except RemoveFolderError as e:
 except RemoveFileError as e:
     print e.msg
 except FolderAlreadyExistsError as e:
+    print e.msg
+except SassError as e:
     print e.msg

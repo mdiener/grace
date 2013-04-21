@@ -1,151 +1,214 @@
-from error import CommandLineArgumentError
 from new import New
-from build import Build, BuildDizmo, clean
+from build import Build, clean
 from deploy import Deploy
 from zipit import Zip
-from test import Test, TestDizmo
+from test import Test
+import os
+import json
+import re
+from error import FileNotFoundError, WrongFormatError, MissingKeyError
+import sys
+
+
+def we_are_frozen():
+    # All of the modules are built-in to the interpreter, e.g., by py2exe
+    return hasattr(sys, "frozen")
+
+
+def get_path():
+    encoding = sys.getfilesystemencoding()
+    if we_are_frozen():
+        return os.path.dirname(unicode(sys.executable, encoding))
+    return os.path.dirname(unicode(__file__, encoding))
 
 
 class Task:
     def __init__(self, args):
-        if len(args) < 1:
-            raise CommandLineArgumentError()
+        self._new = False
+        self._build = False
+        self._test = False
+        self._deploy = False
+        self._zip = False
+        self._clean = False
+        self._bad = False
+        self._restrict = []
+        self._args = args
+        self._root = get_path()
 
-        if args[0] == 'dizmo':
-            self._with_dizmo = True
-            args.pop(0)
-
-            if len(args) < 1:
-                raise CommandLineArgumentError()
+        if args.new:
+            self._new = True
+            self._name = args.name
+            self._type = args.type
+        elif args.clean:
+            self._clean = True
         else:
-            self._with_dizmo = False
+            if args.build:
+                self._build = True
+            if args.test:
+                self._test = True
+            if args.deploy:
+                self._deploy = True
+            if args.zip:
+                self._zip = True
+            if args.bad:
+                self._bad = True
+                self._build = True
+                self._test = True
+                self._deploy = True
+                self._zip = True
 
-        if args[0] == 'build':
-            self._task = 'build'
             try:
-                if args[1] == 'javascript':
-                    self._subtask = 'javascript'
-                elif args[1] == 'html':
-                    self._subtask = 'html'
-                elif args[1] == 'css':
-                    self._subtask = 'css'
-                elif args[1] == 'libraries':
-                    self._subtask = 'libraries'
-                elif args[1] == 'images':
-                    self._subtask = 'images'
-                else:
-                    raise CommandLineArgumentError()
+                self._parse_config()
             except:
-                self._subtask = None
-        elif args[0] == 'new':
-            self._task = 'new'
-            try:
-                self._name = args[1]
-            except:
-                if self._with_dizmo:
-                    self._name = 'MyDizmo'
-                else:
-                    self._name = 'MyProject'
-        elif args[0] == 'clean':
-            self._task = 'clean'
-        elif args[0] == 'deploy':
-            self._task = 'deploy'
-            self._subtask = None
-        elif args[0] == 'zip':
-            self._task = 'zip'
-            self._subtask = None
-        elif args[0] == 'test':
-            self._task = 'test'
-            try:
-                if args[1] == 'deploy':
-                    self._subtask = 'deploy'
-                    try:
-                        self._testname = args[2]
-                    except:
-                        self._testname = None
-                else:
-                    self._subtask = None
-                    self._testname = args[1]
-            except:
-                self._subtask = None
-                self._testname = args[1]
+                raise
+
+            if args.html:
+                self._restrict.append('html')
+
+            if args.js:
+                self._restrict.append('js')
+
+            if args.css:
+                self._restrict.append('css')
+
+            if args.img:
+                self._restrict.append('img')
+
+            if args.lib:
+                self._restrict.append('lib')
+
+    def _parse_config(self):
+        cwd = os.getcwd()
+
+        try:
+            config_file = open(os.path.join(cwd, 'project.cfg'))
+        except:
+            raise FileNotFoundError('Could not find a config file in this directory.')
+
+        strings = []
+        for line in config_file:
+            if not re.search('^\s*//.*', line):
+                strings.append(line)
+
+        try:
+            self._config = json.loads(''.join(strings))
+        except:
+            raise WrongFormatError('The provided config file could not be parsed.')
+
+        if 'name' not in self._config:
+            raise MissingKeyError('Name of the project needs to be in the config file.')
+
+        if 'version' not in self._config:
+            raise MissingKeyError('Please specify a version in your config file.')
+
+        if 'type' not in self._config:
+            self._type = 'default'
         else:
-            raise CommandLineArgumentError()
+            self._type = self._config['type']
+
+        if self._build or not self._test and self._deploy or not self._test and self._zip:
+            self._config['build'] = True
+            self._config['build_path'] = os.path.join(cwd, 'build', self._config['name'])
+        else:
+            self._config['build'] = False
+
+        if self._test:
+            try:
+                self._config['testname'] = self._args.testname
+            except:
+                self._config['testname'] = None
+
+            self._config['test'] = True
+            self._config['test_build_path'] = os.path.join(cwd, 'build', self._config['name'] + '_test')
+        else:
+            self._config['test'] = False
 
     def execute(self):
-        if self._task == 'new':
-            try:
-                if self._with_dizmo:
-                    New(self._name, 'dizmo')
-                else:
-                    New(self._name)
-            except:
-                raise
-
-            print 'Created a new project with the name ' + self._name + '!'
-        elif self._task == 'build':
-            try:
-                self._build()
-            except:
-                raise
-        elif self._task == 'deploy':
-            try:
-                self._build()
-            except:
-                raise
-
-            try:
-                d = Deploy(self._with_dizmo, False)
-                d.deploy_project()
-            except:
-                raise
-        elif self._task == 'zip':
-            try:
-                self._build()
-            except:
-                raise
-
-            try:
-                z = Zip(self._with_dizmo)
-                z.zip_project()
-            except:
-                raise
-        elif self._task == 'clean':
+        if self._clean:
             try:
                 clean()
             except:
                 raise
-        elif self._task == 'test':
+            return
+
+        if self._type != 'default':
+            sys.path.insert(0, os.path.join(self._root, 'plugins'))
+            module = __import__(self._type)
             try:
-                t = Test(self._testname)
-                t.build_test()
+                plugin = getattr(module, self._type.title())()
             except:
                 raise
+        else:
+            plugin = None
 
-            if self._with_dizmo:
-                try:
-                    td = TestDizmo()
-                    td.build_dizmo()
-                except:
-                    raise
+        if self._new:
+            try:
+                New(self._name, plugin, self._type)
+                print 'Created the project with name ' + self._name + '.'
+            except:
+                raise
+            return
 
-            if self._subtask == 'deploy':
-                try:
-                    d = Deploy(self._with_dizmo, True)
-                    d.deploy_project()
-                except:
-                    raise
-
-    def _build(self):
         try:
-            b = Build()
-            b.build_project(self._subtask)
+            plugin.pass_config(self._config)
         except:
             raise
 
-        if self._with_dizmo:
+        try:
+            b = Build(self._config)
+            t = Test(self._config)
+            d = Deploy(self._config)
+            z = Zip(self._config)
+        except:
+            raise
+
+        if self._build:
             try:
-                bd = BuildDizmo()
-                bd.build_dizmo()
+                b.build_project(self._restrict)
+                plugin.after_build()
+                print 'Successfully built the project.'
+            except:
+                raise
+
+        if self._test:
+            try:
+                t.build_test()
+                plugin.after_test()
+                print 'Successfully built the tests.'
+            except:
+                raise
+
+        if self._deploy:
+            if not self._build and not self._test:
+                try:
+                    b.build_project(self._restrict)
+                    plugin.after_build()
+                    print 'Successfully built the project.'
+                except:
+                    raise
+
+            try:
+                d.deploy_project()
+                plugin.after_deploy()
+                print 'Successfully deployed the project.'
+            except:
+                raise
+
+        if self._zip:
+            if not self._build and not self._test:
+                b.build_project(self._restrict)
+                plugin.after_build()
+                print 'Successfully built the project.'
+
+            try:
+                z.zip_project()
+                plugin.after_zip()
+                print 'Successfully zipped th eproject.'
+            except:
+                raise
+
+        if self._bad:
+            try:
+                clean()
             except:
                 raise

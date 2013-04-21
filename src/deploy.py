@@ -1,62 +1,34 @@
-from error import FileNotFoundError, WrongFormatError, MissingKeyError, RemoveFolderError, FileNotWritableError
-import json
+from error import MissingKeyError, RemoveFolderError, FileNotWritableError
 import os
 from shutil import rmtree
 import distutils.core
 
 
 class Deploy:
-    def __init__(self, with_dizmo, as_test):
-        self._with_dizmo = with_dizmo
+    def __init__(self, config):
         self._cwd = os.getcwd()
+        self._config = config
 
-        try:
-            config_file = open(self._cwd + '/config.json')
-        except:
-            raise FileNotFoundError('Could not find a config file in this directory.')
-
-        try:
-            self._config = json.load(config_file)
-        except:
-            raise WrongFormatError('The provided config file could not be parsed.')
-
-        if 'name' not in self._config:
-            raise MissingKeyError('Name of the project needs to be in the config file.')
-
-        if as_test:
-            self._config['name'] = self._config['name'] + '_test'
-
+    def deploy_project(self):
         if 'deployment_path' not in self._config:
             raise MissingKeyError('Could not find deployment path in config file.')
 
-        self._build_path = self._cwd + '/build/' + self._config['name']
+        if self._config['test']:
+            test_deployment_path = os.path.join(self._config['deployment_path'], self._config['name'] + '_test')
+            self._deploy(test_deployment_path, self._config['test_build_path'])
 
-        if self._with_dizmo:
+        if self._config['build']:
+            build_deployment_path = os.path.join(self._config['deployment_path'], self._config['name'])
+            self._deploy(build_deployment_path, self._config['build_path'])
+
+    def _deploy(self, deployment_path, build_path):
+        if os.path.exists(deployment_path):
             try:
-                dizmo_config_file = open(self._cwd + '/dizmo_config.json')
-            except:
-                raise FileNotFoundError('Could not find a dizmo config file in this directory.')
-
-            try:
-                self._dizmo_config = json.load(dizmo_config_file)
-            except:
-                raise WrongFormatError('The provided config file could not be parsed.')
-
-            if 'bundle' not in self._dizmo_config:
-                raise MissingKeyError('Bundle is missing in dizmo config file.')
-
-            self._deployment_path = self._config['deployment_path'] + '/' + self._dizmo_config['bundle'] + '.' + self._config['name']
-        else:
-            self._deployment_path = self._config['deployment_path'] + '/' + self._config['name']
-
-    def deploy_project(self):
-        if os.path.exists(self._deployment_path):
-            try:
-                rmtree(self._deployment_path)
+                rmtree(deployment_path)
             except:
                 raise RemoveFolderError('Could not remove the existing deployment path.')
 
         try:
-            distutils.dir_util.copy_tree(self._build_path, self._deployment_path)
+            distutils.dir_util.copy_tree(build_path, deployment_path)
         except:
             raise FileNotWritableError('Could not copy the build directory to the deployment path.')

@@ -1,77 +1,54 @@
 import os
-from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FileNotWritableError, RemoveFolderError, RemoveFileError
-import json
+from error import FileNotFoundError, CreateFolderError, FileNotWritableError, RemoveFolderError, RemoveFileError, SassError
 from shutil import copy2, copytree, rmtree
 import re
 import sass
-import plistlib
 
 
 class Build:
-    def __init__(self):
+    def __init__(self, config):
         self._cwd = os.getcwd()
+        self._config = config
 
-        try:
-            config_file = open(self._cwd + '/config.json')
-        except:
-            raise FileNotFoundError('Could not find a config file in this directory.')
+    def build_project(self, restrict):
+        self._project_build_style_path = os.path.join(self._config['build_path'], 'style')
 
-        try:
-            self._config = json.load(config_file)
-        except:
-            raise WrongFormatError('The provided config file could not be parsed.')
-
-        if 'name' not in self._config:
-            raise MissingKeyError('Name of the project needs to be in the config file.')
-
-        self._build_path = self._cwd + '/build'
-        self._project_build_path = self._build_path + '/' + self._config['name']
-
-    def _create_build_directory(self):
-        if os.path.exists(self._build_path):
-            return
-
-        try:
-            os.makedirs(self._build_path)
-        except:
-            raise CreateFolderError('Could not create the build folder.')
-
-    def build_project(self, restrict=None):
-        try:
-            self._create_build_directory()
-        except:
-            raise
-
-        if not os.path.exists(self._project_build_path):
+        if not os.path.exists(self._config['build_path']):
             try:
-                os.makedirs(self._project_build_path)
+                os.makedirs(self._config['build_path'])
             except:
                 raise CreateFolderError('Could not create the project folder.')
 
-        try:
-            if restrict == 'javascript':
+        if restrict:
+            for r in restrict:
+                try:
+                    if r == 'js':
+                        self._build_javascript()
+                    if r == 'css':
+                        self._build_css()
+                    if r == 'html':
+                        self._build_html()
+                    if r == 'img':
+                        self._build_images()
+                    if r == 'lib':
+                        self._build_libraries()
+                except:
+                    raise
+        else:
+            try:
                 self._build_javascript()
-            elif restrict == 'css':
-                self._build_css()
-            elif restrict == 'html':
-                self._build_html()
-            elif restrict == 'images':
-                self._build_images()
-            elif restrict == 'libraries':
-                self._build_libraries()
-            elif restrict is None:
-                self._build_javascript()
-                self._build_libraries()
                 self._build_css()
                 self._build_html()
                 self._build_images()
-            else:
-                raise WrongFormatError('Please provide either javascript, css, html or images as the subtask for building a project.')
-        except:
-            raise
+                self._build_libraries()
+            except:
+                raise
 
     def _build_javascript(self):
-        if not os.path.exists(self._cwd + '/src/application.js'):
+        source = os.path.join(self._cwd, 'src', 'application.js')
+        dest = os.path.join(self._config['build_path'], 'application.js')
+
+        if not os.path.exists(source):
             return
 
         try:
@@ -79,14 +56,14 @@ class Build:
         except:
             raise
 
-        if os.path.exists(self._project_build_path + '/application.js'):
+        if os.path.exists(dest):
             try:
-                os.remove(self._project_build_path + '/application.js')
+                os.remove(dest)
             except:
                 raise RemoveFileError('Could not delete the existing javascript application file.')
 
         try:
-            f = open(self._project_build_path + '/application.js', 'w+')
+            f = open(dest, 'w+')
         except:
             raise FileNotWritableError('Could not write the javascript file.')
 
@@ -98,9 +75,9 @@ class Build:
         lines = []
 
         try:
-            f = open(self._cwd + '/src/application.js')
+            f = open(os.path.join(self._cwd, 'src', 'application.js'))
         except:
-            raise FileNotFoundError('The specified file does not exist: ', 'src/application.js')
+            raise FileNotFoundError('The specified file does not exist: ', os.path.join('src', 'application.js'))
 
         self._included_js_files = []
         try:
@@ -119,7 +96,7 @@ class Build:
             if re.match('\/\/include [a-zA-Z\/]+', line):
                 sub_f = None
 
-                sub_path = self._cwd + '/src/javascript/' + re.split(' ', line)[1]
+                sub_path = os.path.join(self._cwd, 'src', 'javascript', re.split(' ', line)[1])
                 sub_path = sub_path[:-1] + '.js'
 
                 if sub_path in self._included_js_files:
@@ -143,169 +120,112 @@ class Build:
         return lines
 
     def _build_html(self):
-        if not os.path.exists(self._cwd + '/src/index.html'):
+        source = os.path.join(self._cwd, 'src', 'index.html')
+        dest = os.path.join(self._config['build_path'], 'index.html')
+
+        if not os.path.exists(source):
             return
 
-        if os.path.exists(self._project_build_path + '/index.html'):
+        if os.path.exists(dest):
             try:
-                os.remove(self._project_build_path + '/index.html')
+                os.remove(dest)
             except:
                 raise RemoveFileError('Could not remove the existing html build file.')
 
         try:
-            copy2(self._cwd + '/src/index.html', self._project_build_path + '/index.html')
+            copy2(source, dest)
         except:
             raise FileNotWritableError('Could not write the html file.')
 
     def _build_css(self):
-        if not os.path.exists(self._cwd + '/src/style/style.scss') and not os.path.exists(self._cwd + '/src/style/style.css'):
+        source_scss = os.path.join(self._cwd, 'src', 'style', 'style.scss')
+        source_css = os.path.join(self._cwd, 'src', 'style', 'style.css')
+        dest = os.path.join(self._config['build_path'], 'style', 'style.css')
+
+        if not os.path.exists(source_css) and not os.path.exists(source_scss):
             return
 
-        if not os.path.exists(self._project_build_path + '/style'):
+        if not os.path.exists(self._project_build_style_path):
             try:
-                os.makedirs(self._project_build_path + '/style')
+                os.makedirs(self._project_build_style_path)
             except:
                 raise CreateFolderError('Could not create the style folder.')
 
-        if os.path.exists(self._project_build_path + '/style/style.css'):
+        if os.path.exists(source_css):
             try:
-                os.remove(self._project_build_path + '/style/style.css')
+                os.remove(dest)
             except:
                 raise RemoveFileError('Could not remove the existing css file.')
 
-        if os.path.exists(self._cwd + '/src/style/style.scss'):
+        if os.path.exists(source_scss):
             try:
-                _css_string = sass.compile(filename=self._cwd + '/src/style/style.scss')
+                _css_string = sass.compile(filename=source_scss)
+            except sass.CompileError as e:
+                raise SassError('Could not compile your scss file:\n', e.message[:-1])
             except:
                 raise FileNotFoundError('Could not find your scss style file.')
 
             try:
-                f = open(self._project_build_path + '/style/style.css', 'w+')
+                f = open(dest, 'w+')
             except:
                 raise FileNotWritableError('Could not write the new css file.')
 
             f.write(_css_string)
             f.close()
-        elif os.path.exists(self._cwd + '/src/style/style.css'):
+        elif os.path.exists(source_css):
             try:
-                copy2(self._cwd + '/src/style/style.css', self._project_build_path + '/style/style.css')
+                copy2(source_css, dest)
             except:
                 raise FileNotWritableError('Could not write the new css file.')
 
     def _build_images(self):
-        if not os.path.exists(self._cwd + '/src/style/images'):
+        source = os.path.join(self._cwd, 'src', 'style', 'images')
+        dest = os.path.join(self._config['build_path'], 'style', 'images')
+
+        if not os.path.exists(source):
             return
 
-        if not os.path.exists(self._project_build_path + '/style'):
+        if not os.path.exists(self._project_build_style_path):
             try:
-                os.makedirs(self._project_build_path + '/style')
+                os.makedirs(self._project_build_style_path)
             except:
                 raise CreateFolderError('Could not create the style folder.')
 
-        if os.path.exists(self._project_build_path + '/style/images'):
+        if os.path.exists(dest):
             try:
-                rmtree(self._project_build_path + '/style/images')
+                rmtree(dest)
             except:
                 raise RemoveFolderError('Could not remove the existing images folder.')
 
         try:
-            copytree(self._cwd + '/src/style/images', self._project_build_path + '/style/images')
+            copytree(source, dest)
         except:
             raise FileNotWritableError('Could not copy all the images in the image folder.')
 
     def _build_libraries(self):
-        if not os.path.exists(self._cwd + '/src/lib'):
+        source = os.path.join(self._cwd, 'src', 'lib')
+        dest = os.path.join(self._config['build_path'], 'lib')
+
+        if not os.path.exists(source):
             return
 
-        if os.path.exists(self._project_build_path + '/lib'):
+        if os.path.exists(dest):
             try:
-                rmtree(self._project_build_path + '/lib')
+                rmtree(dest)
             except:
                 raise RemoveFolderError('Could not remove the existing libraries folder.')
 
         try:
-            copytree(self._cwd + '/src/lib', self._project_build_path + '/lib')
+            copytree(source, dest)
         except:
             raise FileNotWritableError('Could not copy all the libraries.')
 
 
-class BuildDizmo:
-    def __init__(self):
-        self._cwd = os.getcwd()
-
-        try:
-            config_file = open(self._cwd + '/config.json')
-        except:
-            raise FileNotFoundError('Could not find a config file in this directory.')
-
-        try:
-            self._config = json.load(config_file)
-        except:
-            raise WrongFormatError('The provided config file could not be parsed.')
-
-        if 'name' not in self._config:
-            raise MissingKeyError('Name of the project needs to be in the config file.')
-
-        if 'version' not in self._config:
-            raise MissingKeyError('Please specify a version in your config file.')
-
-        try:
-            dizmo_config_file = open(self._cwd + '/dizmo_config.json')
-        except:
-            raise FileNotFoundError('Could not find a dizmo config file in this directory.')
-
-        try:
-            self._dizmo_config = json.load(dizmo_config_file)
-        except:
-            raise WrongFormatError('The provided config file could not be parsed.')
-
-        if 'bundle' not in self._dizmo_config:
-            raise MissingKeyError('Bundle is missing in dizmo config file.')
-
-        self._build_path = self._cwd + '/build'
-        self._project_build_path = self._build_path + '/' + self._config['name']
-
-        self._prepare_plist()
-
-    def _prepare_plist(self):
-        if 'width' not in self._dizmo_config:
-            self._dizmo_config['width'] = 200
-        if 'height' not in self._dizmo_config:
-            self._dizmo_config['height'] = 200
-        if 'closeBoxInsetX' not in self._dizmo_config:
-            self._dizmo_config['closeBoxInsetX'] = 0
-        if 'closeBoxInsetY' not in self._dizmo_config:
-            self._dizmo_config['closeBoxInsetY'] = 1
-        if 'developmentRegion' not in self._dizmo_config:
-            self._dizmo_config['developmentRegion'] = 'English'
-
-        self._plist = dict(
-            CFBundleDevelopmentRegion=self._dizmo_config['developmentRegion'],
-            CFBundleDisplayName=self._config['name'],
-            CFBundleIdentifier=self._dizmo_config['bundle'] + '.' + self._config['name'],
-            CFBundleName=self._config['name'],
-            CFBundleShortVersionString=self._config['version'],
-            CFBundleVersion=self._config['version'],
-            CloseBoxInsetX=self._dizmo_config['closeBoxInsetX'],
-            CloseBoxInsetY=self._dizmo_config['closeBoxInsetY'],
-            MainHTML='index.html',
-            Width=self._dizmo_config['width'],
-            Height=self._dizmo_config['height'],
-            KastellanAPIVersion='1.0'
-        )
-
-    def build_dizmo(self):
-        try:
-            plistlib.writePlist(self._plist, self._project_build_path + '/Info.plist')
-        except:
-            raise FileNotWritableError('Could not write plist to target location: ', self._project_build_path)
-
-
 def clean():
-    if not os.path.exists(os.getcwd() + '/build'):
+    if not os.path.exists(os.path.join(os.getcwd(), 'build')):
         return
 
     try:
-        rmtree(os.getcwd() + '/build')
+        rmtree(os.path.join(os.getcwd(), 'build'))
     except:
         raise RemoveFolderError('Could not remove the build folder.')

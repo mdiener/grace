@@ -47,3 +47,7 @@ class RemoveFileError(Error):
 
 class CommandLineArgumentError(Error):
     pass
+
+
+class SassError(Error):
+    pass

@@ -18,13 +18,15 @@ def get_path():
 
 
 class New:
-    def __init__(self, projectName, newtype='default'):
+    def __init__(self, projectName, plugin=None, type='default'):
         self._projectName = projectName
         self._root = get_path()
         self._cwd = os.getcwd()
-        self._type = newtype
+        self._plugin = plugin
+        self._type = type
 
         self._projectPath = os.path.join(self._cwd, self._projectName)
+        self._deployment_path = os.path.join(os.path.expanduser('~'))
 
         try:
             self._copy_structure()
@@ -72,9 +74,12 @@ class New:
         with open(os.path.join(p, outfilename), 'wr') as out:
             infile = open(os.path.join(p, f))
             for line in infile:
-                newline = line.replace('#DEPLOYMENTPATH', os.path.join(os.path.expanduser('~'), '.local', 'share', 'data', 'futureLAB', 'dizmode', 'InstalledWidgets'))
-                newline = newline.replace('#ZIPPATH', os.path.join(os.path.expanduser('~'), 'Documents', 'dizmos'))
+                newline = line.replace('#DEPLOYMENTPATH', self._deployment_path)
+                newline = newline.replace('#ZIPPATH', os.path.join(os.path.expanduser('~')))
                 newline = newline.replace('#PROJECTNAME', self._projectName)
+
+                if self._plugin:
+                    newline = self._plugin.new_replace_line(newline)
 
                 out.write(newline)
 
