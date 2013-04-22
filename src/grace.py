@@ -3,6 +3,7 @@
 import argparse
 from task import Task
 from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError
+from sys import exit
 
 parser = argparse.ArgumentParser(description='Tasks to execute', prog='grace')
 parser.add_argument('--new', help='Create a new project in the current directory with a project name or `MyProject` as default.', action='store_true')
@@ -25,12 +26,16 @@ try:
     task = Task(parser.parse_args())
 except FileNotFoundError as e:
     print e.msg
+    exit()
 except WrongFormatError as e:
     print e.msg
+    exit()
 except MissingKeyError as e:
     print e.msg
+    exit()
 except UnknownCommandError as e:
     parser.print_help()
+    exit()
 
 try:
     task.execute()
