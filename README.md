@@ -66,19 +66,12 @@ To build tests, execute the command _grace test_. If you supply a test name, gra
 Available Commands
 ------------------
 ```shell
-grace help
-grace [dizmo] new {projectname}
-grace [dizmo] build
-grace [dizmo] build:javascript
-grace [dizmo] build:html
-grace [dizmo] build:css
-grace [dizmo] build:libraries
-grace [dizmo] build:images
-grace [dizmo] deploy
-grace [dizmo] zip
-grace [dizmo] test {testname}
-grace [dizmo] test deploy {testname}
-grace clean
+grace --new [--type TYPE] [--name [NAME]]
+grace --build, -b [--html] [--css] [--js] [--img] [--lib]
+grace --deploy, -d
+grace --test, -t [--specific-test [NAME]]
+grace --zip, -z
+grace --bad
 ```
 
 JavaScript Setup
@@ -132,7 +125,7 @@ Class('MyProject.utils.MyUtils', {
 
 The folder structure for this would look as following:
 MyProject
-|-- config.js
+|-- project.cfg
 `-- src
     |-- index.html
     |-- javascript
@@ -144,3 +137,8 @@ MyProject
         |   `-- jquery.min.js
         `-- joose
             `-- joose.min.js
+
+Dizmo
+-----
+
+The first module provided is for dizmo development. You can use this by creating a new project with the _--type dizmo_ switch. Other than that, all the commands stay the same.
