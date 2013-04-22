@@ -124,6 +124,7 @@ Class('MyProject.utils.MyUtils', {
 ```
 
 The folder structure for this would look as following:
+<pre>
 MyProject
 |-- project.cfg
 `-- src
@@ -137,6 +138,7 @@ MyProject
         |   `-- jquery.min.js
         `-- joose
             `-- joose.min.js
+</pre>
 
 Dizmo
 -----
