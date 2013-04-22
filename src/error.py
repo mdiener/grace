@@ -45,7 +45,7 @@ class RemoveFileError(Error):
     pass
 
 
-class CommandLineArgumentError(Error):
+class UnknownCommandError(Error):
     pass
 
 

@@ -6,7 +6,7 @@ from test import Test
 import os
 import json
 import re
-from error import FileNotFoundError, WrongFormatError, MissingKeyError
+from error import FileNotFoundError, WrongFormatError, MissingKeyError, UnknownCommandError
 import sys
 
 
@@ -56,6 +56,9 @@ class Task:
                 self._test = True
                 self._deploy = True
                 self._zip = True
+
+            if not self._build and not self._test and not self._deploy and not self._zip and not self._bad:
+                raise UnknownCommandError()
 
             try:
                 self._parse_config()
