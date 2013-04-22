@@ -144,3 +144,16 @@ Dizmo
 -----
 
 The first module provided is for dizmo development. You can use this by creating a new project with the _--type dizmo_ switch. Other than that, all the commands stay the same.
+
+The dizmo plugin adds additional config options in the project.cfg file. The following is a list of adjustable options:
+* development_region: The region you develop your dizmo.
+* display_name: The name that is being displayed in your dizmo (title attribute)
+* bundle_identifier: Identifier of your dizmo, used for storing and grouping dizmos together.
+* width: The initial width of your dizmo.
+* height: The initial height of your dizmo.
+
+The following options should not be changed, unless you exactly know what you are doing.
+* box_inset_x
+* box_inset_y
+* api_version
+* main_html
