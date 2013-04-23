@@ -30,8 +30,8 @@ class New:
         self._zip_path = os.path.join(os.path.expanduser('~'))
 
         if os.name == 'nt':
-            self._deployment_path = self._deployment_path.replace('/', '//')
-            self._zip_path = self._zip_path.replace('/', '//')
+            self._deployment_path = self._deployment_path.replace('\\', '\\\\')
+            self._zip_path = self._zip_path.replace('\\', '\\\\')
 
         try:
             self._copy_structure()
