@@ -1,3 +1,4 @@
 *.py[cod]
 dist
 build
+MANIFEST
