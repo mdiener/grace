@@ -1,7 +1,7 @@
 import os
 import plistlib
 from error import FileNotWritableError, MissingKeyError, RemoveFolderError
-from shutil import move, rmtree
+from shutil import move, rmtree, copy
 
 
 class Dizmo:
@@ -86,6 +86,11 @@ class Dizmo:
         except:
             raise FileNotWritableError('Could not write plist to target location: ', path)
 
+        try:
+            copy(os.path.join(os.getcwd(), 'Icon.png'), os.path.join(path, 'Icon.png'))
+        except:
+            print 'Could not find an icon for your dizmo. You should consider placing a `Icon.png` in your root folder.'
+
     def after_test(self):
         plist = self._get_plist(test=True)
         path = self._config['test_build_path']
@@ -94,6 +99,11 @@ class Dizmo:
             plistlib.writePlist(plist, os.path.join(path, 'Info.plist'))
         except:
             raise FileNotWritableError('Could not write plist to target location: ', path)
+
+        try:
+            copy(os.path.join(os.getcwd(), 'Icon.png'), os.path.join(path, 'Icon.png'))
+        except:
+            print 'Could not find an icon for your dizmo. You should consider placing a `Icon.png` in your root folder.'
 
     def new_replace_line(self, line):
         line = line.replace('#DIZMODEPLOYMENTPATH', self._dizmo_deployment_path)
