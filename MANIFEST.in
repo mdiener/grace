@@ -1,3 +1,0 @@
-graft grace/plugins
-graft grace/skeletons
-include grace/*.py
