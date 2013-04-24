@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 import argparse
 from task import Task
 from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError

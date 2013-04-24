@@ -1,8 +1,8 @@
-from new import New
 from build import Build, clean
 from deploy import Deploy
 from zipit import Zip
-from test import Test
+from testit import Test
+from create import New
 import os
 import json
 import re
