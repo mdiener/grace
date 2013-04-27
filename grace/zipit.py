@@ -46,7 +46,7 @@ class Zip:
 
         for root, dirs, files in os.walk(source):
             for f in files:
-                zipfilename = name + os.sep + re.split(source, os.path.join(root, f))[1]
+                zipfilename = os.path.join(root, f)[len(root[:-len(name)]):]
                 try:
                     z.write(os.path.join(root, f), zipfilename)
                 except:
