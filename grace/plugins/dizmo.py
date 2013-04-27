@@ -7,9 +7,12 @@ from shutil import move, rmtree, copy
 class Dizmo:
     def __init__(self):
         self._dizmo_deployment_path = os.path.join(os.path.expanduser('~'), '.local', 'share', 'data', 'futureLAB', 'dizmode', 'InstalledWidgets')
-        if os.name == 'nt':
+        if sys.platform.startswith('win32'):
             self._dizmo_deployment_path = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', 'futureLAB', 'dizmode', 'InstalledWidgets')
             self._dizmo_deployment_path = self._dizmo_deployment_path.replace('\\', '\\\\')
+        if sys.platform.startswith('darwin'):
+            self._dizmo_deployment_path = os.path.join(os.path.expanduser('~'), 'Library', 'Application\ Support', 'dizmode', 'InstalledWidgets')
+
 
     def pass_config(self, config):
         self._config = config
