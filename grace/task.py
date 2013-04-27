@@ -152,10 +152,11 @@ class Task:
                 raise
             return
 
-        try:
-            plugin.pass_config(self._config)
-        except:
-            raise
+        if plugin:
+            try:
+                plugin.pass_config(self._config)
+            except:
+                raise
 
         try:
             b = Build(self._config)
@@ -168,7 +169,8 @@ class Task:
         if self._build:
             try:
                 b.build_project(self._restrict)
-                plugin.after_build()
+                if plugin:
+                    plugin.after_build()
                 print 'Successfully built the project.'
             except:
                 raise
@@ -176,7 +178,8 @@ class Task:
         if self._test:
             try:
                 t.build_test()
-                plugin.after_test()
+                if plugin:
+                    plugin.after_test()
                 print 'Successfully built the tests.'
             except:
                 raise
@@ -185,14 +188,16 @@ class Task:
             if not self._build and not self._test:
                 try:
                     b.build_project(self._restrict)
-                    plugin.after_build()
+                    if plugin:
+                        plugin.after_build()
                     print 'Successfully built the project.'
                 except:
                     raise
 
             try:
                 d.deploy_project()
-                plugin.after_deploy()
+                if plugin:
+                    plugin.after_deploy()
                 print 'Successfully deployed the project.'
             except:
                 raise
@@ -200,12 +205,14 @@ class Task:
         if self._zip:
             if not self._build and not self._test:
                 b.build_project(self._restrict)
-                plugin.after_build()
+                if plugin:
+                    plugin.after_build()
                 print 'Successfully built the project.'
 
             try:
                 z.zip_project()
-                plugin.after_zip()
+                if plugin:
+                    plugin.after_zip()
                 print 'Successfully zipped the project.'
             except:
                 raise
