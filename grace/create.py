@@ -3,6 +3,7 @@ import os
 from shutil import copytree
 import sys
 import re
+from pkg_resources import resource_filename
 
 
 def we_are_frozen():
@@ -24,6 +25,14 @@ class New:
         self._cwd = os.getcwd()
         self._plugin = plugin
         self._type = type
+
+        if plugin:
+            try:
+                self._skeleton_path = plugin.skeleton_path()
+            except NotImplementedError:
+                self._skeleton_path = resource_filename(__name__, 'skeleton')
+        else:
+            self._skeleton_path = resource_filename(__name__, 'skeleton')
 
         self._projectPath = os.path.join(self._cwd, self._projectName)
         self._deployment_path = os.path.join(os.path.expanduser('~'))
@@ -47,11 +56,11 @@ class New:
         if os.path.exists(os.path.join(self._cwd, self._projectName)):
             raise FolderAlreadyExistsError('There is already a folder with the projectname present!')
 
-        if not os.path.exists(os.path.join(self._root, 'skeletons', self._type)):
-            raise FolderNotFoundError('Could not find the skeleton: ', self._type)
+        if not os.path.exists(self._skeleton_path):
+            raise FolderNotFoundError('Could not find the skeleton: ', self._skeleton_path)
 
         try:
-            copytree(os.path.join(self._root, 'skeletons', self._type), os.path.join(self._cwd, self._projectName))
+            copytree(self._skeleton_path, os.path.join(self._cwd, self._projectName))
         except:
             raise CreateFolderError('Could not create the folders for the new project.')
 

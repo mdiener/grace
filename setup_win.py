@@ -4,20 +4,16 @@ import sys
 import py2exe
 import os
 
-sys.path.append(os.path.join(os.getcwd(), 'grace'))
-sys.path.append('C:\\Python27\\Scripts')
-sys.path.append('C:\\Python27\\Lib\\site-packages')
 sys.path.append('C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\redist\\x86\\Microsoft.VC110.CRT')
 data_files = [
-    ('Microsoft.VC110.CRT', glob(r'C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\redist\x86\Microsoft.VC110.CRT\*.*')),
-    ('plugins', glob(os.path.join('grace', 'plugins') + '\*.py'))
+    ('Microsoft.VC110.CRT', glob(r'C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\redist\x86\Microsoft.VC110.CRT\*.*'))
 ]
 
 previous = ''
-for root, dirs, files in os.walk(os.path.join('grace', 'skeletons')):
+for root, dirs, files in os.walk(os.path.join('grace_package', 'skeletons')):
     for filename in files:
         if previous != root:
-            data_files.append((root[6:], glob(root + '\*.*')))
+            data_files.append((root, glob(root + '\*.*')))
             previous = root
 
 setup(
@@ -27,14 +23,15 @@ setup(
     author_email='dm.menthos@gmail.com',
     url='https://github.com/mdiener/grace',
     version='0.1',
-    packages=['grace'],
+    packages=['grace_package'],
     data_files=data_files,
-    console=['grace/grace.py'],
+    console=['grace.py'],
+    install_requires=['libsass'],
     options={
         'py2exe': {
-            'packages': ['grace'],
+            'packages': ['grace_package'],
             'bundle_files': True,
-            'includes': ['grace.build', 'grace.deploy', 'grace.error', 'grace.create', 'grace.task', 'grace.testit', 'grace.zipit', 'sass', 'plistlib']
+            'includes': ['sass', 'plistlib']
         }
     }
 )

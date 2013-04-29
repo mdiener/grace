@@ -1,0 +1,27 @@
+Metadata-Version: 1.1
+Name: grace
+Version: 0.1.2
+Summary: A tool to simplify JavaScript development.
+Home-page: https://github.com/mdiener/grace
+Author: Michael Diener
+Author-email: dm.menthos@gmail.com
+License: LICENSE.txt
+Description: =====
+        Grace
+        =====
+        
+        Grace provides a toolchain to easy the development of JavaScript, HTML and CSS (SCSS).
+        
+        The provided grace.py in the bin directory will suffice your needs. This should work as a standalone project. If you want to extend it, there is a plugin system included. For more information look at: https://github.com/mdiener/grace.
+        
+Keywords: toolchain javascript dizmo js buildtool
+Platform: UNKNOWN
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: JavaScript
+Classifier: Operating System :: OS Independent
+Classifier: Natural Language :: English
+Classifier: License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)
+Classifier: Intended Audience :: Developers
+Classifier: Environment :: Console

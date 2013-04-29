@@ -135,10 +135,9 @@ class Task:
             return
 
         if self._type != 'default':
-            sys.path.insert(0, os.path.join(self._root, 'plugins'))
-            module = __import__(self._type)
+            module = __import__(self._type + '.plugin')
             try:
-                plugin = getattr(module, self._type.title())()
+                plugin = getattr(module.plugin, self._type.title())()
             except:
                 raise
         else:

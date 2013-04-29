@@ -1,6 +1,8 @@
+#! /usr/bin/env python
+
 import argparse
-from task import Task
-from error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError
+from grace.task import Task
+from grace.error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError
 from sys import exit
 
 parser = argparse.ArgumentParser(description='Tasks to execute', prog='grace')

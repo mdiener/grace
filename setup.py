@@ -1,18 +1,16 @@
 from glob import glob
-import sys
 import os
-from distutils.core import setup
+from setuptools import setup
 
-sys.path.append(os.path.join(os.getcwd(), 'grace'))
-data_files = [
-    ('plugins', glob(os.path.join('grace', 'plugins') + '/*.py'))
-]
+package_data = {'grace': []}
 
 previous = ''
-for root, dirs, files in os.walk(os.path.join('grace', 'skeletons')):
+for root, dirs, files in os.walk(os.path.join('grace', 'skeleton')):
     for filename in files:
         if previous != root:
-            data_files.append((root[6:], glob(root + '/*.*')))
+            filelist = glob(root + '/*.*')
+            for f in filelist:
+                package_data['grace'].append(f[6:])
             previous = root
 
 setup(
@@ -21,7 +19,23 @@ setup(
     author='Michael Diener',
     author_email='dm.menthos@gmail.com',
     url='https://github.com/mdiener/grace',
-    version='0.1',
+    version='0.1.2',
+    license='LICENSE.txt',
+    scripts=['bin/grace'],
     packages=['grace'],
-    data_files=data_files
+    install_requires=['libsass'],
+    package_data=package_data,
+    keywords='toolchain javascript dizmo js buildtool',
+    long_description=open('README.txt').read(),
+    classifiers=[
+        'Topic :: Software Development :: Build Tools',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: JavaScript',
+        'Operating System :: OS Independent',
+        'Natural Language :: English',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+        'Intended Audience :: Developers',
+        'Environment :: Console'
+    ]
 )

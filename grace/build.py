@@ -3,6 +3,7 @@ from error import FileNotFoundError, CreateFolderError, FileNotWritableError, Re
 from shutil import copy2, copytree, rmtree
 import re
 import sass
+import sys
 
 
 class Build:
@@ -93,11 +94,15 @@ class Build:
         lines = []
 
         for line in f:
-            if re.match('\/\/include [a-zA-Z\/]+', line):
+            match = re.match('\/\/= require ([a-zA-Z\/]+)', line)
+            if match:
                 sub_f = None
 
-                sub_path = os.path.join(self._cwd, 'src', 'javascript', re.split(' ', line)[1])
-                sub_path = sub_path[:-1] + '.js'
+                sub_path = match.group(1)
+                if sys.platform.startswith('win32'):
+                    sub_path = sub_path.replace('/', '\\')
+                sub_path = os.path.join(self._cwd, 'src', 'javascript', sub_path)
+                sub_path = sub_path + '.js'
 
                 if sub_path in self._included_js_files:
                     return ''
