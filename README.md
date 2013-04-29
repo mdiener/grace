@@ -44,17 +44,17 @@ Building Your Project
 
 To build your project, you have to invoke **Grace** with the build task. You can also specify what exact build step you want to execute.
 ```shell
-grace build
+grace -b
 ```
 or
 ```shell
-grace build:javascript
+grace -b --js
 ```
 
 Building Tests
 --------------
 
-To build tests, execute the command _grace test_. If you supply a test name, grace will only build that test and ignore all other. For now you can not supply multiple tests. Either one or all will be built. With the _grace test deploy_ you can build and instantly deploy your test to the deployment_path specified in the config file.
+To build tests, execute the command _grace --test_. If you supply a test name, grace will only build that test and ignore all other. For now you can not supply multiple tests. Either one or all will be built. With the _grace --test --deploy_ you can build and instantly deploy your test to the deployment_path specified in the config file.
 
 Available Commands
 ------------------
