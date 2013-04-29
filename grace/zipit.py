@@ -1,7 +1,6 @@
 from error import FileNotWritableError, RemoveFileError
 import os
 import zipfile
-import re
 
 
 class Zip:
@@ -46,7 +45,7 @@ class Zip:
 
         for root, dirs, files in os.walk(source):
             for f in files:
-                zipfilename = os.path.join(root, f)[len(root[:-len(name)]):]
+                zipfilename = os.path.join(root, f).split('build/')[1]
                 try:
                     z.write(os.path.join(root, f), zipfilename)
                 except:
