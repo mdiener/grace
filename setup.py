@@ -23,7 +23,7 @@ setup(
     license='LICENSE.txt',
     scripts=['bin/grace'],
     packages=['grace'],
-    install_requires=['libsass'],
+    install_requires=['libsass', 'argparse', 'setuptools'],
     package_data=package_data,
     keywords='toolchain javascript dizmo js buildtool',
     long_description=open('README.txt').read(),
