@@ -38,7 +38,7 @@ class New:
         self._deployment_path = os.path.join(os.path.expanduser('~'))
         self._zip_path = os.path.join(os.path.expanduser('~'))
 
-        if os.name == 'nt':
+        if sys.platform.startswith('win32'):
             self._deployment_path = self._deployment_path.replace('\\', '\\\\')
             self._zip_path = self._zip_path.replace('\\', '\\\\')
 
