@@ -21,6 +21,8 @@ Install
 
 To install **Grace** get it from pypi with _pip install grace --user_. You may need to add _~/.local/bin_ to your PATH in order to use grace easily. You can also use _easy_install grace_ but pip is definitely preferred.
 
+There is also a standalone executable for Windows (7 and 8) available. Grab it from http://www.webdiener.ch/grace.
+
 Setup
 -----
 
