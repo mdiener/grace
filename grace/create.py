@@ -30,9 +30,15 @@ class New:
             try:
                 self._skeleton_path = plugin.skeleton_path()
             except NotImplementedError:
-                self._skeleton_path = resource_filename(__name__, 'skeleton')
+                try:
+                    self._skeleton_path = resource_filename(__name__, os.path.join('skeleton', 'default'))
+                except NotImplementedError:
+                    self._skeleton_path = os.path.join(sys.prefix, 'skeleton', 'default')
         else:
-            self._skeleton_path = resource_filename(__name__, 'skeleton')
+            try:
+                self._skeleton_path = resource_filename(__name__, os.path.join('skeleton', 'default'))
+            except NotImplementedError:
+                self._skeleton_path = os.path.join(sys.prefix, 'skeleton', 'default')
 
         self._projectPath = os.path.join(self._cwd, self._projectName)
         self._deployment_path = os.path.join(os.path.expanduser('~'))
