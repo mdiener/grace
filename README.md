@@ -19,7 +19,37 @@ How It Works
 Install
 -------
 
-To install **Grace** get it from pypi with _pip install grace --user_. You may need to add _~/.local/bin_ to your PATH in order to use grace easily. You can also use _easy_install grace_ but pip is definitely preferred.
+Grace can be installed on all operating systems by pulling it from pypi (https://pypi.python.org/pypi) with _pip_ or _easy_install_. The following instructions are written for Windows 8 (and 7), Mac OS X 10.3 and Debian derivates (Ubuntu, etc.).
+
+### Windows
+
+For Windows there are standalone executables available under http://www.webdiener.ch/grace. However, if you want to get the newest versions, or want to integrate **Grace** into your python environment, you can pull them from pipy or use the source code to install it.
+
+1. Install Python through their executable (http://www.python.org/download/releases/)
+2. You may want to add Python and the script directory to your Path environment. To do that, follow the link to a guide: http://www.itechtalk.com/thread3595.html
+2. Now you have multiple options. You can either go to your console and execute _easy_install.exe grace_ or get a better install first by issuing _easy_install.exe pip_
+3. If you chose to get pip, you can now use it install grace: _pip.exe install grace_
+4. After you have installed grace this way, you can then use it in the command line with _python.exe C:\Python27\Scripts\grace --new_
+
+The good thing about pip is, that it offers you an option to remove installed python modules again.
+
+### Mac OS X
+
+To use **Grace** on a Mac OS X system you first need to install the command line tools from Xcode. This is necessary to automatically build python modules on your system.
+
+1. Install _command line tools_ from Xcode. To see how to do that, follow this link: http://docwiki.embarcadero.com/RADStudio/XE4/en/Installing_the_Xcode_Command_Line_Tools_on_a_Mac
+2. Get pip from PyPi _sudo easy_install pip_
+3. Get **Grace**: _sudo pip install grace_
+4. **Grace** can now be used from the command line with: _grace --new_
+
+### Linux
+
+On any newer Linux derivate, their should be a python 2.7.4 installation present. If it is lower than 2.7.4 these instructions might not work for you, but grace itself will still work.
+
+1. Install pip from the command line: _sudo apt-get install python-pip_
+2. Install grace: _pip install grace --user_ (No sudo needed, --user install everything in your home directory!)
+3. Add _~/.local/bin_ to your path variable
+4. Use grace: _grace --new_
 
 There is also a standalone executable for Windows (7 and 8) available. Grab it from http://www.webdiener.ch/grace.
 
@@ -60,13 +90,37 @@ To build tests, execute the command _grace --test_. If you supply a test name, g
 
 Available Commands
 ------------------
+
+Help output of grace:
+
 ```shell
-grace --new [--type TYPE] [--name [NAME]]
-grace --build, -b [--html] [--css] [--js] [--img] [--lib]
-grace --deploy, -d
-grace --test, -t [--specific-test [NAME]]
-grace --zip, -z
-grace --bad
+usage: grace [-h] [--new] [--name NAME] [--type TYPE] [--build] [--deploy]
+             [--zip] [--test] [--html] [--js] [--css] [--img] [--lib]
+             [--specific-test SPECIFIC_TEST] [--clean] [--bad]
+
+Tasks to execute
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --new                 Create a new project in the current directory with a
+                        project name or `MyProject` as default.
+  --name NAME           Provide a name for the project. Only used with --new
+                        option.
+  --type TYPE           Decide what type of project you want to create. Only
+                        used with --new
+  --build, -b           Build the project.
+  --deploy, -d          Deploy the project.
+  --zip, -z             Zip the project.
+  --test, -t            Build the tests.
+  --html                Only use html for the task.
+  --js                  Only use js for the task.
+  --css                 Only use css for the task.
+  --img                 Only use images for the task.
+  --lib                 Only use libraries for the task.
+  --specific-test SPECIFIC_TEST
+                        Only build the specified test
+  --clean, -c           Clean the build environment
+  --bad                 Execute all tasks: build, test, deploy, zip.
 ```
 
 JavaScript Setup
