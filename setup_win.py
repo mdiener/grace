@@ -26,7 +26,6 @@ setup(
     version='0.1.5',
     license='LICENSE.txt',
     packages=['grace'],
-    install_requires=['libsass', 'argparse', 'setuptools'],
     data_files=data_files,
     console=['bin/grace'],
     keywords='toolchain javascript dizmo js buildtool',
@@ -34,8 +33,7 @@ setup(
     options={
         'py2exe': {
             'packages': ['grace'],
-            'bundle_files': True,
-            'includes': ['sass', 'plistlib', 'argparse', 'setuptools']
+            'bundle_files': True
         }
     }
 )
