@@ -23,11 +23,19 @@ Grace can be installed on all operating systems by pulling it from pypi (https:/
 
 ### Windows
 
-For Windows there are standalone executables available under http://www.webdiener.ch/grace. However, if you want to get the newest versions, or want to integrate **Grace** into your python environment, you can pull them from pipy or use the source code to install it.
+Generally, you have two options on Windows: Use the provided executables or use your python environment.
+
+#### Executables
+
+For Windows there are standalone executables available under http://www.webdiener.ch/grace.
+
+#### Python Environment
+
+However, if you want to get the newest versions, or want to integrate **Grace** into your python environment, you can pull them from pipy or use the source code to install it.
 
 1. Install Python through their executable (http://www.python.org/download/releases/)
 2. You may want to add Python and the script directory to your Path environment. To do that, follow the link to a guide: http://www.itechtalk.com/thread3595.html
-2. Now you have multiple options. You can either go to your console and execute _easy_install.exe grace_ or get a better install first by issuing _easy_install.exe pip_
+2. Now you have multiple options. You can either go to your console and execute _easy_install.exe grace_ or get a better installer (pip) first by issuing _easy_install.exe pip_
 3. If you chose to get pip, you can now use it install grace: _pip.exe install grace_
 4. After you have installed grace this way, you can then use it in the command line with _python.exe C:\Python27\Scripts\grace --new_
 
