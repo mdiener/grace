@@ -134,11 +134,11 @@ optional arguments:
 JavaScript Setup
 ----------------
 
-It is important that you follow the JavaScript setup, or you will not be able to use **Grace**. You can either write all your code in the provided application.js file, or use the structure to split it up. It is highly recommended to split your JavaScript code into single classes, giving each class its own file. This way you will have a much better overview. To do this, **Grace** parse your application.js file and sees if the first line as a _//include MyClass_ in it. This is the starting point, meaning that your first class file should be something like a _main_ in other languages. In every JavaScript file you create, you can add the _//include Path/To/Class/File_ at the beginning, to include another file. It is important that you do not add the .js at the end. The following is an example set up:
+It is important that you follow the JavaScript setup, or you will not be able to use **Grace**. You can either write all your code in the provided application.js file, or use the structure to split it up. It is highly recommended to split your JavaScript code into single classes, giving each class its own file. This way you will have a much better overview. To do this, **Grace** parses your application.js file and sees if the first line as a _//= require MyClass_ in it. This is the starting point, meaning that your first class file should be something like a _main_ in other languages. In every JavaScript file you create, you can add the _//= require Path/To/Class/File_ at the beginning, to include another file. It is important that you do not add the .js at the end. The following is an example set up:
 
 application.js
 ```javascript
-//include MyMain
+//= require MyMain
 
 jQuery(document).ready(function() {
     main = new MyProject.MyMain()
@@ -147,7 +147,7 @@ jQuery(document).ready(function() {
 
 MyMain.js
 ```javascript
-//include utils/MyUtils.js
+//= require utils/MyUtils.js
 
 Class('MyProject.MyMain', {
     has: {
