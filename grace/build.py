@@ -105,7 +105,7 @@ class Build:
                 sub_path = sub_path + '.js'
 
                 if sub_path in self._included_js_files:
-                    return ''
+                    return []
 
                 self._included_js_files.append(sub_path)
                 try:
