@@ -104,21 +104,20 @@ class Build:
                 sub_path = os.path.join(self._cwd, 'src', 'javascript', sub_path)
                 sub_path = sub_path + '.js'
 
-                if sub_path in self._included_js_files:
-                    return []
+                if sub_path not in self._included_js_files:
+                    self._included_js_files.append(sub_path)
 
-                self._included_js_files.append(sub_path)
-                try:
-                    sub_f = open(sub_path)
-                except:
-                    raise FileNotFoundError('The specified file does not exist: ', sub_path)
+                    try:
+                        sub_f = open(sub_path)
+                    except:
+                        raise FileNotFoundError('The specified file does not exist: ', sub_path)
 
-                try:
-                    lines = lines + self._gather_javascript_lines(sub_f)
-                except FileNotFoundError:
-                    raise
-                finally:
-                    sub_f.close()
+                    try:
+                        lines = lines + self._gather_javascript_lines(sub_f)
+                    except FileNotFoundError:
+                        raise
+                    finally:
+                        sub_f.close()
             else:
                 lines.append(line)
 
