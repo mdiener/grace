@@ -6,7 +6,7 @@ import os
 
 sys.path.append('C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\redist\\x86\\Microsoft.VC110.CRT')
 package_data = {'grace': []}
-data_files=[
+data_files = [
     ('Microsoft.VC110.CRT', glob(r'C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\redist\x86\Microsoft.VC110.CRT\*.*'))
 ]
 
@@ -23,7 +23,7 @@ setup(
     author='Michael Diener',
     author_email='dm.menthos@gmail.com',
     url='https://github.com/mdiener/grace',
-    version='0.1.5',
+    version='0.1.6',
     license='LICENSE.txt',
     packages=['grace'],
     data_files=data_files,
