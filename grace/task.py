@@ -135,7 +135,7 @@ class Task:
             return
 
         if self._type != 'default':
-            module = __import__(self._type + '.plugin')
+            module = __import__('grace-' + self._type + '.plugin')
             try:
                 plugin = getattr(module.plugin, self._type.title())()
             except:
