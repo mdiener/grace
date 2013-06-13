@@ -29,9 +29,9 @@ class Zip:
 
     def _zip(self, source, name):
         try:
-            dest = os.path.join(self._config['zip_path'], name + '.zip')
+            dest = os.path.join(self._config['zip_path'], name + '_v' + self._config['version'] + '.zip')
         except:
-            dest = os.path.join(self._cwd, 'build', name + '.zip')
+            dest = os.path.join(self._cwd, 'build', name + '_v' + self._config['version'] + '.zip')
 
         try:
             self._cleanup(dest)
