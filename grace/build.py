@@ -1,6 +1,8 @@
 import os
-from error import FileNotFoundError, CreateFolderError, FileNotWritableError, RemoveFolderError, RemoveFileError, SassError
+from error import FileNotFoundError, CreateFolderError, FileNotWritableError, FileNotReadableError, RemoveFolderError, RemoveFileError, SassError
 from shutil import copy2, copytree, rmtree
+from slimit import minify
+from rcssmin import cssmin
 import re
 import sass
 import sys
@@ -68,7 +70,11 @@ class Build:
         except:
             raise FileNotWritableError('Could not write the javascript file.')
 
-        f.write(self._js_string)
+        if self._config['minify_js']:
+            minifiedjs = minify(self._js_string, mangle=True, mangle_toplevel=True)
+            f.write(minifiedjs)
+        else:
+            f.write(self._js_string)
         f.close()
 
     def _concat_javascript(self):
@@ -174,13 +180,35 @@ class Build:
             except:
                 raise FileNotWritableError('Could not write the new css file.')
 
-            f.write(_css_string)
+            if self._config['minify_css']:
+                minifiedcss = cssmin(_css_string, keep_bang_comments=False)
+                f.write(minifiedcss)
+            else:
+                f.write(_css_string)
+
             f.close()
         elif os.path.exists(source_css):
-            try:
-                copy2(source_css, dest)
-            except:
-                raise FileNotWritableError('Could not write the new css file.')
+            if self._config['minify_css']:
+                try:
+                    f = open(source_css, 'r')
+                    _css_string = f.read()
+                    f.flose()
+                    minifiedcss = cssmin(_css_string, keep_bang_comments=False)
+
+                    try:
+                        d = open(dest, 'w+')
+                    except:
+                        raise FileNotWritableError('Could not write thre new css file.')
+
+                    d.write(minifiedcss)
+                    d.close()
+                except:
+                    raise FileNotReadableError('Could not read the css input file.')
+            else:
+                try:
+                    copy2(source_css, dest)
+                except:
+                    raise FileNotWritableError('Could not write the new css file.')
 
     def _build_images(self):
         source = os.path.join(self._cwd, 'src', 'style', 'images')
