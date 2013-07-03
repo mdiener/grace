@@ -104,6 +104,12 @@ class Task:
         if 'version' not in self._config:
             raise MissingKeyError('Please specify a version in your config file.')
 
+        if 'minify_js' not in self._config:
+            self._config['minify_js'] = False
+
+        if 'minify_css' not in self._config:
+            self._config['minify_css'] = False
+
         if 'type' not in self._config:
             self._type = 'default'
         else:
