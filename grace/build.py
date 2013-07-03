@@ -2,7 +2,7 @@ import os
 from error import FileNotFoundError, CreateFolderError, FileNotWritableError, FileNotReadableError, RemoveFolderError, RemoveFileError, SassError
 from shutil import copy2, copytree, rmtree
 from slimit import minify
-from rcssmin import cssmin
+from cssmin import cssmin
 import re
 import sass
 import sys
@@ -181,7 +181,7 @@ class Build:
                 raise FileNotWritableError('Could not write the new css file.')
 
             if self._config['minify_css']:
-                minifiedcss = cssmin(_css_string, keep_bang_comments=False)
+                minifiedcss = cssmin(_css_string)
                 f.write(minifiedcss)
             else:
                 f.write(_css_string)
@@ -193,7 +193,7 @@ class Build:
                     f = open(source_css, 'r')
                     _css_string = f.read()
                     f.flose()
-                    minifiedcss = cssmin(_css_string, keep_bang_comments=False)
+                    minifiedcss = cssmin(_css_string)
 
                     try:
                         d = open(dest, 'w+')
