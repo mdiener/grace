@@ -17,6 +17,10 @@ class FileNotWritableError(Error):
     pass
 
 
+class FileNotReadableError(Error):
+    pass
+
+
 class FolderAlreadyExistsError(Error):
     pass
 
