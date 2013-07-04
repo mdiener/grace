@@ -169,7 +169,10 @@ class Task:
             try:
                 b.build_project(self._restrict)
                 if plugin:
-                    plugin.after_build()
+                    try:
+                        plugin.after_build()
+                    except AttributeError:
+                        pass
                 print 'Successfully built the project.'
             except:
                 raise
@@ -178,7 +181,10 @@ class Task:
             try:
                 t.build_test()
                 if plugin:
-                    plugin.after_test()
+                    try:
+                        plugin.after_test()
+                    except AttributeError:
+                        pass
                 print 'Successfully built the tests.'
             except:
                 raise
@@ -188,7 +194,10 @@ class Task:
                 try:
                     b.build_project(self._restrict)
                     if plugin:
-                        plugin.after_build()
+                        try:
+                            plugin.after_build()
+                        except AttributeError:
+                            pass
                     print 'Successfully built the project.'
                 except:
                     raise
@@ -196,7 +205,10 @@ class Task:
             try:
                 d.deploy_project()
                 if plugin:
-                    plugin.after_deploy()
+                    try:
+                        plugin.after_deploy()
+                    except AttributeError:
+                        pass
                 print 'Successfully deployed the project.'
             except:
                 raise
@@ -205,13 +217,19 @@ class Task:
             if not self._build and not self._test:
                 b.build_project(self._restrict)
                 if plugin:
-                    plugin.after_build()
+                    try:
+                        plugin.after_build()
+                    except AttributeError:
+                        pass
                 print 'Successfully built the project.'
 
             try:
                 z.zip_project()
                 if plugin:
-                    plugin.after_zip()
+                    try:
+                        plugin.after_zip()
+                    except AttributeError:
+                        pass
                 print 'Successfully zipped the project.'
             except:
                 raise

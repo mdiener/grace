@@ -99,7 +99,10 @@ class New:
                 newline = newline.replace('#PROJECTNAME', self._projectName)
 
                 if self._plugin:
-                    newline = self._plugin.new_replace_line(newline)
+                    try:
+                        newline = self._plugin.new_replace_line(newline)
+                    except AttributeError:
+                        pass
 
                 out.write(newline)
 
