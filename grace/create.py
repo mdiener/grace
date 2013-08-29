@@ -43,6 +43,7 @@ class New:
         self._projectPath = os.path.join(self._cwd, self._projectName)
         self._deployment_path = os.path.join(os.path.expanduser('~'))
         self._zip_path = os.path.join(os.path.expanduser('~'))
+        self._doc_path = os.path.join(os.path.expanduser('~'))
 
         if sys.platform.startswith('win32'):
             self._deployment_path = self._deployment_path.replace('\\', '\\\\')
@@ -97,6 +98,7 @@ class New:
                 newline = line.replace('#DEPLOYMENTPATH', self._deployment_path)
                 newline = newline.replace('#ZIPPATH', self._zip_path)
                 newline = newline.replace('#PROJECTNAME', self._projectName)
+                newline = newline.replace('#DOCPATH', self._doc_path)
 
                 if self._plugin:
                     try:
