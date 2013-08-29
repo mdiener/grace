@@ -10,6 +10,8 @@ parser.add_argument('--new', help='Create a new project in the current directory
 parser.add_argument('--name', help='Provide a name for the project. Only used with --new option.', action='store', default='MyProject')
 parser.add_argument('--type', help='Decide what type of project you want to create. Only used with --new', action='store', default='default')
 parser.add_argument('--build', '-b', help='Build the project.', action='store_true')
+parser.add_argument('--doc', help='Build the JSDoc documentation.', action='store_true')
+parser.add_argument('--with-libs', help='Build the JSDoc documentation with all the libraries.', action='store_true')
 parser.add_argument('--deploy', '-d', help='Deploy the project.', action='store_true')
 parser.add_argument('--zip', '-z', help='Zip the project.', action='store_true')
 parser.add_argument('--test', '-t', help='Build the tests.', action='store_true')

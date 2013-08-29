@@ -3,6 +3,7 @@ from deploy import Deploy
 from zipit import Zip
 from testit import Test
 from create import New
+from doc import Doc
 import os
 import json
 import re
@@ -26,6 +27,8 @@ class Task:
     def __init__(self, args):
         self._new = False
         self._build = False
+        self._doc = False
+        self._with_libs = False
         self._test = False
         self._deploy = False
         self._zip = False
@@ -44,6 +47,10 @@ class Task:
         else:
             if args.build:
                 self._build = True
+            if args.doc:
+                self._doc = True
+                if args.with_libs:
+                    self._with_libs = True
             if args.test:
                 self._test = True
             if args.deploy:
@@ -56,8 +63,9 @@ class Task:
                 self._test = True
                 self._deploy = True
                 self._zip = True
+                self._doc = True
 
-            if not self._build and not self._test and not self._deploy and not self._zip and not self._bad:
+            if not self._build and not self._test and not self._deploy and not self._zip and not self._doc and not self._bad:
                 raise UnknownCommandError()
 
             try:
@@ -115,9 +123,9 @@ class Task:
         else:
             self._type = self._config['type']
 
+        self._config['build_path'] = os.path.join(cwd, 'build', self._config['name'])
         if self._build or not self._test and self._deploy or not self._test and self._zip:
             self._config['build'] = True
-            self._config['build_path'] = os.path.join(cwd, 'build', self._config['name'])
         else:
             self._config['build'] = False
 
@@ -168,6 +176,7 @@ class Task:
             t = Test(self._config)
             d = Deploy(self._config)
             z = Zip(self._config)
+            doc = Doc(self._config)
         except:
             raise
 
@@ -180,6 +189,18 @@ class Task:
                     except AttributeError:
                         pass
                 print 'Successfully built the project.'
+            except:
+                raise
+
+        if self._doc:
+            try:
+                doc.build_doc(self._with_libs)
+                if plugin:
+                    try:
+                        plugin.after_doc()
+                    except AttributeError:
+                        pass
+                print 'Successfully built the JSDoc documentation.'
             except:
                 raise
 
