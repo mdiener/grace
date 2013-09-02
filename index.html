@@ -1,1 +1,268 @@
-My GitHub Page
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Grace by mdiener</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/mdiener/grace">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/mdiener/grace/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/mdiener/grace/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Grace</h1>
+          <p>Grace is a development toolkit for JavaScript, HTML and SCSS (Sass CSS).</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/mdiener">mdiener</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1></h1>
+
+<h1>
+<a name="grace" class="anchor" href="#grace"><span class="octicon octicon-link"></span></a>Grace</h1>
+
+<p><strong>Grace</strong> is a development toolkit for JavaScript, HTML and SCSS (Sass CSS).
+The name <strong>Grace</strong> comes from a sweet puppy, which is always coming to my room whenever I start working to get the little attention that is left.</p>
+
+<h1>
+<a name="what-does-it-do" class="anchor" href="#what-does-it-do"><span class="octicon octicon-link"></span></a>What Does It Do?</h1>
+
+<p><strong>Grace</strong> enables you to write proper JavaScript without worrying about concatenating your classes together or having to deal with other problems. There is also a built in SCSS parser, so you can write nice CSS and don't need to convert it on your own, <strong>Grace</strong> does that for you.
+The goal is that you do not have to worry about things going on around your project, but that you an concentrating on writing pure JavaScript and HTML.</p>
+
+<h1>
+<a name="how-it-works" class="anchor" href="#how-it-works"><span class="octicon octicon-link"></span></a>How It Works</h1>
+
+<h2>
+<a name="install" class="anchor" href="#install"><span class="octicon octicon-link"></span></a>Install</h2>
+
+<p>Grace can be installed on all operating systems by pulling it from pypi (<a href="https://pypi.python.org/pypi">https://pypi.python.org/pypi</a>) with <em>pip</em> or <em>easy_install</em>. The following instructions are written for Windows 8 (and 7), Mac OS X 10.3 and Debian derivates (Ubuntu, etc.).</p>
+
+<h3>
+<a name="windows" class="anchor" href="#windows"><span class="octicon octicon-link"></span></a>Windows</h3>
+
+<p>Generally, you have two options on Windows: Use the provided executables or use your python environment.</p>
+
+<h4>
+<a name="executables" class="anchor" href="#executables"><span class="octicon octicon-link"></span></a>Executables</h4>
+
+<p>For Windows there are standalone executables available under <a href="http://www.webdiener.ch/grace">http://www.webdiener.ch/grace</a>.</p>
+
+<h4>
+<a name="python-environment" class="anchor" href="#python-environment"><span class="octicon octicon-link"></span></a>Python Environment</h4>
+
+<p>However, if you want to get the newest versions, or want to integrate <strong>Grace</strong> into your python environment, you can pull them from pipy or use the source code to install it.</p>
+
+<ol>
+<li>Install Python through their executable (<a href="http://www.python.org/download/releases/">http://www.python.org/download/releases/</a>)</li>
+<li>You may want to add Python and the script directory to your Path environment. To do that, follow the link to a guide: <a href="http://www.itechtalk.com/thread3595.html">http://www.itechtalk.com/thread3595.html</a>
+</li>
+<li>Now you have multiple options. You can either go to your console and execute <em>easy_install.exe grace</em> or get a better installer (pip) first by issuing <em>easy_install.exe pip</em>
+</li>
+<li>If you chose to get pip, you can now use it install grace: <em>pip.exe install grace</em>
+</li>
+<li>After you have installed grace this way, you can then use it in the command line with <em>python.exe C:\Python27\Scripts\grace --new</em>
+</li>
+</ol><p>The good thing about pip is, that it offers you an option to remove installed python modules again.</p>
+
+<h3>
+<a name="mac-os-x" class="anchor" href="#mac-os-x"><span class="octicon octicon-link"></span></a>Mac OS X</h3>
+
+<p>To use <strong>Grace</strong> on a Mac OS X system you first need to install the command line tools from Xcode. This is necessary to automatically build python modules on your system.</p>
+
+<ol>
+<li>Install <em>command line tools</em> from Xcode. To see how to do that, follow this link: <a href="http://docwiki.embarcadero.com/RADStudio/XE4/en/Installing_the_Xcode_Command_Line_Tools_on_a_Mac">http://docwiki.embarcadero.com/RADStudio/XE4/en/Installing_the_Xcode_Command_Line_Tools_on_a_Mac</a>
+</li>
+<li>Get pip from PyPi <em>sudo easy_install pip</em>
+</li>
+<li>Get <strong>Grace</strong>: <em>sudo pip install grace</em>
+</li>
+<li>
+<strong>Grace</strong> can now be used from the command line with: <em>grace --new</em>
+</li>
+</ol><h3>
+<a name="linux" class="anchor" href="#linux"><span class="octicon octicon-link"></span></a>Linux</h3>
+
+<p>On any newer Linux derivate, their should be a python 2.7.4 installation present. If it is lower than 2.7.4 these instructions might not work for you, but grace itself will still work.</p>
+
+<ol>
+<li>Install pip from the command line: <em>sudo apt-get install python-pip</em>
+</li>
+<li>Install grace: <em>pip install grace --user</em> (No sudo needed, --user install everything in your home directory!)</li>
+<li>Add <em>~/.local/bin</em> to your path variable</li>
+<li>Use grace: <em>grace --new</em>
+</li>
+</ol><p>There is also a standalone executable for Windows (7 and 8) available. Grab it from <a href="http://www.webdiener.ch/grace">http://www.webdiener.ch/grace</a>.</p>
+
+<h2>
+<a name="setup" class="anchor" href="#setup"><span class="octicon octicon-link"></span></a>Setup</h2>
+
+<p>The first step would be to create a new project. This can be done by invoking <strong>Grace</strong> with the parameter new and an optional project name. If the project name is ommitted, it will be set to <em>MyProject</em>.</p>
+
+<pre lang="shell"><code>grace new YourProjectName
+</code></pre>
+
+<p>This create a new folder in your current folder with the correct structure and files needed. From here on you can go to your folder and start using <strong>Grace</strong> from in there.</p>
+
+<h2>
+<a name="config" class="anchor" href="#config"><span class="octicon octicon-link"></span></a>Config</h2>
+
+<p>A config file will be placed into your project directory. This config file has a few mandatory options and can be used to further adjust <strong>Grace</strong> commands to your need. The following is a list with mandatory (in bold) and optional keys:</p>
+
+<ul>
+<li>
+<strong>name</strong>: The name of your project, will be prefilled with what you put on the command line when creating a new project with <em>grace new</em>
+</li>
+<li>version: The version of your project, will be prefilled with <em>0.1</em>
+</li>
+<li>deployment_path: The path where your project should be deployed, upon called <em>grace deploy</em>
+</li>
+<li>zip_path: The path where the zip file should be placed upon called <em>grace zip</em>
+</li>
+</ul><h2>
+<a name="building-your-project" class="anchor" href="#building-your-project"><span class="octicon octicon-link"></span></a>Building Your Project</h2>
+
+<p>To build your project, you have to invoke <strong>Grace</strong> with the build task. You can also specify what exact build step you want to execute.</p>
+
+<pre lang="shell"><code>grace -b
+</code></pre>
+
+<p>or</p>
+
+<pre lang="shell"><code>grace -b --js
+</code></pre>
+
+<h2>
+<a name="building-tests" class="anchor" href="#building-tests"><span class="octicon octicon-link"></span></a>Building Tests</h2>
+
+<p>To build tests, execute the command <em>grace --test</em>. If you supply a test name, grace will only build that test and ignore all other. For now you can not supply multiple tests. Either one or all will be built. With the <em>grace --test --deploy</em> you can build and instantly deploy your test to the deployment_path specified in the config file.</p>
+
+<h2>
+<a name="available-commands" class="anchor" href="#available-commands"><span class="octicon octicon-link"></span></a>Available Commands</h2>
+
+<p>Help output of grace:</p>
+
+<pre lang="shell"><code>usage: grace [-h] [--new] [--name NAME] [--type TYPE] [--build] [--deploy]
+             [--zip] [--test] [--html] [--js] [--css] [--img] [--lib]
+             [--specific-test SPECIFIC_TEST] [--clean] [--bad]
+
+Tasks to execute
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --new                 Create a new project in the current directory with a
+                        project name or `MyProject` as default.
+  --name NAME           Provide a name for the project. Only used with --new
+                        option.
+  --type TYPE           Decide what type of project you want to create. Only
+                        used with --new
+  --build, -b           Build the project.
+  --deploy, -d          Deploy the project.
+  --zip, -z             Zip the project.
+  --test, -t            Build the tests.
+  --html                Only use html for the task.
+  --js                  Only use js for the task.
+  --css                 Only use css for the task.
+  --img                 Only use images for the task.
+  --lib                 Only use libraries for the task.
+  --specific-test SPECIFIC_TEST
+                        Only build the specified test
+  --clean, -c           Clean the build environment
+  --bad                 Execute all tasks: build, test, deploy, zip.
+</code></pre>
+
+<h2>
+<a name="javascript-setup" class="anchor" href="#javascript-setup"><span class="octicon octicon-link"></span></a>JavaScript Setup</h2>
+
+<p>It is important that you follow the JavaScript setup, or you will not be able to use <strong>Grace</strong>. You can either write all your code in the provided application.js file, or use the structure to split it up. It is highly recommended to split your JavaScript code into single classes, giving each class its own file. This way you will have a much better overview. To do this, <strong>Grace</strong> parses your application.js file and sees if the first line as a <em>//= require MyClass</em> in it. This is the starting point, meaning that your first class file should be something like a <em>main</em> in other languages. In every JavaScript file you create, you can add the <em>//= require Path/To/Class/File</em> at the beginning, to include another file. It is important that you do not add the .js at the end. The following is an example set up:</p>
+
+<p>application.js</p>
+
+<div class="highlight"><pre><span class="c1">//= require MyMain</span>
+
+<span class="nx">jQuery</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">main</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MyProject</span><span class="p">.</span><span class="nx">MyMain</span><span class="p">()</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>MyMain.js</p>
+
+<div class="highlight"><pre><span class="c1">//= require utils/MyUtils.js</span>
+
+<span class="nx">Class</span><span class="p">(</span><span class="s1">'MyProject.MyMain'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">has</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">log</span><span class="o">:</span> <span class="p">{</span>
+            <span class="nx">is</span><span class="o">:</span> <span class="s1">'r'</span><span class="p">,</span>
+            <span class="nx">init</span><span class="o">:</span> <span class="nx">MyProject</span><span class="p">.</span><span class="nx">utils</span><span class="p">.</span><span class="nx">MyUtils</span><span class="p">.</span><span class="nx">logWithType</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">after</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+
+            <span class="nx">self</span><span class="p">.</span><span class="nx">draw</span><span class="p">(</span><span class="s1">'circle'</span><span class="p">))</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>utils/MyUtils.js</p>
+
+<div class="highlight"><pre><span class="nx">Class</span><span class="p">(</span><span class="s1">'MyProject.utils.MyUtils'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">my</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">methods</span><span class="o">:</span> <span class="p">{</span>
+            <span class="nx">logWithType</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">.</span><span class="nx">type</span><span class="p">(</span><span class="nx">val</span><span class="p">),</span> <span class="nx">val</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>The folder structure for this would look as following:</p>
+
+<pre>
+MyProject
+|-- project.cfg
+`-- src
+    |-- index.html
+    |-- javascript
+    |   |-- MyMain.js
+    |   `-- utils
+    |       `-- MyUtils.js
+    `-- lib
+        |-- jquery
+        |   `-- jquery.min.js
+        `-- joose
+            `-- joose.min.js
+</pre>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
