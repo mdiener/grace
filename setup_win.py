@@ -23,7 +23,7 @@ setup(
     author='Michael Diener',
     author_email='dm.menthos@gmail.com',
     url='https://github.com/mdiener/grace',
-    version='0.1.20',
+    version='0.1.22',
     license='LICENSE.txt',
     packages=['grace'],
     data_files=data_files,
