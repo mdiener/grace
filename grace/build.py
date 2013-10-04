@@ -6,6 +6,7 @@ from cssmin import cssmin
 import re
 import sass
 import sys
+import tempfile
 
 
 class Build:
@@ -14,8 +15,6 @@ class Build:
         self._config = config
 
     def build_project(self, restrict):
-        self._project_build_style_path = os.path.join(self._config['build_path'], 'style')
-
         if not os.path.exists(self._config['build_path']):
             try:
                 os.makedirs(self._config['build_path'])
@@ -27,12 +26,10 @@ class Build:
                 try:
                     if r == 'js':
                         self._build_javascript()
-                    if r == 'css':
-                        self._build_css()
+                    if r == 'style':
+                        self._build_style()
                     if r == 'html':
                         self._build_html()
-                    if r == 'img':
-                        self._build_images()
                     if r == 'lib':
                         self._build_libraries()
                 except:
@@ -40,9 +37,8 @@ class Build:
         else:
             try:
                 self._build_javascript()
-                self._build_css()
+                self._build_style()
                 self._build_html()
-                self._build_images()
                 self._build_libraries()
             except:
                 raise
@@ -147,92 +143,89 @@ class Build:
         except:
             raise FileNotWritableError('Could not write the html file.')
 
-    def _build_css(self):
-        source_scss = os.path.join(self._cwd, 'src', 'style', 'style.scss')
-        source_css = os.path.join(self._cwd, 'src', 'style', 'style.css')
-        dest = os.path.join(self._config['build_path'], 'style', 'style.css')
+    def _build_style(self):
+        source = os.path.join(self._cwd, 'src', 'style')
+        destination = os.path.join(self._config['build_path'], 'style')
 
-        if not os.path.exists(source_css) and not os.path.exists(source_scss):
-            return
-
-        if not os.path.exists(self._project_build_style_path):
+        if os.path.exists(destination):
             try:
-                os.makedirs(self._project_build_style_path)
+                rmtree(destination)
             except:
-                raise CreateFolderError('Could not create the style folder.')
+                raise RemoveFolderError('Could not remove the existing style folder.')
 
-        if os.path.exists(source_css):
-            try:
-                os.remove(dest)
-            except:
-                raise RemoveFileError('Could not remove the existing css file.')
-
-        if os.path.exists(source_scss):
-            try:
-                _css_string = sass.compile(filename=source_scss)
-            except sass.CompileError as e:
-                raise SassError('Could not compile your scss file:\n', e.message[:-1])
-            except:
-                raise FileNotFoundError('Could not find your scss style file.')
-
-            try:
-                f = open(dest, 'w+')
-            except:
-                raise FileNotWritableError('Could not write the new css file.')
-
-            if self._config['minify_css']:
-                minifiedcss = cssmin(_css_string)
-                f.write(minifiedcss)
-            else:
-                f.write(_css_string)
-
-            f.close()
-        elif os.path.exists(source_css):
-            if self._config['minify_css']:
-                try:
-                    f = open(source_css, 'r')
-                    _css_string = f.read()
-                    f.flose()
-                    minifiedcss = cssmin(_css_string)
-
-                    try:
-                        d = open(dest, 'w+')
-                    except:
-                        raise FileNotWritableError('Could not write thre new css file.')
-
-                    d.write(minifiedcss)
-                    d.close()
-                except:
-                    raise FileNotReadableError('Could not read the css input file.')
-            else:
-                try:
-                    copy2(source_css, dest)
-                except:
-                    raise FileNotWritableError('Could not write the new css file.')
-
-    def _build_images(self):
-        source = os.path.join(self._cwd, 'src', 'style', 'images')
-        dest = os.path.join(self._config['build_path'], 'style', 'images')
-
-        if not os.path.exists(source):
-            return
-
-        if not os.path.exists(self._project_build_style_path):
-            try:
-                os.makedirs(self._project_build_style_path)
-            except:
-                raise CreateFolderError('Could not create the style folder.')
-
-        if os.path.exists(dest):
-            try:
-                rmtree(dest)
-            except:
-                raise RemoveFolderError('Could not remove the existing images folder.')
+        temp_style_dir = tempfile.mkdtemp()
 
         try:
-            copytree(source, dest)
+            copytree(source, os.path.join(temp_style_dir, 'style'))
         except:
-            raise FileNotWritableError('Could not copy all the images in the image folder.')
+            raise CreateFolderError('Could not copy your style folder to a temporary location.')
+
+        self._work_css_files(os.path.join(temp_style_dir, 'style'))
+
+        try:
+            copytree(os.path.join(temp_style_dir, 'style'), destination)
+        except:
+            CreateFolderError('Could not copy the style folder from the temporary location.')
+
+        try:
+            rmtree(temp_style_dir)
+        except:
+            RemoveFolderError('Could not remove your temporary style folder.')
+
+    def _work_css_files(self, folder):
+        for root, dirs, files in os.walk(folder):
+            for f in files:
+                if f.endswith('.scss'):
+                    scss_filename = os.path.join(root, f)
+                    css_filename = os.path.join(root, f[:-4] + 'css')
+
+                    try:
+                        css_string = sass.compile(filename=scss_filename)
+                    except sass.CompileError as e:
+                        raise SassError('Could not compile your scss file:\n', e.message[:-1])
+                    except:
+                        raise FileNotFoundError('Could not find your scss style file.')
+
+                    try:
+                        css_file = open(css_filename, 'w+')
+                    except:
+                        raise FileNotWritableError('Could not write the new css file:\n' + css_filename)
+
+                    if self._config['minify_css']:
+                        css_string = cssmin(css_string)
+
+                    css_file.write(css_string)
+                    css_file.close();
+
+                    try:
+                        os.remove(scss_filename)
+                    except:
+                        raise FileNotWritableError('Could not remove already converted scss file:\n' + scss_filename)
+                elif f.endswith('.css'):
+                    if self._config['minify_css']:
+                        css_filename = os.path.join(root, f)
+
+                        try:
+                            css_file = open(f, 'r')
+                        except:
+                            raise FileNotReadableError('Could not read your css file:\n' + css_filename)
+
+                        css_string = f.read()
+                        css_file.close()
+
+                        try:
+                            os.remove(css_file)
+                        except:
+                            raise FileNotWritableError('Could not remove your non-minified css file:\n' + css_filename)
+
+                        try:
+                            css_file = open(css_filename, 'w+')
+                        except:
+                            FileNotWritableError('Could not write to the new minified css file:\n' + css_filename)
+
+                        css_string = cssmin(css_string)
+                        css_file.write(css_string)
+                        css_file.close()
 
     def _build_libraries(self):
         source = os.path.join(self._cwd, 'src', 'lib')
