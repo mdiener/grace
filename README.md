@@ -35,7 +35,7 @@ However, if you want to get the newest versions, or want to integrate **Grace** 
 
 1. Install Python through their executable (http://www.python.org/download/releases/)
 2. You may want to add Python and the script directory to your Path environment. To do that, follow the link to a guide: http://www.itechtalk.com/thread3595.html
-2. Now you have multiple options. You can either go to your console and execute _easy_install.exe grace_ or get a better installer (pip) first by issuing_ easy_install.exe pip _
+2. Now you have multiple options. You can either go to your console and execute _easy_install.exe grace_ or get a better installer (pip) first by issuing *easy_install.exe pip*
 3. If you chose to get pip, you can now use it install grace: *pip.exe install grace*
 4. After you have installed grace this way, you can then use it in the command line with *python.exe C:\Python27\Scripts\grace --new*
 
