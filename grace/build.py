@@ -44,14 +44,17 @@ class Build:
                 raise
 
     def _build_javascript(self):
-        source = os.path.join(self._cwd, 'src', 'application.js')
-        dest = os.path.join(self._config['build_path'], 'application.js')
+        js_name = self._config['js_name'] + '.js'
+        source = os.path.join(self._cwd, 'src', js_name)
+        dest = os.path.join(self._config['build_path'], js_name)
 
         if not os.path.exists(source):
-            return
+            source = os.path.join(self._cwd, 'src', 'application.js')
+            if not os.path.exists(source):
+                return
 
         try:
-            self._js_string = self._concat_javascript()
+            self._js_string = self._concat_javascript(source)
         except:
             raise
 
@@ -67,20 +70,19 @@ class Build:
             raise FileNotWritableError('Could not write the javascript file.')
 
         if self._config['minify_js']:
-            minifiedjs = minify(self._js_string, mangle=True, mangle_toplevel=True)
-            f.write(minifiedjs)
-        else:
-            f.write(self._js_string)
+            self._js_string = minify(self._js_string, mangle=True, mangle_toplevel=True)
+
+        f.write(self._js_string)
         f.close()
 
-    def _concat_javascript(self):
+    def _concat_javascript(self, source):
         f = None
         lines = []
 
         try:
-            f = open(os.path.join(self._cwd, 'src', 'application.js'))
+            f = open(source)
         except:
-            raise FileNotFoundError('The specified file does not exist: ', os.path.join('src', 'application.js'))
+            raise FileNotFoundError('The specified file does not exist: ', source)
 
         self._included_js_files = []
         try:
@@ -146,6 +148,9 @@ class Build:
     def _build_style(self):
         source = os.path.join(self._cwd, 'src', 'style')
         destination = os.path.join(self._config['build_path'], 'style')
+
+        if not os.path.exists(source):
+            return
 
         if os.path.exists(destination):
             try:

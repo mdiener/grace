@@ -123,6 +123,9 @@ class Task:
         else:
             self._type = self._config['type']
 
+        if 'js_name' not in self._config:
+            self._config['js_name'] = 'application'
+
         self._config['build_path'] = os.path.join(cwd, 'build', self._config['name'])
         if self._build or not self._test and self._deploy or not self._test and self._zip:
             self._config['build'] = True
