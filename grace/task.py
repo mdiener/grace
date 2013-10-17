@@ -108,23 +108,50 @@ class Task:
 
         if 'name' not in self._config:
             raise MissingKeyError('Name of the project needs to be in the config file.')
+        else:
+            if not isinstance(self._config['name'], str):
+                raise WrongFormatError('The name key in your config file must be a string!')
+            else:
+                if len(self._config['name']) == 0:
+                    raise WrongFormatError('The name key in your config file must be at least one character long.')
 
         if 'version' not in self._config:
             raise MissingKeyError('Please specify a version in your config file.')
+        else:
+            if not isinstance(self._config['version'], str):
+                raise WrongFormatError('The version key in your config file needs to be a string!')
 
         if 'minify_js' not in self._config:
             self._config['minify_js'] = False
+        else:
+            if not isinstance(self._config['minify_js'], bool):
+                self._config['minify_js'] = False
 
         if 'minify_css' not in self._config:
             self._config['minify_css'] = False
+        else:
+            if not isinstance(self._config['minify_css'], bool):
+                self._config['minify_css'] = False
 
         if 'type' not in self._config:
             self._type = 'default'
         else:
-            self._type = self._config['type']
+            if not isinstance(self._config['type'], str):
+                self._type = 'default'
+            else:
+                if len(self._config['type']) == 0:
+                    self._type = 'default'
+                else:
+                    self._type = self._config['type']
 
         if 'js_name' not in self._config:
             self._config['js_name'] = 'application'
+        else:
+            if not isinstance(self._config['js_name'], str):
+                self._config['js_name'] = 'application'
+            else:
+                if len(self._config['js_name']) == 0:
+                    self._config['js_name'] = 'application'
 
         self._config['build_path'] = os.path.join(cwd, 'build', self._config['name'])
         if self._build or not self._test and self._deploy or not self._test and self._zip:
