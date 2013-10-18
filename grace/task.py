@@ -109,7 +109,7 @@ class Task:
         if 'name' not in self._config:
             raise MissingKeyError('Name of the project needs to be in the config file.')
         else:
-            if not isinstance(self._config['name'], str):
+            if not isinstance(self._config['name'], unicode):
                 raise WrongFormatError('The name key in your config file must be a string!')
             else:
                 if len(self._config['name']) == 0:
@@ -118,7 +118,7 @@ class Task:
         if 'version' not in self._config:
             raise MissingKeyError('Please specify a version in your config file.')
         else:
-            if not isinstance(self._config['version'], str):
+            if not isinstance(self._config['version'], unicode):
                 raise WrongFormatError('The version key in your config file needs to be a string!')
 
         if 'minify_js' not in self._config:
@@ -136,7 +136,7 @@ class Task:
         if 'type' not in self._config:
             self._type = 'default'
         else:
-            if not isinstance(self._config['type'], str):
+            if not isinstance(self._config['type'], unicode):
                 self._type = 'default'
             else:
                 if len(self._config['type']) == 0:
@@ -147,7 +147,7 @@ class Task:
         if 'js_name' not in self._config:
             self._config['js_name'] = 'application'
         else:
-            if not isinstance(self._config['js_name'], str):
+            if not isinstance(self._config['js_name'], unicode):
                 self._config['js_name'] = 'application'
             else:
                 if len(self._config['js_name']) == 0:
