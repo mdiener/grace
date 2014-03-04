@@ -24,7 +24,7 @@ def get_path():
 
 
 class Task:
-    def __init__(self, args):
+    def __init__(self, tasks):
         self._new = False
         self._build = False
         self._doc = False
@@ -34,37 +34,28 @@ class Task:
         self._zip = False
         self._clean = False
         self._bad = False
-        self._restrict = []
-        self._args = args
-        self._root = get_path()
 
-        if args.new:
+        if 'new' in tasks:
             self._new = True
-            self._name = args.name
-            self._type = args.type
-        elif args.clean:
+            self._name = tasks['name']
+            self._type = tasks['type']
+        if 'build' in tasks:
+            self._build = True
+        if 'jsdoc' in cmds:
+            self._jsdoc = True
+        if 'deploy' in cmds:
+            self._deploy = True
+        if 'test' in cmds:
+            self._test = True
+        if 'zip' in cmds:
+            self._zip = True
+        if 'clean' in cmds:
             self._clean = True
-        else:
-            if args.build:
-                self._build = True
-            if args.doc:
-                self._doc = True
-                if args.with_libs:
-                    self._with_libs = True
-            if args.test:
-                self._test = True
-            if args.deploy:
-                self._deploy = True
-            if args.zip:
-                self._zip = True
-            if args.bad:
-                self._bad = True
-                self._build = True
-                self._test = True
-                self._deploy = True
-                self._zip = True
-                self._doc = True
+        if 'bad' in cmds:
+            self._bad = True
 
+        self._root = get_path()
+        if not self._new:
             if not self._build and not self._test and not self._deploy and not self._zip and not self._doc and not self._bad:
                 raise UnknownCommandError()
 
@@ -72,21 +63,6 @@ class Task:
                 self._parse_config()
             except:
                 raise
-
-            if args.html:
-                self._restrict.append('html')
-
-            if args.js:
-                self._restrict.append('js')
-
-            if args.css:
-                self._restrict.append('css')
-
-            if args.img:
-                self._restrict.append('img')
-
-            if args.lib:
-                self._restrict.append('lib')
 
     def _parse_config(self):
         cwd = os.getcwd()
