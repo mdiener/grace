@@ -37,7 +37,7 @@ However, if you want to get the newest versions, or want to integrate **Grace** 
 2. You may want to add Python and the script directory to your Path environment. To do that, follow the link to a guide: http://www.itechtalk.com/thread3595.html
 2. Now you have multiple options. You can either go to your console and execute _easy_install.exe grace_ or get a better installer (pip) first by issuing *easy_install.exe pip*
 3. If you chose to get pip, you can now use it install grace: *pip.exe install grace*
-4. After you have installed grace this way, you can then use it in the command line with *python.exe C:\Python27\Scripts\grace --new*
+4. After you have installed grace this way, you can then use it in the command line with *python C:\Python27\Scripts\grace new*
 
 The good thing about pip is, that it offers you an option to remove installed python modules again.
 
@@ -48,7 +48,7 @@ To use **Grace** on a Mac OS X system you first need to install the command line
 1. Install *command line tools* from Xcode. To see how to do that, follow this link: http://docwiki.embarcadero.com/RADStudio/XE4/en/Installing_the_Xcode_Command_Line_Tools_on_a_Mac
 2. Get pip from PyPi *sudo easy_install pip*
 3. Get **Grace**: *sudo pip install grace*
-4. **Grace** can now be used from the command line with: *grace --new*
+4. **Grace** can now be used from the command line with: *grace new*
 
 ### Linux
 
@@ -57,18 +57,21 @@ On any newer Linux derivate, their should be a python 2.7.4 installation present
 1. Install pip from the command line: *sudo apt-get install python-pip*
 2. Install grace: *pip install grace --user* (No sudo needed, --user install everything in your home directory!)
 3. Add *~/.local/bin* to your path variable
-4. Use grace: *grace --new*
-
-There is also a standalone executable for Windows (7 and 8) available. Grab it from http://www.webdiener.ch/grace.
+4. Use grace: *grace new*
 
 Setup
 -----
 
-The first step would be to create a new project. This can be done by invoking **Grace** with the parameter new and an optional project name. If the project name is ommitted, it will be set to *MyProject*.
+The first step would be to create a new project. This can be done by invoking **Grace** with the parameter new. **Grace** will then ask for you project name and what type of project (by default the default) you want to create.
 ```shell
-grace new YourProjectName
+grace new
 ```
-This create a new folder in your current folder with the correct structure and files needed. From here on you can go to your folder and start using **Grace** from in there.
+After filling out the required information,**Grace** creates a new folder in your current folder with the correct structure and files needed. From here on you can go to your folder and start using **Grace** from in there.
+
+Porting
+-------
+
+If you have an older version of **Grace** (<0.2.0) you can update it using the command _grace port_. This will create the required manage.py file in your project folder.
 
 Config
 ------
@@ -86,53 +89,44 @@ A config file will be placed into your project directory. This config file has a
 Building Your Project
 ---------------------
 
-To build your project, you have to invoke **Grace** with the build task. You can also specify what exact build step you want to execute.
+To build your project, you have to use the provided manage.py file with the build task.
 ```shell
-grace -b
-```
-or
-```shell
-grace -b --js
+python manage.py build
 ```
 
 Building Tests
 --------------
 
-To build tests, execute the command _grace --test_. If you supply a test name, grace will only build that test and ignore all other. For now you can not supply multiple tests. Either one or all will be built. With the *grace --test --deploy* you can build and instantly deploy your test to the deployment_path specified in the config file.
+To build tests, execute the command python manage.py test_. With _python manage.py test deploy_ you can build and instantly deploy your test to the deployment_path specified in the config file.
 
 Available Commands
 ------------------
 
-Help output of grace:
+For grace
 
 ```shell
-usage: grace [-h] [--new] [--name NAME] [--type TYPE] [--build] [--deploy]
-             [--zip] [--test] [--html] [--js] [--css] [--img] [--lib]
-             [--specific-test SPECIFIC_TEST] [--clean] [--bad]
+usage: grace [command]
 
-Tasks to execute
+Commands
+  help            show this help message and exit
+  new             Create a new project in the current directory
+  port            Port from an older grace version to the newest
+```
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --new                 Create a new project in the current directory with a
-                        project name or `MyProject` as default.
-  --name NAME           Provide a name for the project. Only used with --new
-                        option.
-  --type TYPE           Decide what type of project you want to create. Only
-                        used with --new
-  --build, -b           Build the project.
-  --deploy, -d          Deploy the project.
-  --zip, -z             Zip the project.
-  --test, -t            Build the tests.
-  --html                Only use html for the task.
-  --js                  Only use js for the task.
-  --css                 Only use css for the task.
-  --img                 Only use images for the task.
-  --lib                 Only use libraries for the task.
-  --specific-test SPECIFIC_TEST
-                        Only build the specified test
-  --clean, -c           Clean the build environment
-  --bad                 Execute all tasks: build, test, deploy, zip.
+For the manage.py file
+```
+usage: python manage.py [command]
+
+Commands
+  build           Builds the project and places the output in ./build/ProjectName.
+  deploy          First build and then deploy the project to the path
+                  specified in the deployment_path option in your project.cfg file.
+  jsdoc           Build the jsDoc of the project.
+  zip             Build and then zip the output and put it into the path
+                  specified by the zip_path option in your project.cfg file.
+  test            Build all the tests.
+  clean           Clean the build output.
+  bad             Do a build, test, jsdoc, deploy and zip together.
 ```
 
 JavaScript Setup
@@ -188,6 +182,7 @@ The folder structure for this would look as following:
 <pre>
 MyProject
 |-- project.cfg
+|-- manage.py
 `-- src
     |-- index.html
     |-- javascript
