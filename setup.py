@@ -13,6 +13,14 @@ for root, dirs, files in os.walk(os.path.join('grace', 'skeleton')):
                 package_data['grace'].append(f[6:])
             previous = root
 
+for root, dirs, files in os.walk(os.path.join('grace', 'assets')):
+    for filename in files:
+        if previous != root:
+            filelist = glob(root + '/*.*')
+            for f in filelist:
+                package_data['grace'].append(f[6:])
+            previous = root
+
 setup(
     name='grace',
     description='A tool to simplify JavaScript development.',

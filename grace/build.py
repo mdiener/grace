@@ -14,34 +14,20 @@ class Build:
         self._cwd = os.getcwd()
         self._config = config
 
-    def build_project(self, restrict):
+    def build_project(self):
         if not os.path.exists(self._config['build_path']):
             try:
                 os.makedirs(self._config['build_path'])
             except:
                 raise CreateFolderError('Could not create the project folder.')
 
-        if restrict:
-            for r in restrict:
-                try:
-                    if r == 'js':
-                        self._build_javascript()
-                    if r == 'style':
-                        self._build_style()
-                    if r == 'html':
-                        self._build_html()
-                    if r == 'lib':
-                        self._build_libraries()
-                except:
-                    raise
-        else:
-            try:
-                self._build_javascript()
-                self._build_style()
-                self._build_html()
-                self._build_libraries()
-            except:
-                raise
+        try:
+            self._build_javascript()
+            self._build_style()
+            self._build_html()
+            self._build_libraries()
+        except:
+            raise
 
     def _build_javascript(self):
         js_name = self._config['js_name'] + '.js'

@@ -1,6 +1,6 @@
-from error import FileNotWritableError, FolderAlreadyExistsError, FolderNotFoundError, CreateFolderError
+from error import FileNotWritableError, FolderAlreadyExistsError, FolderNotFoundError, CreateFolderError, FileNotFoundError
 import os
-from shutil import copytree
+from shutil import copytree, copy
 import sys
 import re
 from pkg_resources import resource_filename
@@ -40,6 +40,11 @@ class New:
             except NotImplementedError:
                 self._skeleton_path = os.path.join(sys.prefix, 'skeleton', 'default')
 
+        try:
+            self._assetPath = os.path.join(resource_filename(__name__, os.path.join('assets', 'manage.py')))
+        except NotImplementedError:
+            self._assetPath = os.path.join(sys.prefix, 'assets', 'manage.py')
+
         self._projectPath = os.path.join(self._cwd, self._projectName)
         self._deployment_path = os.path.join(os.path.expanduser('~'))
         self._zip_path = os.path.join(os.path.expanduser('~'))
@@ -66,10 +71,18 @@ class New:
         if not os.path.exists(self._skeleton_path):
             raise FolderNotFoundError('Could not find the skeleton: ', self._skeleton_path)
 
+        if not os.path.exists(self._assetPath):
+            raise FileNotFoundError('Could not find the manage.py asset.')
+
         try:
             copytree(self._skeleton_path, os.path.join(self._cwd, self._projectName))
         except:
             raise CreateFolderError('Could not create the folders for the new project.')
+
+        try:
+            copy(self._assetPath, os.path.join(self._cwd, self._projectName))
+        except:
+            raise FileNotWritableError('Could not create the manage.py file.')
 
     def _replace_strings(self):
         file_list = []

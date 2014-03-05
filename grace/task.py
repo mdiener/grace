@@ -27,7 +27,7 @@ class Task:
     def __init__(self, tasks):
         self._new = False
         self._build = False
-        self._doc = False
+        self._jsdoc = False
         self._with_libs = False
         self._test = False
         self._deploy = False
@@ -41,22 +41,28 @@ class Task:
             self._type = tasks['type']
         if 'build' in tasks:
             self._build = True
-        if 'jsdoc' in cmds:
+        if 'jsdoc' in tasks:
             self._jsdoc = True
-        if 'deploy' in cmds:
+        if 'deploy' in tasks:
             self._deploy = True
-        if 'test' in cmds:
+        if 'test' in tasks:
             self._test = True
-        if 'zip' in cmds:
+        if 'zip' in tasks:
             self._zip = True
-        if 'clean' in cmds:
+        if 'clean' in tasks:
             self._clean = True
-        if 'bad' in cmds:
+        if 'bad' in tasks:
             self._bad = True
 
         self._root = get_path()
-        if not self._new:
-            if not self._build and not self._test and not self._deploy and not self._zip and not self._doc and not self._bad:
+        if not self._new and not self._clean:
+            if self._bad:
+                self._build = True
+                self._test = True
+                self._deploy = True
+                self._zip = True
+                self._jsdoc = True
+            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc:
                 raise UnknownCommandError()
 
             try:
@@ -188,7 +194,7 @@ class Task:
 
         if self._build:
             try:
-                b.build_project(self._restrict)
+                b.build_project()
                 if plugin:
                     try:
                         plugin.after_build()
@@ -198,9 +204,9 @@ class Task:
             except:
                 raise
 
-        if self._doc:
+        if self._jsdoc:
             try:
-                doc.build_doc(self._with_libs)
+                doc.build_doc()
                 if plugin:
                     try:
                         plugin.after_doc()
@@ -225,7 +231,7 @@ class Task:
         if self._deploy:
             if not self._build and not self._test:
                 try:
-                    b.build_project(self._restrict)
+                    b.build_project()
                     if plugin:
                         try:
                             plugin.after_build()
@@ -248,7 +254,7 @@ class Task:
 
         if self._zip:
             if not self._build and not self._test:
-                b.build_project(self._restrict)
+                b.build_project()
                 if plugin:
                     try:
                         plugin.after_build()

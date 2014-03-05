@@ -1,2 +1,3 @@
 include LICENSE.txt README.txt setup.py
 graft grace/skeleton
+graft grace/assets
