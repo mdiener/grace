@@ -18,6 +18,8 @@ class Zip:
             except:
                 raise
 
+            return
+
         if self._config['build']:
             name = self._config['name']
             source = self._config['build_path']

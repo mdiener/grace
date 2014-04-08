@@ -16,6 +16,7 @@ class Deploy:
         if self._config['test']:
             test_deployment_path = os.path.join(self._config['deployment_path'], self._config['name'] + '_test')
             self._deploy(test_deployment_path, self._config['test_build_path'])
+            return
 
         if self._config['build']:
             build_deployment_path = os.path.join(self._config['deployment_path'], self._config['name'])
