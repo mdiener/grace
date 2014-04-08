@@ -24,44 +24,38 @@ def get_path():
 
 
 class Task:
-    def __init__(self, tasks):
-        self._new = False
+    def __init__(self, task):
         self._build = False
         self._jsdoc = False
-        self._with_libs = False
         self._test = False
         self._deploy = False
         self._zip = False
         self._clean = False
         self._bad = False
 
-        if 'new' in tasks:
-            self._new = True
-            self._name = tasks['name']
-            self._type = tasks['type']
-        if 'build' in tasks:
-            self._build = True
-        if 'jsdoc' in tasks:
-            self._jsdoc = True
-        if 'deploy' in tasks:
-            self._deploy = True
-        if 'test' in tasks:
-            self._test = True
-        if 'zip' in tasks:
-            self._zip = True
-        if 'clean' in tasks:
+        if task == 'clean':
             self._clean = True
-        if 'bad' in tasks:
-            self._bad = True
-
-        self._root = get_path()
-        if not self._new and not self._clean:
-            if self._bad:
+        else:
+            if task == 'build':
                 self._build = True
+            if task == 'jsdoc':
+                self._jsdoc = True
+            if task == 'deploy':
+                self._build = True
+                self._deploy = True
+            if task == 'zip':
+                self._build = True
+                self._zip = True
+            if task == 'test':
+                self._test = True
+            if task == 'test:deploy':
                 self._test = True
                 self._deploy = True
+            if task == 'test:zip':
+                self._test = True
                 self._zip = True
-                self._jsdoc = True
+
+            self._root = get_path()
             if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc:
                 raise UnknownCommandError()
 
@@ -164,111 +158,130 @@ class Task:
             module = __import__('grace-' + self._type + '.plugin')
             try:
                 plugin = getattr(module.plugin, self._type.title())()
+                plugin.pass_config(self._config)
             except:
                 raise
         else:
             plugin = None
 
-        if self._new:
-            try:
-                New(self._name, plugin, self._type)
-                print 'Created the project with name ' + self._name + '.'
-            except:
-                raise
-            return
-
-        if plugin:
-            try:
-                plugin.pass_config(self._config)
-            except:
-                raise
-
-        try:
-            b = Build(self._config)
-            t = Test(self._config)
-            d = Deploy(self._config)
-            z = Zip(self._config)
-            doc = Doc(self._config)
-        except:
-            raise
-
         if self._build:
             try:
-                b.build_project()
-                if plugin:
-                    try:
-                        plugin.after_build()
-                    except AttributeError:
-                        pass
-                print 'Successfully built the project.'
+                self.exec_build(plugin)
             except:
                 raise
 
-        if self._jsdoc:
-            try:
-                doc.build_doc()
-                if plugin:
-                    try:
-                        plugin.after_doc()
-                    except AttributeError:
-                        pass
-                print 'Successfully built the JSDoc documentation.'
-            except:
-                raise
-
-        if self._test:
-            try:
-                t.build_test()
-                if plugin:
-                    try:
-                        plugin.after_test()
-                    except AttributeError:
-                        pass
-                print 'Successfully built the tests.'
-            except:
-                raise
-
-        if self._deploy:
-            if not self._build and not self._test:
+            if self._deploy:
                 try:
-                    b.build_project()
-                    if plugin:
-                        try:
-                            plugin.after_build()
-                        except AttributeError:
-                            pass
-                    print 'Successfully built the project.'
+                    self.exec_deploy(plugin)
                 except:
                     raise
 
+            if self._zip:
+                try:
+                    self.exec_zip(plugin)
+                except:
+                    raise
+
+        if self._test:
             try:
-                d.deploy_project()
-                if plugin:
-                    try:
-                        plugin.after_deploy()
-                    except AttributeError:
-                        pass
-                print 'Successfully deployed the project.'
+                self.exec_test(plugin)
             except:
                 raise
 
-        if self._zip:
-            if not self._build and not self._test:
-                b.build_project()
-                if plugin:
-                    try:
-                        plugin.after_build()
-                    except AttributeError:
-                        pass
-                print 'Successfully built the project.'
+            if self._deploy:
+                try:
+                    self.exec_deploy(plugin)
+                except:
+                    raise
 
+            if self._zip:
+                try:
+                    self.exec_zip(plugin)
+                except:
+                    raise
+
+        if self._jsdoc:
             try:
-                z.zip_project()
-                if plugin:
-                    try:
-                        plugin.after_zip()
-                    except AttributeError:
-                        pass
-                print 'Successfully zipped the project.'
+                self.exec_jsdoc(plugin)
             except:
                 raise
+
+
+    def exec_build(self, plugin):
+        try:
+            b = Build(self._config)
+            b.build_project()
+        except:
+            raise
+
+        if plugin:
+            try:
+                plugin.after_build()
+            except AttributeError:
+                pass
+
+        print 'Successfully built the project.'
+
+
+    def exec_deploy(self, plugin):
+        try:
+            d.deploy_project()
+            d = Deploy(self._config)
+        except:
+            raise
+
+        if plugin:
+            try:
+                plugin.after_deploy()
+            except AttributeError:
+                pass
+
+        print 'Successfully deployed the project.'
+
+
+    def exec_zip(self, plugin):
+        try:
+            z = Zip(self._config)
+            z.zip_project()
+        except:
+            raise
+
+        if plugin:
+            try:
+                plugin.after_zip()
+            except AttributeError:
+                pass
+
+        print 'Successfully zipped the project.'
+
+
+    def exec_test(self, plugin):
+        try:
+            t = Test(self._config)
+            t.build_test()
+        except:
+            raise
+
+        if plugin:
+            try:
+                plugin.after_test()
+            except AttributeError:
+                pass
+
+        print 'Successfully built the tests.'
+
+
+    def exec_jsdoc(self, plugin):
+        try:
+            doc = Doc(self._config)
+            doc.build_doc()
+        except:
+            raise
+
+        if plugin:
+            try:
+                plugin.after_doc()
+            except AttributeError:
+                pass
+
+        print 'Successfully built the JSDoc documentation.'

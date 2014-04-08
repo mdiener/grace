@@ -1,4 +1,5 @@
 from grace.task import Task
+from grace.create import New
 from grace.error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError
 import sys
 import os
@@ -19,33 +20,41 @@ def port_grace():
 
 
 def execute_commands(cmds):
+    if len(cmds) < 1:
+        print 'Only the first command will be executed.'
+
     if 'help' in cmds:
         print_help()
         return
 
-    execute(cmds)
+    execute(cmds[0])
 
 
 def execute_new():
     print 'To set up your project we need a bit more information.'
     print 'The values in brackets are the default values. You can just hit enter if you do not want to change them.\n'
 
-    tasks = new_input()
-    execute(tasks)
+    inputs = new_input()
+
+    try:
+        New(inputs['name'], inputs['type'])
+        print 'Created the project, type ' + inputs['type'] + ', with name ' + inputs['name'] + '.'
+    except:
+        raise
 
 
 def new_input():
-    name = raw_input('Please provide a name for you project [MyProject]: ')
-    type = raw_input('Select what type of project you want to create [default]: ')
+    name = raw_input('Please provide a name for your project [MyProject]: ')
+    pluginName = raw_input('Select what type (plugin) of project you want to create [default]: ')
 
     if name == '':
         name = 'MyProject'
-    if type == '':
-        type = 'default'
+    if pluginName == '':
+        pluginName = 'default'
 
     print '\nReview your information:'
     print 'Name: ' + name
-    print 'Type: ' + type
+    print 'Plugin: ' + pluginName
     okay = raw_input('Are the options above correct? [y]: ')
 
     if okay != 'y' and okay != '':
@@ -53,15 +62,14 @@ def new_input():
         args = new_input()
 
     return {
-        'new': True,
         'name': name,
-        'type': type
+        'pluginName': pluginName
     }
 
 
-def execute(args):
+def execute(arg):
     try:
-        task = Task(args)
+        task = Task(arg)
     except FileNotFoundError as e:
         print e.msg
         return
@@ -72,7 +80,7 @@ def execute(args):
         print e.msg
         return
     except UnknownCommandError as e:
-        print 'One of the following commands is not recognized: "' + ', '.join(args) + '"'
+        print 'The following commands is not recognized: ' + arg
         return
 
     try:
