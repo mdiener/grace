@@ -20,7 +20,7 @@ def port_grace():
 
 
 def execute_commands(cmds):
-    if len(cmds) < 1:
+    if len(cmds) > 1:
         print 'Only the first command will be executed.'
 
     if 'help' in cmds:
