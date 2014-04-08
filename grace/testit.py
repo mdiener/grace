@@ -2,6 +2,7 @@ import os
 from error import FileNotFoundError, CreateFolderError, RemoveFolderError, FileNotWritableError, RemoveFileError
 import re
 from shutil import rmtree, copy2, copytree
+import sys
 
 
 class Test:
@@ -93,27 +94,34 @@ class Test:
         lines = []
 
         for line in f:
-            if re.match('\/\/include [a-zA-Z\/]+', line):
+            match = re.match('\/\/= require ([a-zA-Z\/]+)', line)
+            if match:
                 sub_f = None
 
-                sub_path = os.path.join(self._cwd, 'src', 'javascript', re.split(' ', line)[1])
-                sub_path = sub_path[:-1] + '.js'
+                sub_path = match.group(1)
+                if sys.platform.startswith('win32'):
+                    sub_path = sub_path.replace('/', '\\')
 
-                if sub_path in self._included_js_files:
-                    return ''
+                sub_path = os.path.join(self._cwd, 'test', 'javascript', sub_path)
+                if not os.path.exists(sub_path):
+                    sub_path = os.path.join(self._cwd, 'src', 'javascript', sub_path)
 
-                self._included_js_files.append(sub_path)
-                try:
-                    sub_f = open(sub_path)
-                except:
-                    raise FileNotFoundError('The specified file does not exist: ', sub_path)
+                sub_path = sub_path + '.js'
 
-                try:
-                    lines = lines + self._gather_javascript_lines(sub_f)
-                except FileNotFoundError:
-                    raise
-                finally:
-                    sub_f.close()
+                if sub_path not in self._included_js_files:
+                    self._included_js_files.append(sub_path)
+
+                    try:
+                        sub_f = open(sub_path)
+                    except:
+                        raise FileNotFoundError('The specified file does not exist: ', sub_path)
+
+                    try:
+                        lines = lines + self._gather_javascript_lines(sub_f)
+                    except FileNotFoundError:
+                        raise
+                    finally:
+                        sub_f.close()
             else:
                 lines.append(line)
 
