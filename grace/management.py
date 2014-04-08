@@ -37,8 +37,8 @@ def execute_new():
     inputs = new_input()
 
     try:
-        New(inputs['name'], inputs['type'])
-        print 'Created the project, type ' + inputs['type'] + ', with name ' + inputs['name'] + '.'
+        New(inputs['name'], inputs['pluginName'])
+        print 'Created the project, type ' + inputs['pluginName'] + ', with name ' + inputs['name'] + '.'
     except:
         raise
 
