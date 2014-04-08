@@ -126,7 +126,8 @@ Commands
                   specified by the zip_path option in your project.cfg file.
   test            Build all the tests.
   clean           Clean the build output.
-  bad             Do a build, test, jsdoc, deploy and zip together.
+  test:deploy     Build and then deploy the tests.
+  test:zip        Build and then zip the tests
 ```
 
 JavaScript Setup
