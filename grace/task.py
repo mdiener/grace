@@ -225,8 +225,8 @@ class Task:
 
     def exec_deploy(self, plugin):
         try:
-            d.deploy_project()
             d = Deploy(self._config)
+            d.deploy_project()
         except:
             raise
 
