@@ -20,6 +20,11 @@ def get_path():
 
 class New:
     def __init__(self, projectName, pluginName='default'):
+        self._projectName = projectName
+        self._root = get_path()
+        self._cwd = os.getcwd()
+        self._type = pluginName
+
         if pluginName != 'default':
             module = __import__('grace-' + pluginName + '.plugin')
             try:
@@ -29,11 +34,7 @@ class New:
         else:
             plugin = None
 
-        self._projectName = projectName
-        self._root = get_path()
-        self._cwd = os.getcwd()
         self._plugin = plugin
-        self._type = pluginName
 
         if plugin:
             try:
