@@ -1,3 +1,4 @@
+//= require CustomAssertions
 //= require test_cases
 
 QUnit.begin(function() {
