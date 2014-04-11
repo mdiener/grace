@@ -46,39 +46,35 @@ class Test:
     def _build_javascript(self):
         self._js_string_lines = []
 
-        if self._config['testname']:
-            try:
-                self._js_string_lines += self._concat_javascript(self._config['testname'] + '.js')
-            except:
-                raise
-        else:
-            path = os.path.join(self._cwd, 'test', 'javascript')
-            files = os.listdir(path)
+        dest = os.path.join(self._config['test_build_path'], 'test.js')
+        self._js_string_lines = self._concat_javascript()
 
-            for f in files:
-                if os.path.isfile(os.path.join(path, f)):
-                    try:
-                        self._js_string_lines += self._concat_javascript(f)
-                    except:
-                        raise
+        if os.path.exists(dest):
+            try:
+                os.remove(dest)
+            except:
+                raise RemoveFileError('Could not delete the existing javascript test file.')
+
 
         try:
-            f = open(os.path.join(self._config['test_build_path'], 'test.js'), 'w+')
+            f = open(dest, 'w+')
         except:
-            raise FileNotWritableError('Could not write the javascript file.')
+            raise FileNotWritableError('Could not write the javascript test file.')
 
         self._js_string = ''.join(self._js_string_lines)
         f.write(self._js_string)
         f.close()
 
-    def _concat_javascript(self, test):
+    def _concat_javascript(self):
         f = None
         lines = []
 
+        path = os.path.join(self._cwd, 'test', 'test.js')
+
         try:
-            f = open(os.path.join(self._cwd, 'test', 'javascript', test))
+            f = open(path)
         except:
-            raise FileNotFoundError('The specified file does not exist: ', os.path.join(self._cwd, 'test', 'javascript', test))
+            raise FileNotFoundError('The specified file does not exist: ', path)
 
         self._included_js_files = []
         try:
