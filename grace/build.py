@@ -84,7 +84,7 @@ class Build:
         lines = []
 
         for line in f:
-            match = re.match('\/\/= require ([a-zA-Z\/]+)', line)
+            match = re.match('\/\/= require ([a-zA-Z\/-_]+)', line)
             if match:
                 sub_f = None
 
