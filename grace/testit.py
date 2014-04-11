@@ -125,6 +125,7 @@ class Test:
             else:
                 lines.append(line)
 
+        lines.append('\n')
         return lines
 
     def _build_html(self):
