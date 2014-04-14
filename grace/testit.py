@@ -10,44 +10,51 @@ class Test:
         self._cwd = os.getcwd()
         self._config = config
 
-    def _clean_previous_tests(self):
-        if os.path.exists(self._config['test_build_path']):
+    def build_test(self, testname):
+        if testname is None:
+            print 'No tests to build.'
+            return
+
+        build_path = os.path.join(self._cwd, 'build', self._config['name'] + '_' + testname)
+        js_source_path = os.path.join(self._cwd, 'test', 'tests', 'test_' + testname + '.js')
+
+        try:
+            self._clean_previous_tests(build_path)
+        except:
+            raise
+
+        try:
+            self._build_javascript(build_path, js_source_path)
+        except:
+            raise
+
+        try:
+            self._build_libraries(build_path)
+        except:
+            raise
+
+        try:
+            self._build_html(build_path)
+        except:
+            raise
+
+    def _clean_previous_tests(self, build_path):
+        if os.path.exists(build_path):
             try:
-                rmtree(self._config['test_build_path'])
+                rmtree(build_path)
             except:
-                raise RemoveFolderError('Could not delete the test folder.')
+                raise RemoveFolderError('Could not delete the test folder: ' + build_path)
 
         try:
-            os.makedirs(self._config['test_build_path'])
+            os.makedirs(build_path)
         except:
-            raise CreateFolderError('Could not create the test folder.')
+            raise CreateFolderError('Could not create the test folder: ' + build_path)
 
-    def build_test(self):
-        try:
-            self._clean_previous_tests()
-        except:
-            raise
-
-        try:
-            self._build_javascript()
-        except:
-            raise
-
-        try:
-            self._build_libraries()
-        except:
-            raise
-
-        try:
-            self._build_html()
-        except:
-            raise
-
-    def _build_javascript(self):
+    def _build_javascript(self, build_path, js_source_path):
         self._js_string_lines = []
 
-        dest = os.path.join(self._config['test_build_path'], 'test.js')
-        self._js_string_lines = self._concat_javascript()
+        dest = os.path.join(build_path, 'test.js')
+        js_string_lines = self._concat_javascript(js_source_path)
 
         if os.path.exists(dest):
             try:
@@ -61,20 +68,18 @@ class Test:
         except:
             raise FileNotWritableError('Could not write the javascript test file.')
 
-        self._js_string = ''.join(self._js_string_lines)
-        f.write(self._js_string)
+        js_string = ''.join(js_string_lines)
+        f.write(js_string)
         f.close()
 
-    def _concat_javascript(self):
+    def _concat_javascript(self, js_source_path):
         f = None
         lines = []
 
-        path = os.path.join(self._cwd, 'test', 'test.js')
-
         try:
-            f = open(path)
+            f = open(js_source_path)
         except:
-            raise FileNotFoundError('The specified file does not exist: ', path)
+            raise FileNotFoundError('The specified file does not exist: ', js_source_path)
 
         self._included_js_files = []
         try:
@@ -124,9 +129,9 @@ class Test:
         lines.append('\n')
         return lines
 
-    def _build_html(self):
+    def _build_html(self, build_path):
         source = os.path.join(self._cwd, 'test', 'index.html')
-        dest = os.path.join(self._config['test_build_path'], 'index.html')
+        dest = os.path.join(build_path, 'index.html')
         if not os.path.exists(source):
             return
 
@@ -141,9 +146,9 @@ class Test:
         except:
             raise FileNotWritableError('Could not write the html file.')
 
-    def _build_libraries(self):
+    def _build_libraries(self, build_path):
         source = os.path.join(self._cwd, 'test', 'lib')
-        dest = os.path.join(self._config['test_build_path'], 'lib')
+        dest = os.path.join(build_path, 'lib')
 
         if not os.path.exists(source):
             return

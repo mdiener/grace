@@ -1,4 +1,4 @@
-from error import FileNotWritableError, RemoveFileError
+from error import FileNotWritableError, RemoveFileError, MissingKeyError
 import os
 import zipfile
 
@@ -8,33 +8,29 @@ class Zip:
         self._cwd = os.getcwd()
         self._config = config
 
-    def zip_project(self):
+    def zip_project(self, testname):
         if self._config['test']:
-            name = self._config['name'] + '_test'
-            source = self._config['test_build_path']
+            if testname is None:
+                print 'No tests to build.'
+                return
 
-            try:
-                self._zip(source, name)
-            except:
-                raise
-
-            return
-
-        if self._config['build']:
+            name = os.path.join(self._config['name'] + '_' + testname)
+            source = os.path.join(self._cwd, 'build', self._config['name'] + '_' + testname)
+        elif self._config['build']:
             name = self._config['name']
             source = self._config['build_path']
+        else:
+            raise MissingKeyError('It seems you are trying to zip a project but neither build nor test were specified. I am sorry but I do not know what to do now.')
 
-            try:
-                self._zip(source, name)
-            except:
-                raise
-
-    def _zip(self, source, name):
         try:
-            dest = os.path.join(self._config['zip_path'], name + '_v' + self._config['version'] + '.zip')
-        except:
-            dest = os.path.join(self._cwd, 'build', name + '_v' + self._config['version'] + '.zip')
+            self._zip(name, source, os.path.join(self._cwd, 'build', name + '_v' + self._config['version'] + '.zip'))
 
+            if 'zip_path' in self._config:
+                self._zip(name, source, os.path.join(self._config['zip_path'], name + '_v' + self._config['version'] + '.zip'))
+        except:
+            raise
+
+    def _zip(self, name, source, dest):
         try:
             self._cleanup(dest)
         except:

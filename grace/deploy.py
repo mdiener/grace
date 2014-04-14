@@ -9,27 +9,33 @@ class Deploy:
         self._cwd = os.getcwd()
         self._config = config
 
-    def deploy_project(self):
+    def deploy_project(self, testname):
         if 'deployment_path' not in self._config:
             raise MissingKeyError('Could not find deployment path in config file.')
 
         if self._config['test']:
-            test_deployment_path = os.path.join(self._config['deployment_path'], self._config['name'] + '_test')
-            self._deploy(test_deployment_path, self._config['test_build_path'])
-            return
+            if testname is None:
+                print 'No tests to build.'
+                return
 
-        if self._config['build']:
-            build_deployment_path = os.path.join(self._config['deployment_path'], self._config['name'])
-            self._deploy(build_deployment_path, self._config['build_path'])
+            dest = os.path.join(self._config['deployment_path'], self._config['name'] + '_' + testname)
+            source = os.path.join(self._cwd, 'build', self._config['name'] + '_' + testname)
+        elif self._config['build']:
+            dest = os.path.join(self._config['deployment_path'], self._config['name'])
+            source = os.path.join(self._cwd, 'build', self._config['name'])
+        else:
+            raise MissingKeyError('It seems you are trying to deploy a project but neither build nor test were specified. I am sorry but I do not know what to do now.')
 
-    def _deploy(self, deployment_path, build_path):
-        if os.path.exists(deployment_path):
+        self._deploy(source, dest)
+
+    def _deploy(self, source, dest):
+        if os.path.exists(dest):
             try:
-                rmtree(deployment_path)
+                rmtree(dest)
             except:
                 raise RemoveFolderError('Could not remove the existing deployment path.')
 
         try:
-            distutils.dir_util.copy_tree(build_path, deployment_path)
+            distutils.dir_util.copy_tree(source, dest)
         except:
             raise FileNotWritableError('Could not copy the build directory to the deployment path.')

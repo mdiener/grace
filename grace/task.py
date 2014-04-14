@@ -24,7 +24,7 @@ def get_path():
 
 
 class Task:
-    def __init__(self, task):
+    def __init__(self, tasks):
         self._build = False
         self._jsdoc = False
         self._test = False
@@ -32,6 +32,17 @@ class Task:
         self._zip = False
         self._clean = False
         self._bad = False
+
+        task = tasks[0]
+        if task == 'test' or task == 'test:deploy' or task == 'test:zip':
+            if len(tasks) > 1:
+                self._test_cases = tasks[1]
+            else:
+                self._test_cases = None
+        else:
+            if len(tasks) > 1:
+                print 'Only the test command supports multiple commands. Otherwise only the first command will be executed.'
+
 
         if task == 'clean':
             self._clean = True
@@ -136,13 +147,12 @@ class Task:
             self._config['build'] = False
 
         if self._test:
-            try:
-                self._config['testname'] = self._args.testname
-            except:
-                self._config['testname'] = None
+            if self._test_cases is not None:
+                self._config['test_cases'] = self._test_cases.split(';')
+            else:
+                self._config['test_cases'] = None
 
             self._config['test'] = True
-            self._config['test_build_path'] = os.path.join(cwd, 'build', self._config['name'] + '_test')
         else:
             self._config['test'] = False
 
@@ -167,36 +177,29 @@ class Task:
         if self._build:
             try:
                 self.exec_build(plugin)
+
+                if self._deploy:
+                    self.exec_deploy(plugin, None)
+                if self._zip:
+                    self.exec_zip(plugin, None)
             except:
                 raise
-
-            if self._deploy:
-                try:
-                    self.exec_deploy(plugin)
-                except:
-                    raise
-
-            if self._zip:
-                try:
-                    self.exec_zip(plugin)
-                except:
-                    raise
 
         if self._test:
-            try:
-                self.exec_test(plugin)
-            except:
-                raise
+            testnames = self._config['test_cases']
 
-            if self._deploy:
-                try:
-                    self.exec_deploy(plugin)
-                except:
-                    raise
+            if testnames is None:
+                testnames = []
+                for testname in os.listdir(os.path.join(os.getcwd(), 'test', 'tests')):
+                    testnames.append(testname[5:-3])
 
-            if self._zip:
+            for testname in testnames:
                 try:
-                    self.exec_zip(plugin)
+                    self.exec_test(plugin, testname)
+                    if self._deploy:
+                        self.exec_deploy(plugin, testname)
+                    if self._zip:
+                        self.exec_zip(plugin, testname)
                 except:
                     raise
 
@@ -223,52 +226,61 @@ class Task:
         print 'Successfully built the project.'
 
 
-    def exec_deploy(self, plugin):
+    def exec_deploy(self, plugin, testname):
         try:
             d = Deploy(self._config)
-            d.deploy_project()
+            d.deploy_project(testname)
         except:
             raise
 
         if plugin:
             try:
-                plugin.after_deploy()
+                plugin.after_deploy(testname)
             except AttributeError:
                 pass
 
-        print 'Successfully deployed the project.'
+        if testname is not None:
+            print 'Successfully deployed the test: ' + testname + '.'
+        else:
+            print 'Successfully deployed the project.'
 
 
-    def exec_zip(self, plugin):
+    def exec_zip(self, plugin, testname):
         try:
             z = Zip(self._config)
-            z.zip_project()
+            z.zip_project(testname)
         except:
             raise
 
         if plugin:
             try:
-                plugin.after_zip()
+                plugin.after_zip(testname)
             except AttributeError:
                 pass
 
-        print 'Successfully zipped the project.'
+        if testname is not None:
+            print 'Successfully zipped the test: ' + testname + '.'
+        else:
+            print 'Successfully zipped the project.'
 
 
-    def exec_test(self, plugin):
+    def exec_test(self, plugin, testname):
         try:
             t = Test(self._config)
-            t.build_test()
+            t.build_test(testname)
         except:
             raise
 
         if plugin:
             try:
-                plugin.after_test()
+                plugin.after_test(testname)
             except AttributeError:
                 pass
 
-        print 'Successfully built the tests.'
+        if testname is not None:
+            print 'Successfully built the test: ' + testname + '.'
+        else:
+            print 'Successfully built the test.'
 
 
     def exec_jsdoc(self, plugin):

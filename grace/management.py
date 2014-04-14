@@ -20,14 +20,11 @@ def port_grace():
 
 
 def execute_commands(cmds):
-    if len(cmds) > 1:
-        print 'Only the first command will be executed.'
-
     if 'help' in cmds:
         print_help()
         return
 
-    execute(cmds[0])
+    execute(cmds)
 
 
 def execute_new():
@@ -67,9 +64,9 @@ def new_input():
     }
 
 
-def execute(arg):
+def execute(args):
     try:
-        task = Task(arg)
+        task = Task(args)
     except FileNotFoundError as e:
         print e.msg
         return
