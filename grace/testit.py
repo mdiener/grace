@@ -99,15 +99,13 @@ class Test:
             if match:
                 sub_f = None
 
-                sub_path = match.group(1)
+                path = match.group(1)
                 if sys.platform.startswith('win32'):
-                    sub_path = sub_path.replace('/', '\\')
+                    path = path.replace('/', '\\')
 
-                sub_path = os.path.join(self._cwd, 'test', 'javascript', sub_path)
+                sub_path = os.path.join(self._cwd, 'test', 'javascript', path + '.js')
                 if not os.path.exists(sub_path):
-                    sub_path = os.path.join(self._cwd, 'src', 'javascript', sub_path)
-
-                sub_path = sub_path + '.js'
+                    sub_path = os.path.join(self._cwd, 'src', 'javascript', path + '.js')
 
                 if sub_path not in self._included_js_files:
                     self._included_js_files.append(sub_path)

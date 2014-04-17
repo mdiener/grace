@@ -16,7 +16,7 @@ class Doc:
 
         self._lib_path = os.path.join(self._cwd, 'src', 'lib')
 
-    def build_doc(self, with_libs):
+    def build_doc(self, with_libs=False):
         source = os.path.join(self._cwd, 'src', 'javascript')
         dest = os.path.join(self._cwd, self._config['build_path'], 'JSDocs')
 
