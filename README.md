@@ -79,9 +79,9 @@ Config
 A config file will be placed into your project directory. This config file has a few mandatory options and can be used to further adjust **Grace** commands to your need. The following is a list with mandatory (in bold) and optional keys:
 * **name**: The name of your project, will be prefilled with what you put on the command line when creating a new project with *grace new*
 * **version**: The version of your project, will be prefilled with "0.1"
-* deployment_path: The path where your project should be deployed, upon called *grace --deploy*
-* zip_path: The path where the zip file should be placed upon called *grace --zip*
-* doc_path: The path where the JavaScript docs will be built to. Called with *grace --doc*
+* deployment_path: The path where your project should be deployed, upon calling *python manage.py deploy*
+* zip_path: The path where the zip file should be placed upon calling *python manage.py zip*
+* doc_path: The path where the JavaScript docs will be built to. Called with *python manage.py doc*
 * minify_js: Specify wether grace should try to minified your JavaScript
 * minify_css: Specify wether grace should try to minify your css files
 * js_name: The name that the result of the concatenation of all your JavaScript files will have
