@@ -2,7 +2,7 @@
 Grace
 =====
 
-**DOES NOT WORK COMPLETELY YET! PLEASE ONLY USE TO TEST OR TRY OUT! THIS NOTICE WILL BE REMOVED AS SOON AS I THINK IT HAS REACHED A PRODUCTIVE POINT.**
+**Please now that Grace is still in a beta stage. If you discover a bug please report it the respective github page (grace/grace-dizmo).**
 
 **Grace** is a development toolkit for JavaScript, HTML and SCSS (Sass CSS).
 The name **Grace** comes from a sweet puppy, which is always coming to my room whenever I start working to get the little attention that is left.
