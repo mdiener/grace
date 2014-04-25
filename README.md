@@ -27,7 +27,7 @@ Generally, you have two options on Windows: Use the provided executables or use 
 
 #### Executables
 
-For Windows there are standalone executables available under http://www.webdiener.ch/grace.
+There are no current executable available for Windows right now. As soon as I have time I will create new one and provide them to you. If someone wants to take this step over, please feel free to do so! I always have trouble building these and would appreciate any help I can get there.
 
 #### Python Environment
 
