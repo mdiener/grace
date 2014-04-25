@@ -25,7 +25,7 @@ setup(
     name='grace',
     description='A tool to simplify JavaScript development.',
     author='Michael Diener',
-    author_email='dm.menthos@gmail.com',
+    author_email='michael@webdiener.ch',
     url='https://github.com/mdiener/grace',
     version='0.2.9',
     license='LICENSE.txt',
