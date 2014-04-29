@@ -84,7 +84,7 @@ class Build:
         lines = []
 
         for line in f:
-            line = line.replace('#BUILDVERSION', self._config['version']);
+            line = line.replace('##BUILDVERSION##', self._config['version']);
 
             match = re.match('\/\/= require ([a-zA-Z\/-_]+)', line)
             if match:

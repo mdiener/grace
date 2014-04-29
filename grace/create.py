@@ -118,10 +118,11 @@ class New:
         with open(os.path.join(p, outfilename), 'w+') as out:
             infile = open(os.path.join(p, f))
             for line in infile:
-                newline = line.replace('#DEPLOYMENTPATH', self._deployment_path)
-                newline = newline.replace('#ZIPPATH', self._zip_path)
-                newline = newline.replace('#PROJECTNAME', self._projectName)
-                newline = newline.replace('#DOCPATH', self._doc_path)
+                newline = line.replace('##DEPLOYMENTPATH##', self._deployment_path)
+                newline = newline.replace('##ZIPPATH##', self._zip_path)
+                newline = newline.replace('##PROJECTNAME##', self._projectName)
+                newline = newline.replace('##PROJECTNAME_TOLOWER##', self._projectName.lower())
+                newline = newline.replace('##DOCPATH##', self._doc_path)
 
                 if self._plugin:
                     try:
