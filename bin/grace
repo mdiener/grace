@@ -3,8 +3,8 @@
 from grace.management import execute_new, port_grace
 import sys
 
-if 'new' in sys.argv and len(sys.argv) == 2:
-    execute_new()
+if 'new' in sys.argv and sys.argv[0] == 'new'
+    execute_new(sys.argv[1:])
     sys.exit()
 
 if 'port' in sys.argv and len(sys.argv) == 2:

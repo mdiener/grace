@@ -27,11 +27,21 @@ def execute_commands(cmds):
     execute(cmds)
 
 
-def execute_new():
+def execute_new(args):
     print 'To set up your project we need a bit more information.'
     print 'The values in brackets are the default values. You can just hit enter if you do not want to change them.\n'
 
-    inputs = new_input()
+    if (re.match('^--name=\w+$', args[0])):
+        name = args[0]
+        if (re.match('^--plugin=\w+$', args[1])):
+            plugin = args[1]
+    else:
+        if (re.match('^--plugin=\w+$', args[0])):
+            plugin = args[0]
+            if (re.match('^--name=\w+$', args[1])):
+                name = args[1]
+
+    inputs = new_input(name, plugin)
 
     try:
         New(inputs['name'], inputs['pluginName'])
@@ -40,7 +50,7 @@ def execute_new():
         raise
 
 
-def new_input():
+def new_input(name, plugin):
     name = raw_input('Please provide a name for your project [MyProject]: ')
     pluginName = raw_input('Select what type (plugin) of project you want to create [default]: ')
 
