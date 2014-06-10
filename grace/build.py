@@ -56,7 +56,7 @@ class Build:
             raise FileNotWritableError('Could not write the javascript file.')
 
         if self._config['minify_js']:
-            self._js_string = minify(self._js_string, mangle=True, mangle_toplevel=True)
+            self._js_string = minify(self._js_string, mangle=True, mangle_toplevel=False)
 
         f.write(self._js_string)
         f.close()
