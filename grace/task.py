@@ -4,23 +4,13 @@ from zipit import Zip
 from testit import Test
 from create import New
 from doc import Doc
+from update import Update
 import os
 import json
 import re
 from error import FileNotFoundError, WrongFormatError, MissingKeyError, UnknownCommandError
 import sys
-
-
-def we_are_frozen():
-    # All of the modules are built-in to the interpreter, e.g., by py2exe
-    return hasattr(sys, "frozen")
-
-
-def get_path():
-    encoding = sys.getfilesystemencoding()
-    if we_are_frozen():
-        return os.path.dirname(unicode(sys.executable, encoding))
-    return os.path.dirname(unicode(__file__, encoding))
+from utils import get_path
 
 
 class Task:
