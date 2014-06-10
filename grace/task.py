@@ -22,6 +22,9 @@ class Task:
         self._zip = False
         self._clean = False
         self._bad = False
+        self._update = False
+        self._update_test = False
+        self._update_target = None
 
         task = tasks[0]
         if task == 'test' or task == 'test:deploy' or task == 'test:zip':
@@ -55,9 +58,41 @@ class Task:
             if task == 'test:zip':
                 self._test = True
                 self._zip = True
+            if task == 'update':
+                self._update = True
+            if task == 'update:libs':
+                self._update = True
+                self._update_target = 'libs'
+            if task == 'update:html':
+                self._update = True
+                self._update_target = 'html'
+            if task == 'update:config':
+                self._update = True
+                self._update_target = 'config'
+            if task == 'update:javascript':
+                self._update = True
+                self._update_target = 'javascript'
+            if task == 'update:css':
+                self._update = True
+                self._update_target = 'css'
+            if task == 'update:test':
+                self._update = True
+                self._update_test = True
+            if task == 'update:test:libs':
+                self._update = True
+                self._update_test = True
+                self._update_target = 'libs'
+            if task == 'update:test:html':
+                self._update = True
+                self._update_test = True
+                self._update_target = 'html'
+            if task == 'update:test:javascript':
+                self._update = True
+                self._update_test = True
+                self._update_target = 'javascript'
 
             self._root = get_path()
-            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc:
+            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update:
                 raise UnknownCommandError()
 
             try:
@@ -199,6 +234,11 @@ class Task:
             except:
                 raise
 
+        if self._update:
+            try:
+                self.exec_update(plugin, self._update_target)
+            except:
+                raise
 
     def exec_build(self, plugin):
         try:
@@ -214,7 +254,6 @@ class Task:
                 pass
 
         print 'Successfully built the project.'
-
 
     def exec_deploy(self, plugin, testname):
         try:
@@ -234,7 +273,6 @@ class Task:
         else:
             print 'Successfully deployed the project.'
 
-
     def exec_zip(self, plugin, testname):
         try:
             z = Zip(self._config)
@@ -252,7 +290,6 @@ class Task:
             print 'Successfully zipped the test: ' + testname + '.'
         else:
             print 'Successfully zipped the project.'
-
 
     def exec_test(self, plugin, testname):
         try:
@@ -272,7 +309,6 @@ class Task:
         else:
             print 'Successfully built the test.'
 
-
     def exec_jsdoc(self, plugin):
         try:
             doc = Doc(self._config)
@@ -287,3 +323,44 @@ class Task:
                 pass
 
         print 'Successfully built the JSDoc documentation.'
+
+    def exec_update(self, plugin, target):
+        print 'Please be aware that an update will replace anything you have done to the files.'
+        ack = raw_input('Continue: yes/[no] ')
+
+        if ack != 'yes':
+            print 'Canceling update.'
+            sys.exit()
+
+        try:
+            update = Update(self._config, plugin, self._update_test)
+
+            if target is not None:
+                if target is 'libs':
+                    print 'Updating libs directory ...'
+                    update.update_libs()
+                if target is 'html':
+                    print 'Updating index.html file ...'
+                    update.update_html()
+                if target is 'config':
+                    print 'Update project.cfg file ...'
+                    update.update_config()
+                if target is 'javascript':
+                    print 'Update JavaScript files ...'
+                    update.update_javascript()
+                if target is 'css':
+                    print 'Update css files ...'
+                    update.update_css()
+            else:
+                print 'Do you really want to update all files? Changes to any files you might have done will be lost in the process!'
+                ack = raw_input('Continue: yes/[no] ')
+                if ack != 'yes':
+                    print 'Canceling update.'
+                    sys.exit()
+
+                print 'Updating everything ...'
+                update.update_all()
+        except:
+            raise
+
+        print 'Successfully updated the project.'
