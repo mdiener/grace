@@ -77,7 +77,7 @@ def execute(args):
         print e.msg
         return
     except UnknownCommandError as e:
-        print 'The following commands are not recognized: ' + args
+        print 'The following commands are not recognized: ' + ', '.join(args)
         return
 
     try:
