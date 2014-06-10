@@ -1,7 +1,6 @@
-from error import MissingKeyError, RemoveFolderError, FileNotWritableError
+from error import MissingKeyError, RemoveFolderError, FolderNotWritableError
 import os
-from shutil import rmtree
-import distutils.core
+from shutil import rmtree, copytree
 
 
 class Deploy:
@@ -36,6 +35,6 @@ class Deploy:
                 raise RemoveFolderError('Could not remove the existing deployment path.')
 
         try:
-            distutils.dir_util.copy_tree(source, dest)
+            copytree(source, dest)
         except:
-            raise FileNotWritableError('Could not copy the build directory to the deployment path.')
+            raise FolderNotWritableError('Could not copy the build directory to the deployment path.')
