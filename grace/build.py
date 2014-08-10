@@ -58,7 +58,7 @@ class Build:
         if self._config['minify_js']:
             self._js_string = minify(self._js_string, mangle=True, mangle_toplevel=True)
 
-        f.write(self._js_string)
+        f.write(self._js_string.encode('utf-8'))
         f.close()
 
     def _concat_javascript(self, source):
@@ -84,7 +84,8 @@ class Build:
         lines = []
 
         for line in f:
-            line = line.replace('##BUILDVERSION##', self._config['version']);
+            line = line.decode('utf-8')
+            line = line.replace('##BUILDVERSION##', self._config['version'])
 
             match = re.match('\/\/= require ([a-zA-Z\/-_]+)', line)
             if match:
