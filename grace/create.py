@@ -45,13 +45,6 @@ class New:
             self._assetPath = os.path.join(sys.prefix, 'assets', 'manage.py')
 
         self._projectPath = os.path.join(self._cwd, self._projectName)
-        self._deployment_path = os.path.join(os.path.expanduser('~'))
-        self._zip_path = os.path.join(os.path.expanduser('~'))
-        self._doc_path = os.path.join(os.path.expanduser('~'))
-
-        if sys.platform.startswith('win32'):
-            self._deployment_path = self._deployment_path.replace('\\', '\\\\')
-            self._zip_path = self._zip_path.replace('\\', '\\\\')
 
         try:
             self._copy_structure()
@@ -107,11 +100,8 @@ class New:
         with open(os.path.join(p, outfilename), 'w+') as out:
             infile = open(os.path.join(p, f))
             for line in infile:
-                newline = line.replace('##DEPLOYMENTPATH##', self._deployment_path)
-                newline = newline.replace('##ZIPPATH##', self._zip_path)
-                newline = newline.replace('##PROJECTNAME##', self._projectName)
+                newline = line.replace('##PROJECTNAME##', self._projectName)
                 newline = newline.replace('##PROJECTNAME_TOLOWER##', self._projectName.lower())
-                newline = newline.replace('##DOCPATH##', self._doc_path)
 
                 if self._plugin:
                     try:

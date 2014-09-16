@@ -10,8 +10,9 @@ import tempfile
 
 
 class Build:
-    def __init__(self, config):
+    def __init__(self, global_config, config):
         self._cwd = os.getcwd()
+        self._global_config = global_config
         self._config = config
 
     def build_project(self):

@@ -7,11 +7,45 @@ from shutil import copy
 from pkg_resources import resource_filename
 
 
-def port_grace():
+def get_asset_path(asset):
+    if not isinstance(asset, basestring):
+        raise WrongFormatError('Asset needs to be a string.')
+
     try:
-        assetPath = os.path.join(resource_filename(__name__, os.path.join('assets', 'manage.py')))
+        assetPath = os.path.join(resource_filename(__name__, os.path.join('assets', asset)))
     except NotImplementedError:
-        assetPath = os.path.join(sys.prefix, 'assets', 'manage.py')
+        assetPath = os.path.join(sys.prefix, 'assets', asset)
+
+    return assetPath
+
+
+def global_config():
+    global_config_path = os.path.join(os.path.expanduser('~'), '.graceconfig')
+    assetPath = get_asset_path('grace.cfg')
+
+    if not os.path.isfile(global_config_path):
+        deployment_path = os.path.join(os.path.expanduser('~'))
+        zip_path = os.path.join(os.path.expanduser('~'))
+        doc_path = os.path.join(os.path.expanduser('~'))
+
+        if sys.platform.startswith('win32'):
+            deployment_path = deployment_path.replace('\\', '\\\\')
+            zip_path = zip_path.replace('\\', '\\\\')
+
+        with open(global_config_path, 'w+') as out:
+            infile = open(assetPath)
+            for line in infile:
+                newline = line.replace('##DEPLOYMENTPATH##', deployment_path)
+                newline = newline.replace('##ZIPPATH##', zip_path)
+                newline = newline.replace('##DOCPATH##', doc_path)
+
+                out.write(newline)
+
+            infile.close()
+
+
+def port_grace():
+    assetPath = get_asset_path('manage.py');
 
     try:
         copy(assetPath, os.getcwd())
@@ -24,6 +58,7 @@ def execute_commands(cmds):
         print_help()
         return
 
+    global_config()
     execute(cmds)
 
 

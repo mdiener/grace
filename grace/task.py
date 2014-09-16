@@ -96,11 +96,50 @@ class Task:
                 raise UnknownCommandError()
 
             try:
-                self._parse_config()
+                self._parse_global_config()
+                self._parse_local_config()
             except:
                 raise
 
-    def _parse_config(self):
+    def _parse_config_file(self, config_file):
+        strings = []
+        for line in config_file:
+            if not re.search('^\s*//.*', line):
+                strings.append(line)
+
+        try:
+            return json.loads(''.join(strings))
+        except:
+            raise WrongFormatError('The provided configuration file could not be parsed.')
+
+    def _parse_global_config(self):
+        config_path = os.path.join(os.path.expanduser('~'), '.graceconfig')
+
+        try:
+            config_file = open(os.path.join(config_path))
+        except:
+            self._global_config = {}
+            print 'No global configuration file found, using local one for all values.'
+            return
+
+        try:
+            self._global_config = self._parse_config_file(config_file)
+        except:
+            raise
+
+        if 'minify_js' not in self._global_config:
+            self._global_config['minify_js'] = False
+        else:
+            if not isinstance(self._global_config['minify_js'], bool):
+                self._global_config['minify_js'] = False
+
+        if 'minify_css' not in self._global_config:
+            self._global_config['minify_css'] = False
+        else:
+            if not isinstance(self._global_config['minify_css'], bool):
+                self._global_config['minify_css'] = False
+
+    def _parse_local_config(self):
         cwd = os.getcwd()
 
         try:
@@ -108,15 +147,10 @@ class Task:
         except:
             raise FileNotFoundError('Could not find a config file in this directory.')
 
-        strings = []
-        for line in config_file:
-            if not re.search('^\s*//.*', line):
-                strings.append(line)
-
         try:
-            self._config = json.loads(''.join(strings))
+            self._config = self._parse_config_file(config_file)
         except:
-            raise WrongFormatError('The provided config file could not be parsed.')
+            raise
 
         if 'name' not in self._config:
             raise MissingKeyError('Name of the project needs to be in the config file.')
@@ -134,13 +168,13 @@ class Task:
                 raise WrongFormatError('The version key in your config file needs to be a string!')
 
         if 'minify_js' not in self._config:
-            self._config['minify_js'] = False
+            self._config['minify_js'] = self._global_config['minify_js']
         else:
             if not isinstance(self._config['minify_js'], bool):
                 self._config['minify_js'] = False
 
         if 'minify_css' not in self._config:
-            self._config['minify_css'] = False
+            self._config['minify_css'] = self._global_config['minify_css']
         else:
             if not isinstance(self._config['minify_css'], bool):
                 self._config['minify_css'] = False
@@ -193,7 +227,7 @@ class Task:
             module = __import__('grace-' + self._type + '.plugin')
             try:
                 plugin = getattr(module.plugin, self._type.title())()
-                plugin.pass_config(self._config)
+                plugin.pass_config(self._global_config, self._config)
             except:
                 raise
         else:
@@ -242,7 +276,7 @@ class Task:
 
     def exec_build(self, plugin):
         try:
-            b = Build(self._config)
+            b = Build(self._global_config, self._config)
             b.build_project()
         except:
             raise
@@ -257,7 +291,7 @@ class Task:
 
     def exec_deploy(self, plugin, testname):
         try:
-            d = Deploy(self._config)
+            d = Deploy(self._global_config, self._config)
             d.deploy_project(testname)
         except:
             raise
@@ -275,7 +309,7 @@ class Task:
 
     def exec_zip(self, plugin, testname):
         try:
-            z = Zip(self._config)
+            z = Zip(self._global_config, self._config)
             z.zip_project(testname)
         except:
             raise
@@ -293,7 +327,7 @@ class Task:
 
     def exec_test(self, plugin, testname):
         try:
-            t = Test(self._config)
+            t = Test(self._global_config, self._config)
             t.build_test(testname)
         except:
             raise
@@ -311,7 +345,7 @@ class Task:
 
     def exec_jsdoc(self, plugin):
         try:
-            doc = Doc(self._config)
+            doc = Doc(self._global_config, self._config)
             doc.build_doc()
         except:
             raise
