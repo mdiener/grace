@@ -26,6 +26,9 @@ class Task:
         self._update_test = False
         self._update_target = None
 
+        if len(tasks) == 0:
+            raise UnknownCommandError('Need to have at least one task to operate on')
+
         task = tasks[0]
         if task == 'test' or task == 'test:deploy' or task == 'test:zip':
             if len(tasks) > 1:
@@ -34,7 +37,7 @@ class Task:
                 self._test_cases = None
         else:
             if len(tasks) > 1:
-                print 'Only the test command supports multiple commands. Otherwise only the first command will be executed.'
+                print 'Only the first argument will be executed. All other arguments are being ignored (except "st" if supplied")'
 
 
         if task == 'clean':
@@ -93,7 +96,7 @@ class Task:
 
             self._root = get_path()
             if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update:
-                raise UnknownCommandError()
+                raise UnknownCommandError('The provided argument(s) could not be recognized by the manage.py script: ' + ', '.join(tasks))
 
             try:
                 self._parse_global_config()
