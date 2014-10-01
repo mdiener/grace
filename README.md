@@ -87,6 +87,7 @@ There are two configuration file present. The global one can be found in the cur
 * doc_path
 * minify_js
 * minify_css
+
 All these values apply to all your **Grace** projects and can be overwritten on a project to project basis.
 
 The other configuration file will be placed in the local directory of you project. This file has a few mandatory options and can be used to further adjust **Grace** commands to your need. The following is a list with mandatory (in bold) and optional keys:
