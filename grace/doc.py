@@ -5,14 +5,18 @@ from shutil import rmtree
 
 
 class Doc:
-    def __init__(self, config):
+    def __init__(self, global_config, config):
         self._cwd = os.getcwd()
         self._config = config
-        self._default_doc_path = os.path.join(self._cwd, 'build', 'doc')
-        if 'doc_path' in self._config:
-            self._doc_path = self._config['doc_path']
+        self._global_config = global_config
+
+        if 'doc_path' not in self._config:
+            if 'doc_path' not in self._global_config:
+                self._doc_path = None
+            else:
+                self._doc_path = os.path.join(self._global_config['doc_path'], self._config['name'], 'JSDoc')
         else:
-            self._doc_path = None
+            self._doc_path = os.path.join(self._config['doc_path'], self._config['name'], 'JSDoc')
 
         self._lib_path = os.path.join(self._cwd, 'src', 'lib')
 
@@ -42,7 +46,7 @@ class Doc:
         except:
             raise FileNotWritableError('Could not write the docs to into the build directory.')
 
-        if self._doc_path:
+        if self._doc_path is not None:
             try:
                 jsdoc.save_docs(output_dir=self._doc_path)
             except:

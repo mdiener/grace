@@ -4,9 +4,18 @@ import zipfile
 
 
 class Zip:
-    def __init__(self, config):
+    def __init__(self, global_config, config):
         self._cwd = os.getcwd()
+        self._global_config = global_config
         self._config = config
+
+        if 'zip_path' not in self._config:
+            if 'zip_path' not in self._global_config:
+                self._zip_path = None
+            else:
+                self._zip_path = os.path.join(self._global_config['zip_path'])
+        else:
+            self._zip_path = os.path.join(self._config['zip_path'])
 
     def zip_project(self, testname):
         if self._config['test']:
@@ -25,8 +34,8 @@ class Zip:
         try:
             self._zip(name, source, os.path.join(self._cwd, 'build', name + '_v' + self._config['version'] + '.zip'))
 
-            if 'zip_path' in self._config:
-                self._zip(name, source, os.path.join(self._config['zip_path'], name + '_v' + self._config['version'] + '.zip'))
+            if self._zip_path is not None:
+                self._zip(name, source, os.path.join(self._zip_path, name + '_v' + self._config['version'] + '.zip'))
         except:
             raise
 

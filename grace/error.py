@@ -25,6 +25,10 @@ class FolderAlreadyExistsError(Error):
     pass
 
 
+class FolderNotWritableError(Error):
+    pass
+
+
 class CreateFolderError(Error):
     pass
 

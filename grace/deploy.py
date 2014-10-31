@@ -1,27 +1,32 @@
-from error import MissingKeyError, RemoveFolderError, FileNotWritableError
+from error import MissingKeyError, RemoveFolderError, FolderNotWritableError
 import os
-from shutil import rmtree
-import distutils.core
+from shutil import rmtree, copytree
 
 
 class Deploy:
-    def __init__(self, config):
+    def __init__(self, global_config, config):
         self._cwd = os.getcwd()
+        self._global_config = global_config
         self._config = config
 
-    def deploy_project(self, testname):
         if 'deployment_path' not in self._config:
-            raise MissingKeyError('Could not find deployment path in config file.')
+            if 'deployment_path' not in self._global_config:
+                raise MissingKeyError('Could not find deployment path in config file.')
+            else:
+                self._deployment_path = self._global_config['deployment_path']
+        else:
+            self._deployment_path = self._config['deployment_path']
 
+    def deploy_project(self, testname):
         if self._config['test']:
             if testname is None:
                 print 'No tests to build.'
                 return
 
-            dest = os.path.join(self._config['deployment_path'], self._config['name'] + '_' + testname)
+            dest = os.path.join(self._deployment_path, self._config['name'] + '_' + testname)
             source = os.path.join(self._cwd, 'build', self._config['name'] + '_' + testname)
         elif self._config['build']:
-            dest = os.path.join(self._config['deployment_path'], self._config['name'])
+            dest = os.path.join(self._deployment_path, self._config['name'])
             source = os.path.join(self._cwd, 'build', self._config['name'])
         else:
             raise MissingKeyError('It seems you are trying to deploy a project but neither build nor test were specified. I am sorry but I do not know what to do now.')
@@ -36,6 +41,6 @@ class Deploy:
                 raise RemoveFolderError('Could not remove the existing deployment path.')
 
         try:
-            distutils.dir_util.copy_tree(source, dest)
+            copytree(source, dest)
         except:
-            raise FileNotWritableError('Could not copy the build directory to the deployment path.')
+            raise FolderNotWritableError('Could not copy the build directory to the deployment path.')

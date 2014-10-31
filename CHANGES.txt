@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.3.0
+-----
+
+* Switched to GPL License
+
 0.1.3
 -----
 

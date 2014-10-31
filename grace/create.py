@@ -4,18 +4,7 @@ from shutil import copytree, copy
 import sys
 import re
 from pkg_resources import resource_filename
-
-
-def we_are_frozen():
-    # All of the modules are built-in to the interpreter, e.g., by py2exe
-    return hasattr(sys, "frozen")
-
-
-def get_path():
-    encoding = sys.getfilesystemencoding()
-    if we_are_frozen():
-        return os.path.dirname(unicode(sys.executable, encoding))
-    return os.path.dirname(unicode(__file__, encoding))
+from utils import get_path
 
 
 class New:
@@ -56,13 +45,6 @@ class New:
             self._assetPath = os.path.join(sys.prefix, 'assets', 'manage.py')
 
         self._projectPath = os.path.join(self._cwd, self._projectName)
-        self._deployment_path = os.path.join(os.path.expanduser('~'))
-        self._zip_path = os.path.join(os.path.expanduser('~'))
-        self._doc_path = os.path.join(os.path.expanduser('~'))
-
-        if sys.platform.startswith('win32'):
-            self._deployment_path = self._deployment_path.replace('\\', '\\\\')
-            self._zip_path = self._zip_path.replace('\\', '\\\\')
 
         try:
             self._copy_structure()
@@ -118,11 +100,8 @@ class New:
         with open(os.path.join(p, outfilename), 'w+') as out:
             infile = open(os.path.join(p, f))
             for line in infile:
-                newline = line.replace('##DEPLOYMENTPATH##', self._deployment_path)
-                newline = newline.replace('##ZIPPATH##', self._zip_path)
-                newline = newline.replace('##PROJECTNAME##', self._projectName)
+                newline = line.replace('##PROJECTNAME##', self._projectName)
                 newline = newline.replace('##PROJECTNAME_TOLOWER##', self._projectName.lower())
-                newline = newline.replace('##DOCPATH##', self._doc_path)
 
                 if self._plugin:
                     try:

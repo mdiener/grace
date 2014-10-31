@@ -2,10 +2,15 @@
 Grace
 =====
 
-**Please now that Grace is still in a beta stage. If you discover a bug please report it the respective github page (grace/grace-dizmo).**
+**Please know that Grace is still in a beta stage. If you discover a bug please report it the respective github page (grace/grace-dizmo).**
 
 **Grace** is a development toolkit for JavaScript, HTML and SCSS (Sass CSS).
 The name **Grace** comes from a sweet puppy, which is always coming to my room whenever I start working to get the little attention that is left.
+
+License
+=======
+
+Grace is released under a GPL license. You can read the full license in the attached LICENSE.txt file.
 
 What Does It Do?
 ================
@@ -52,7 +57,7 @@ To use **Grace** on a Mac OS X system you first need to install the command line
 
 ### Linux
 
-On any newer Linux derivate, their should be a python 2.7.4 installation present. If it is lower than 2.7.4 these instructions might not work for you, but grace itself will still work.
+On any newer Linux distribution, there should be a python installation present. If it is lower than 2.7.4 these instructions might not work for you, but grace itself will still work.
 
 1. Install pip from the command line: *sudo apt-get install python-pip*
 2. Install grace: *pip install grace --user* (No sudo needed, --user install everything in your home directory!)
@@ -76,7 +81,16 @@ If you have an older version of **Grace** (<0.2.0) you can update it using the c
 Config
 ------
 
-A config file will be placed into your project directory. This config file has a few mandatory options and can be used to further adjust **Grace** commands to your need. The following is a list with mandatory (in bold) and optional keys:
+There are two configuration file present. The global one can be found in the current user's home directory (*.graceconfig*) and contains (more about each value further down):
+* deployment_path
+* zip_path
+* doc_path
+* minify_js
+* minify_css
+
+All these values apply to all your **Grace** projects and can be overwritten on a project to project basis.
+
+The other configuration file will be placed in the local directory of you project. This file has a few mandatory options and can be used to further adjust **Grace** commands to your need. The following is a list with mandatory (in bold) and optional keys:
 * **name**: The name of your project, will be prefilled with what you put on the command line when creating a new project with *grace new*
 * **version**: The version of your project, will be prefilled with "0.1"
 * deployment_path: The path where your project should be deployed, upon calling *python manage.py deploy*
@@ -97,7 +111,7 @@ python manage.py build
 Building Tests
 --------------
 
-To build tests, execute the command python manage.py test_. With _python manage.py test deploy_ you can build and instantly deploy your test to the deployment_path specified in the config file.
+To build tests, execute the command python manage.py test_. With _python manage.py test:deploy_ you can build and instantly deploy your test to the deployment_path specified in the config file.
 
 Available Commands
 ------------------
@@ -128,6 +142,8 @@ Commands
   clean           Clean the build output.
   test:deploy     Build and then deploy the tests.
   test:zip        Build and then zip the tests
+  st              Can be used with any command to show the full stack trace
+                  (in case of an error).
 ```
 
 JavaScript Setup
@@ -196,3 +212,5 @@ MyProject
         `-- joose
             `-- joose.min.js
 </pre>
+
+For more information on Joose and the class system go to http://joose.it/.

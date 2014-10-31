@@ -1,23 +1,46 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
-from grace.management import execute_new, port_grace
+from grace.management import execute_new, port_grace, global_config
 import sys
 
-if 'new' in sys.argv and sys.argv[0] == 'new'
-    execute_new(sys.argv[1:])
+if 'new' in sys.argv and len(sys.argv) == 2:
+    global_config()
+    execute_new()
     sys.exit()
 
 if 'port' in sys.argv and len(sys.argv) == 2:
+    global_config()
     port_grace()
+    sys.exit()
+
+if 'help' in sys.argv and 'config' in sys.argv and len(sys.argv) == 3:
+    print 'Grace Config'
+    print '============\n'
+    print 'The global configuration file is written to you users home directory in the file .graceconfig. The options set in their are global over all projects built with grace. Each option can, if there\'s a need, be specified on a per-project basis in the project.cfg file in each project.'
+    print 'The .graceconfig file will be created upon first calling new or port or any command from inside a project. It will never be overwritten and once created must be edited by hand.'
+    sys.exit()
+
+if 'help' in sys.argv and 'new' in sys.argv and len(sys.argv) == 3:
+    print 'Grave New'
+    print '=========\n'
+    print 'The "new" command starts the process of creating a new project. You will be asked to provide a name for you project and chose a plugin to use (if any).'
+    sys.exit()
+
+if 'help' in sys.argv and 'port' in sys.argv and len(sys.argv) == 3:
+    print 'Grace Port'
+    print '==========\n'
+    print 'The "port" command is used to port a project from an older grace version. Updating/Creating the new manage.py file and taking care of other administrative tasks not directly related to your project.'
+    print 'You can ALWAYS safely call this inside your project. It will never touch any of you source code.'
     sys.exit()
 
 if 'help' in sys.argv and len(sys.argv) == 2:
     print 'Grace'
     print '=====\n'
-    print 'Grace can be called with either "new" or "port". If you are using a version older than 1.0, please call port first. This will than move the manage.py file in your old grace folder.'
-    print 'If you are unsure, call "grace port". The file will be overwritten, but your project will not be touched.\n'
+    print 'Grace is a small tool chain to help you build quicker and nicer rich JavaScript applications.'
+    print 'The following commands are available: new, port, help. For more information on each command, issue "grace help [command]"'
+    print 'For more information about the global config file issue "grace help config".'
     print 'For further information please visit http://www.github.com/mdiener/grace'
     sys.exit()
 
-print 'Use grace with the "new" option to start a new project.\nTo port from an older version, call "grace port" and than use the provided manage.py file.\nFor further help type "grace help".'
+print 'Grace has to be called with either "new", "port" or "help" as a command line option.\nFor more information call "grace help".'
 sys.exit()

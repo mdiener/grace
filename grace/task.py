@@ -4,23 +4,13 @@ from zipit import Zip
 from testit import Test
 from create import New
 from doc import Doc
+from update import Update
 import os
 import json
 import re
 from error import FileNotFoundError, WrongFormatError, MissingKeyError, UnknownCommandError
 import sys
-
-
-def we_are_frozen():
-    # All of the modules are built-in to the interpreter, e.g., by py2exe
-    return hasattr(sys, "frozen")
-
-
-def get_path():
-    encoding = sys.getfilesystemencoding()
-    if we_are_frozen():
-        return os.path.dirname(unicode(sys.executable, encoding))
-    return os.path.dirname(unicode(__file__, encoding))
+from utils import get_path
 
 
 class Task:
@@ -32,6 +22,12 @@ class Task:
         self._zip = False
         self._clean = False
         self._bad = False
+        self._update = False
+        self._update_test = False
+        self._update_target = None
+
+        if len(tasks) == 0:
+            raise UnknownCommandError('Need to have at least one task to operate on')
 
         task = tasks[0]
         if task == 'test' or task == 'test:deploy' or task == 'test:zip':
@@ -41,7 +37,7 @@ class Task:
                 self._test_cases = None
         else:
             if len(tasks) > 1:
-                print 'Only the test command supports multiple commands. Otherwise only the first command will be executed.'
+                print 'Only the first argument will be executed. All other arguments are being ignored (except "st" if supplied")'
 
 
         if task == 'clean':
@@ -65,17 +61,88 @@ class Task:
             if task == 'test:zip':
                 self._test = True
                 self._zip = True
+            if task == 'update':
+                self._update = True
+            if task == 'update:libs':
+                self._update = True
+                self._update_target = 'libs'
+            if task == 'update:html':
+                self._update = True
+                self._update_target = 'html'
+            if task == 'update:config':
+                self._update = True
+                self._update_target = 'config'
+            if task == 'update:javascript':
+                self._update = True
+                self._update_target = 'javascript'
+            if task == 'update:css':
+                self._update = True
+                self._update_target = 'css'
+            if task == 'update:test':
+                self._update = True
+                self._update_test = True
+            if task == 'update:test:libs':
+                self._update = True
+                self._update_test = True
+                self._update_target = 'libs'
+            if task == 'update:test:html':
+                self._update = True
+                self._update_test = True
+                self._update_target = 'html'
+            if task == 'update:test:javascript':
+                self._update = True
+                self._update_test = True
+                self._update_target = 'javascript'
 
             self._root = get_path()
-            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc:
-                raise UnknownCommandError()
+            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update:
+                raise UnknownCommandError('The provided argument(s) could not be recognized by the manage.py script: ' + ', '.join(tasks))
 
             try:
-                self._parse_config()
+                self._parse_global_config()
+                self._parse_local_config()
             except:
                 raise
 
-    def _parse_config(self):
+    def _parse_config_file(self, config_file):
+        strings = []
+        for line in config_file:
+            if not re.search('^\s*//.*', line):
+                strings.append(line)
+
+        try:
+            return json.loads(''.join(strings))
+        except:
+            raise WrongFormatError('The provided configuration file could not be parsed.')
+
+    def _parse_global_config(self):
+        config_path = os.path.join(os.path.expanduser('~'), '.graceconfig')
+
+        try:
+            config_file = open(os.path.join(config_path))
+        except:
+            self._global_config = {}
+            print 'No global configuration file found, using local one for all values.'
+            return
+
+        try:
+            self._global_config = self._parse_config_file(config_file)
+        except:
+            raise
+
+        if 'minify_js' not in self._global_config:
+            self._global_config['minify_js'] = False
+        else:
+            if not isinstance(self._global_config['minify_js'], bool):
+                self._global_config['minify_js'] = False
+
+        if 'minify_css' not in self._global_config:
+            self._global_config['minify_css'] = False
+        else:
+            if not isinstance(self._global_config['minify_css'], bool):
+                self._global_config['minify_css'] = False
+
+    def _parse_local_config(self):
         cwd = os.getcwd()
 
         try:
@@ -83,15 +150,10 @@ class Task:
         except:
             raise FileNotFoundError('Could not find a config file in this directory.')
 
-        strings = []
-        for line in config_file:
-            if not re.search('^\s*//.*', line):
-                strings.append(line)
-
         try:
-            self._config = json.loads(''.join(strings))
+            self._config = self._parse_config_file(config_file)
         except:
-            raise WrongFormatError('The provided config file could not be parsed.')
+            raise
 
         if 'name' not in self._config:
             raise MissingKeyError('Name of the project needs to be in the config file.')
@@ -109,13 +171,13 @@ class Task:
                 raise WrongFormatError('The version key in your config file needs to be a string!')
 
         if 'minify_js' not in self._config:
-            self._config['minify_js'] = False
+            self._config['minify_js'] = self._global_config['minify_js']
         else:
             if not isinstance(self._config['minify_js'], bool):
                 self._config['minify_js'] = False
 
         if 'minify_css' not in self._config:
-            self._config['minify_css'] = False
+            self._config['minify_css'] = self._global_config['minify_css']
         else:
             if not isinstance(self._config['minify_css'], bool):
                 self._config['minify_css'] = False
@@ -168,7 +230,7 @@ class Task:
             module = __import__('grace-' + self._type + '.plugin')
             try:
                 plugin = getattr(module.plugin, self._type.title())()
-                plugin.pass_config(self._config)
+                plugin.pass_config(self._global_config, self._config)
             except:
                 raise
         else:
@@ -209,10 +271,15 @@ class Task:
             except:
                 raise
 
+        if self._update:
+            try:
+                self.exec_update(plugin, self._update_target)
+            except:
+                raise
 
     def exec_build(self, plugin):
         try:
-            b = Build(self._config)
+            b = Build(self._global_config, self._config)
             b.build_project()
         except:
             raise
@@ -225,10 +292,9 @@ class Task:
 
         print 'Successfully built the project.'
 
-
     def exec_deploy(self, plugin, testname):
         try:
-            d = Deploy(self._config)
+            d = Deploy(self._global_config, self._config)
             d.deploy_project(testname)
         except:
             raise
@@ -244,10 +310,9 @@ class Task:
         else:
             print 'Successfully deployed the project.'
 
-
     def exec_zip(self, plugin, testname):
         try:
-            z = Zip(self._config)
+            z = Zip(self._global_config, self._config)
             z.zip_project(testname)
         except:
             raise
@@ -263,10 +328,9 @@ class Task:
         else:
             print 'Successfully zipped the project.'
 
-
     def exec_test(self, plugin, testname):
         try:
-            t = Test(self._config)
+            t = Test(self._global_config, self._config)
             t.build_test(testname)
         except:
             raise
@@ -282,10 +346,9 @@ class Task:
         else:
             print 'Successfully built the test.'
 
-
     def exec_jsdoc(self, plugin):
         try:
-            doc = Doc(self._config)
+            doc = Doc(self._global_config, self._config)
             doc.build_doc()
         except:
             raise
@@ -297,3 +360,44 @@ class Task:
                 pass
 
         print 'Successfully built the JSDoc documentation.'
+
+    def exec_update(self, plugin, target):
+        print 'Please be aware that an update will replace anything you have done to the files.'
+        ack = raw_input('Continue: yes/[no] ')
+
+        if ack != 'yes':
+            print 'Canceling update.'
+            sys.exit()
+
+        try:
+            update = Update(self._config, plugin, self._update_test)
+
+            if target is not None:
+                if target is 'libs':
+                    print 'Updating libs directory ...'
+                    update.update_libs()
+                if target is 'html':
+                    print 'Updating index.html file ...'
+                    update.update_html()
+                if target is 'config':
+                    print 'Update project.cfg file ...'
+                    update.update_config()
+                if target is 'javascript':
+                    print 'Update JavaScript files ...'
+                    update.update_javascript()
+                if target is 'css':
+                    print 'Update css files ...'
+                    update.update_css()
+            else:
+                print 'Do you really want to update all files? Changes to any files you might have done will be lost in the process!'
+                ack = raw_input('Continue: yes/[no] ')
+                if ack != 'yes':
+                    print 'Canceling update.'
+                    sys.exit()
+
+                print 'Updating everything ...'
+                update.update_all()
+        except:
+            raise
+
+        print 'Successfully updated the project.'
