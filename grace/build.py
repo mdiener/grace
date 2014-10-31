@@ -27,6 +27,7 @@ class Build:
             self._build_style()
             self._build_html()
             self._build_libraries()
+            self._copy_assets()
         except:
             raise
 
@@ -240,6 +241,24 @@ class Build:
             copytree(source, dest)
         except:
             raise FileNotWritableError('Could not copy all the libraries.')
+
+    def _copy_assets(self):
+        source = os.path.join(self._cwd, 'assets')
+        dest = os.path.join(self._config['build_path'], 'assets')
+
+        if not os.path.exists(source):
+            return;
+
+        if os.path.exists(dest):
+            try:
+                rmtree(dest)
+            except:
+                raise RemoveFolderError('Could not remove the existing assets folder.')
+
+        try:
+            copytree(source, dest)
+        except:
+            raise FileNotWritableError('Could not copy all the asset files.')
 
 
 def clean():
