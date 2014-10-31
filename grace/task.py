@@ -29,6 +29,24 @@ class Task:
         if len(tasks) == 0:
             raise UnknownCommandError('Need to have at least one task to operate on')
 
+        self._root = get_path()
+        try:
+            self._parse_global_config()
+            self._parse_local_config()
+        except:
+            raise
+
+        if self._type != 'default':
+            module = __import__('grace-' + self._type + '.plugin')
+            try:
+                self._pluginInstance = getattr(module.plugin, self._type.title())()
+                self._pluginInstance.pass_config(self._global_config, self._config)
+            except:
+                raise
+        else:
+            self._pluginInstance = None
+            self._pluginTaskInstance = None
+
         task = tasks[0]
         if task == 'test' or task == 'test:deploy' or task == 'test:zip':
             if len(tasks) > 1:
@@ -38,7 +56,6 @@ class Task:
         else:
             if len(tasks) > 1:
                 print 'Only the first argument will be executed. All other arguments are being ignored (except "st" if supplied")'
-
 
         if task == 'clean':
             self._clean = True
@@ -94,15 +111,13 @@ class Task:
                 self._update_test = True
                 self._update_target = 'javascript'
 
-            self._root = get_path()
             if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update:
-                raise UnknownCommandError('The provided argument(s) could not be recognized by the manage.py script: ' + ', '.join(tasks))
-
-            try:
-                self._parse_global_config()
-                self._parse_local_config()
-            except:
-                raise
+                try:
+                    self._pluginTaskInstance = getattr(module.plugin, 'Task')(task)
+                    self._pluginTaskInstance.pass_config(self._global_config, self._config)
+                    self._pluginTask = True
+                except:
+                    raise UnknownCommandError('The provided argument(s) could not be recognized by the manage.py script: ' + ', '.join(tasks))
 
     def _parse_config_file(self, config_file):
         strings = []
@@ -226,24 +241,14 @@ class Task:
                 raise
             return
 
-        if self._type != 'default':
-            module = __import__('grace-' + self._type + '.plugin')
-            try:
-                plugin = getattr(module.plugin, self._type.title())()
-                plugin.pass_config(self._global_config, self._config)
-            except:
-                raise
-        else:
-            plugin = None
-
         if self._build:
             try:
-                self.exec_build(plugin)
+                self.exec_build(self._pluginInstance)
 
                 if self._deploy:
-                    self.exec_deploy(plugin, None)
+                    self.exec_deploy(self._pluginInstance, None)
                 if self._zip:
-                    self.exec_zip(plugin, None)
+                    self.exec_zip(self._pluginInstance, None)
             except:
                 raise
 
@@ -257,23 +262,29 @@ class Task:
 
             for testname in testnames:
                 try:
-                    self.exec_test(plugin, testname)
+                    self.exec_test(self._pluginInstance, testname)
                     if self._deploy:
-                        self.exec_deploy(plugin, testname)
+                        self.exec_deploy(self._pluginInstance, testname)
                     if self._zip:
-                        self.exec_zip(plugin, testname)
+                        self.exec_zip(self._pluginInstance, testname)
                 except:
                     raise
 
         if self._jsdoc:
             try:
-                self.exec_jsdoc(plugin)
+                self.exec_jsdoc(self._pluginInstance)
             except:
                 raise
 
         if self._update:
             try:
-                self.exec_update(plugin, self._update_target)
+                self.exec_update(self._pluginInstance, self._update_target)
+            except:
+                raise
+
+        if self._pluginTask:
+            try:
+                self._pluginTaskInstance.execute()
             except:
                 raise
 
