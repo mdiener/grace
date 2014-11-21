@@ -5,6 +5,7 @@ from testit import Test
 from create import New
 from doc import Doc
 from update import Update
+from upload import Upload
 import os
 import json
 import re
@@ -25,6 +26,7 @@ class Task:
         self._update = False
         self._update_test = False
         self._update_target = None
+        self._upload = False
 
         if len(tasks) == 0:
             raise UnknownCommandError('Need to have at least one task to operate on')
@@ -41,6 +43,8 @@ class Task:
             try:
                 self._pluginInstance = getattr(module.plugin, self._type.title())()
                 self._pluginInstance.pass_config(self._global_config, self._config)
+                self._pluginTaskInstance = getattr(module.plugin, 'Task')
+                self._pluginTaskInstance.pass_config(self._global_config, self._config)
             except:
                 raise
         else:
@@ -110,8 +114,12 @@ class Task:
                 self._update = True
                 self._update_test = True
                 self._update_target = 'javascript'
+            if task == 'upload':
+                self._build = True
+                self._zip = True
+                self._upload = True
 
-            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update:
+            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update and not self._upload:
                 try:
                     self._pluginTaskInstance = getattr(module.plugin, 'Task')(task)
                     self._pluginTaskInstance.pass_config(self._global_config, self._config)
@@ -249,6 +257,9 @@ class Task:
                     self.exec_deploy(self._pluginInstance, None)
                 if self._zip:
                     self.exec_zip(self._pluginInstance, None)
+
+                    if self._upload:
+                        self.exec_upload(self._pluginInstance)
             except:
                 raise
 
@@ -412,3 +423,12 @@ class Task:
             raise
 
         print 'Successfully updated the project.'
+
+    def exec_upload(self, plugin):
+        try:
+            u = Upload(self._global_config, self._config)
+            u.upload_project()
+        except:
+            raise
+
+        print 'Successfully deployed the project.'
