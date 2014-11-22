@@ -34,6 +34,7 @@ def global_config():
         if sys.platform.startswith('win32'):
             deployment_path = deployment_path.replace('\\', '\\\\')
             zip_path = zip_path.replace('\\', '\\\\')
+            doc_path = doc_path.replace('\\', '\\\\')
 
         with open(global_config_path, 'w+') as out:
             infile = open(assetPath)
@@ -161,6 +162,8 @@ def execute(args, show_stacktrace):
 
 
 def print_help():
+    userhome = os.path.join(os.path.expanduser('~'), '.graceconfig')
+
     print 'Grace Help'
     print '=========='
     print 'Grace is a toolchain to work with rich JavaScript applications. It'
@@ -183,6 +186,7 @@ def print_help():
     print 'test:zip\tBuild and then zip the tests'
     print 'st\t\tCan be used with any command to show the full stack trace'
     print '\t\t(in case of an error).'
+    print '\nThe global configuration file can be found at: ' + userhome
     print '\nFurther Reading'
     print '---------------'
     print 'For more information visit http://www.github.com/mdiener/grace'
