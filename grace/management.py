@@ -5,6 +5,9 @@ import sys
 import os
 from shutil import copy
 from pkg_resources import resource_filename
+import logging
+
+logging.basicConfig(level=0)
 
 
 def get_asset_path(asset):
