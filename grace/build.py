@@ -4,7 +4,7 @@ from shutil import copy2, copytree, rmtree
 from slimit import minify
 from cssmin import cssmin
 import re
-import sass
+import scss
 import sys
 import tempfile
 
@@ -27,6 +27,7 @@ class Build:
             self._build_style()
             self._build_html()
             self._build_libraries()
+            self._copy_assets()
         except:
             raise
 
@@ -172,13 +173,26 @@ class Build:
         for root, dirs, files in os.walk(folder):
             for f in files:
                 if f.endswith('.scss'):
+
+                    ns = scss.namespace.Namespace()
+
+                    @ns.declare_alias('dashboard-region')
+                    def dashboard():
+                        return scss.types.Function(u'control rectangle', u'dashboard-region', quotes=None)
+
+                    @ns.declare_alias('dashboard-region')
+                    def dashboard(val):
+                        return scss.types.Function(val.render(), u'dashboard-region', quotes=None)
+
+                    compiler = scss.compiler.Compiler(namespace=ns, undefined_variables_fatal=False)
+
                     scss_filename = os.path.join(root, f)
                     css_filename = os.path.join(root, f[:-4] + 'css')
 
                     try:
-                        css_string = sass.compile(filename=scss_filename)
-                    except sass.CompileError as e:
-                        raise SassError('Could not compile your scss file:\n', e.message[:-1])
+                        css_string = compiler.compile(scss_filename)
+                    except scss.errors.SassEvaluationError as e:
+                        raise e
                     except:
                         raise FileNotFoundError('Could not find your scss style file.')
 
@@ -240,6 +254,24 @@ class Build:
             copytree(source, dest)
         except:
             raise FileNotWritableError('Could not copy all the libraries.')
+
+    def _copy_assets(self):
+        source = os.path.join(self._cwd, 'assets')
+        dest = os.path.join(self._config['build_path'], 'assets')
+
+        if not os.path.exists(source):
+            return;
+
+        if os.path.exists(dest):
+            try:
+                rmtree(dest)
+            except:
+                raise RemoveFolderError('Could not remove the existing assets folder.')
+
+        try:
+            copytree(source, dest)
+        except:
+            raise FileNotWritableError('Could not copy all the asset files.')
 
 
 def clean():

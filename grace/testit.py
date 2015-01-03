@@ -21,21 +21,10 @@ class Test:
 
         try:
             self._clean_previous_tests(build_path)
-        except:
-            raise
-
-        try:
             self._build_javascript(build_path, js_source_path)
-        except:
-            raise
-
-        try:
             self._build_libraries(build_path)
-        except:
-            raise
-
-        try:
             self._build_html(build_path)
+            self._copy_assets(build_path)
         except:
             raise
 
@@ -162,3 +151,21 @@ class Test:
             copytree(source, dest)
         except:
             raise FileNotWritableError('Could not copy all the libraries.')
+
+    def _copy_assets(self, build_path):
+        source = os.path.join(self._cwd, 'assets')
+        dest = os.path.join(build_path, 'assets')
+
+        if not os.path.exists(source):
+            return
+
+        if os.path.exists(dest):
+            try:
+                rmtree(dest)
+            except:
+                raise RemoveFolderError('Could not remove the existing assets folder.')
+
+        try:
+            copytree(source, dest)
+        except:
+            raise FileNotWritableError('Could not copy all asset files')

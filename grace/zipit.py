@@ -46,7 +46,12 @@ class Zip:
             raise
 
         try:
-            z = zipfile.ZipFile(dest, 'a')
+            z = zipfile.ZipFile(dest, 'a', zipfile.ZIP_DEFLATED)
+        except RuntimeError as e:
+            try:
+                z = zipfile.ZipFile(dest, 'a')
+            except:
+                raise
         except:
             raise
 

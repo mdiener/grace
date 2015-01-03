@@ -214,3 +214,9 @@ MyProject
 </pre>
 
 For more information on Joose and the class system go to http://joose.it/.
+
+Additional Options
+------------------
+
+Grace provides, although not added by default, the option of an assets folder. This folder can be added on the main level of the project (next to the src, test, project.cfg) and will be copied into the build and test output folders. It is intended to hold files that are used to provide additional functionality to the program, like a json file or an iframed html site.
+Access to these files has to be done by the developer. Grace just copies these files into the right directories.
