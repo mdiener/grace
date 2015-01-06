@@ -5,13 +5,12 @@ from shutil import rmtree, copy2, copytree
 import sys
 
 
-class Test:
-    def __init__(self, global_config, config):
+class Test(object):
+    def __init__(self, config):
         self._cwd = os.getcwd()
-        self._global_config = global_config
         self._config = config
 
-    def build_test(self, testname):
+    def run(self, testname):
         if testname is None:
             print 'No tests to build.'
             return

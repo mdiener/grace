@@ -4,23 +4,19 @@ import os
 from shutil import rmtree
 
 
-class Doc:
-    def __init__(self, global_config, config):
+class Doc(object):
+    def __init__(self, config):
         self._cwd = os.getcwd()
         self._config = config
-        self._global_config = global_config
 
         if 'doc_path' not in self._config:
-            if 'doc_path' not in self._global_config:
-                self._doc_path = None
-            else:
-                self._doc_path = os.path.join(self._global_config['doc_path'], self._config['name'], 'JSDoc')
+            self._doc_path = None
         else:
             self._doc_path = os.path.join(self._config['doc_path'], self._config['name'], 'JSDoc')
 
         self._lib_path = os.path.join(self._cwd, 'src', 'lib')
 
-    def build_doc(self, with_libs=False):
+    def run(self, with_libs=False):
         source = os.path.join(self._cwd, 'src', 'javascript')
         dest = os.path.join(self._cwd, self._config['build_path'], 'JSDocs')
 

@@ -3,21 +3,17 @@ import os
 from shutil import rmtree, copytree
 
 
-class Deploy:
-    def __init__(self, global_config, config):
+class Deploy(object):
+    def __init__(self, config):
         self._cwd = os.getcwd()
-        self._global_config = global_config
         self._config = config
 
         if 'deployment_path' not in self._config:
-            if 'deployment_path' not in self._global_config:
-                raise MissingKeyError('Could not find deployment path in config file.')
-            else:
-                self._deployment_path = self._global_config['deployment_path']
+            raise MissingKeyError('Could not find deployment path in config file.')
         else:
             self._deployment_path = self._config['deployment_path']
 
-    def deploy_project(self, testname):
+    def run(self, testname):
         if self._config['test']:
             if testname is None:
                 print 'No tests to build.'

@@ -3,27 +3,23 @@ import os
 import zipfile
 
 
-class Zip:
-    def __init__(self, global_config, config):
+class Zip(object):
+    def __init__(self, config):
         self._cwd = os.getcwd()
-        self._global_config = global_config
         self._config = config
 
         if 'zip_path' not in self._config:
-            if 'zip_path' not in self._global_config:
-                self._zip_path = None
-            else:
-                self._zip_path = os.path.join(self._global_config['zip_path'])
+            self._zip_path = None
         else:
             self._zip_path = os.path.join(self._config['zip_path'])
 
-    def zip_project(self, testname):
+    def run(self, testname):
         if self._config['test']:
             if testname is None:
                 print 'No tests to build.'
                 return
 
-            name = os.path.join(self._config['name'] + '_' + testname)
+            name = self._config['name'] + '_' + testname
             source = os.path.join(self._cwd, 'build', self._config['name'] + '_' + testname)
         elif self._config['build']:
             name = self._config['name']
