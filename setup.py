@@ -31,7 +31,7 @@ setup(
     license='LICENSE.txt',
     scripts=['bin/grace'],
     packages=['grace'],
-    install_requires=['pyScss', 'argparse', 'setuptools', 'slimit', 'cssmin', 'pyjsdoc'],
+    install_requires=['pyScss', 'argparse', 'setuptools', 'slimit', 'cssmin', 'pyjsdoc', 'requests'],
     package_data=package_data,
     keywords='toolchain javascript dizmo js buildtool',
     long_description=open('README.txt').read(),

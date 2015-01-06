@@ -10,6 +10,8 @@ import logging
 import re
 
 logging.basicConfig(level=0)
+logging.getLogger('requests').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
 
 
 def get_asset_path(asset):

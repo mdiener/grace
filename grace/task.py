@@ -221,7 +221,20 @@ class Task(object):
 
         print 'Successfully built the JSDoc documentation.'
 
-    def exec_update(self, plugin, target):
+    def exec_upload(self):
+        if self._module is not None:
+            try:
+                u = getattr(self._module.plugin, 'Upload')(self._config)
+            except AttributeError:
+                u = Upload(self._config)
+        else:
+            u = Upload(self._config)
+
+        u.run()
+
+        print 'Successfully uploaded the project.'
+
+    def exec_update(self, target):
         print 'Please be aware that an update will replace anything you have done to the files.'
         ack = raw_input('Continue: yes/[no] ')
 
