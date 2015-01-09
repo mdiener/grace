@@ -1,7 +1,7 @@
 from grace.task import Task
 from grace.create import New, Assets
 from grace.config import Config
-from grace.error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError, WrongLoginCredentials
+from grace.error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError, WrongLoginCredentials, FileUploadError
 import sys
 import os
 from shutil import copy
@@ -82,9 +82,6 @@ def execute_commands(cmds):
 
 
 def execute_new(args):
-    print 'To set up your project we need a bit more information.'
-    print 'The values in brackets are the default values. You can just hit enter if you do not want to change them.\n'
-
     name = ''
     plugin = ''
 
@@ -127,21 +124,22 @@ def execute_new(args):
 
 
 def new_input(name, pluginName):
-    if name is '':
+    if name == '' and pluginName == '':
         preset = False
-        name = raw_input('Please provide a name for your project [MyProject]: ')
-        if name is '':
-            name = 'MyProject'
+        print 'To set up your project we need a bit more information.'
+        print 'The values in brackets are the default values. You can just hit enter if you do not want to change them.\n'
     else:
         preset = True
 
+    if name is '':
+        name = raw_input('Please provide a name for your project [MyProject]: ')
+        if name is '':
+            name = 'MyProject'
+
     if pluginName is '':
-        preset = False
         pluginName = raw_input('Select what type (plugin) of project you want to create [default]: ')
         if pluginName is '':
             pluginName = 'default'
-    else:
-        preset = True
 
     if not preset:
         print '\nReview your information:'
@@ -175,11 +173,10 @@ def execute(args, show_stacktrace=False):
 
         try:
             task = getattr(module.plugin, 'Task')(args, config, module)
-        except:
+        except AttributeError:
             task = Task(args, config, module)
 
         task.execute()
-
     else:
         try:
             c = Config()
@@ -209,8 +206,11 @@ def execute(args, show_stacktrace=False):
                 return
 
         try:
-            task = getattr(module.plugin, 'Task')(args, config)
-        except:
+            task = getattr(module.plugin, 'Task')(args, config, module)
+        except UnknownCommandError as e:
+            print_error_msg(e.msg)
+            return
+        except AttributeError:
             try:
                 task = Task(args, config, module)
             except UnknownCommandError as e:
@@ -219,10 +219,13 @@ def execute(args, show_stacktrace=False):
             except:
                 print_error_msg('Could not initialize the Task module. Aborting!')
                 return
+        except:
+            print_error_msg('Could not initialize the Task module. Aborting!')
+            return
 
         try:
             task.execute()
-        except (FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, WrongLoginCredentials) as e:
+        except (FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, WrongLoginCredentials, FileUploadError) as e:
             print_error_msg(e.msg)
         except Exception as e:
             print_error_msg('Could not execute the given task. Something went wrong, please try again!')

@@ -67,3 +67,7 @@ class WrongLoginCredentials(Error):
 
 class GeneralError(Error):
     pass
+
+
+class FileUploadError(Error):
+    pass
