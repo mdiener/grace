@@ -254,6 +254,7 @@ def print_help():
     print 'test\t\tBuild all the tests.'
     print 'test:deploy\tBuild and then deploy the tests.'
     print 'test:zip\tBuild and then zip the tests'
+    print 'upload\tUpload the project to the specified server.'
     print 'st\t\tCan be used with any command to show the full stack trace'
     print '\t\t(in case of an error).'
     print '\nThe global configuration file can be found at: ' + userhome
