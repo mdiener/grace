@@ -3,29 +3,21 @@ from utils import get_path
 from shutil import copytree, rmtree
 from error import FolderNotFoundError, FolderNotWritableError, FileNotFoundError, FileNotWritableError
 from pkg_resources import resource_filename
+import sys
 
 
-class Update:
-    def __init__(self, config, plugin, test):
+class Update(object):
+    def __init__(self, config, test=False, target=None):
         self._cwd = os.getcwd()
         self._root = get_path()
         self._config = config
-        self._plugin = plugin
         self._test = test
+        self._target = target
 
-        if plugin:
-            try:
-                self._skeleton_path = plugin.skeleton_path()
-            except NotImplementedError:
-                try:
-                    self._skeleton_path = resource_filename(__name__, os.path.join('skeleton', 'default'))
-                except NotImplementedError:
-                    self._skeleton_path = os.path.join(sys.prefix, 'skeleton', 'default')
-        else:
-            try:
-                self._skeleton_path = resource_filename(__name__, os.path.join('skeleton', 'default'))
-            except NotImplementedError:
-                self._skeleton_path = os.path.join(sys.prefix, 'skeleton', 'default')
+        try:
+            self._skeleton_path = resource_filename(__name__, os.path.join('skeleton', 'default'))
+        except NotImplementedError:
+            self._skeleton_path = os.path.join(sys.prefix, 'skeleton', 'default')
 
         try:
             self._assetPath = os.path.join(resource_filename(__name__, os.path.join('assets', 'manage.py')))
@@ -46,7 +38,39 @@ class Update:
         else:
             self._doc_path = ''
 
-    def update_all(self):
+    def run(self):
+        if self._target is None:
+            print 'Do you really want to update all files? Changes to any files you might have done will be lost in the process!'
+            ack = raw_input('Continue: yes/[no] ')
+            if ack is not 'yes':
+                print 'Canceling update.'
+                sys.exit()
+
+            print 'Updating everything ...'
+
+            self._update_all()
+
+        if self._target is 'libs':
+            print 'Updating libs directory ...'
+            self._update_libs()
+
+        if self._target is 'html':
+            print 'Updating index.html file ...'
+            self._update_html()
+
+        if self._target is 'config':
+            print 'Update project.cfg file ...'
+            self._update_config()
+
+        if self._target is 'javascript':
+            print 'Update JavaScript files ...'
+            self._update_javascript()
+
+        if self._target is 'css':
+            print 'Update css files ...'
+            self._update_css()
+
+    def _update_all(self):
         if not self._test:
             try:
                 self.update_css()
@@ -61,7 +85,7 @@ class Update:
         except:
             raise
 
-    def update_config(self):
+    def _update_config(self):
         new_config_path = os.path.join(self._skeleton_path, 'project_X.cfg')
         current_config_path = os.path.join(self._cwd, 'project.cfg')
 
@@ -76,7 +100,7 @@ class Update:
 
         self._replace_lines_and_copy(new_config_path, current_config_path)
 
-    def update_libs(self):
+    def _update_libs(self):
         if self._test:
             new_libs_dir = os.path.join(self._skeleton_path, 'test', 'lib')
             current_libs_dir = os.path.join(self._cwd, 'test', 'lib')
@@ -92,7 +116,7 @@ class Update:
         except:
             raise
 
-    def update_html(self):
+    def _update_html(self):
         if self._test:
             new_html_path = os.path.join(self._skeleton_path, 'test', 'index_X.html')
             current_html_path = os.path.join(self._cwd, 'test', 'index.html')
@@ -111,7 +135,7 @@ class Update:
 
         self._replace_lines_and_copy(new_html_path, current_html_path)
 
-    def update_javascript(self):
+    def _update_javascript(self):
         if self._test:
             new_javascript_dir = os.path.join(self._skeleton_path, 'test', 'javascript')
             current_javascript_dir = os.path.join(self._cwd, 'test', 'javascript')
@@ -136,7 +160,7 @@ class Update:
         except:
             raise
 
-    def update_css(self):
+    def _update_css(self):
         new_css_dir = os.path.join(self._skeleton_path, 'src', 'style')
         current_css_dir = os.path.join(self._cwd, 'src', 'style')
 
@@ -184,12 +208,6 @@ class Update:
                     newline = newline.replace('##PROJECTNAME##', self._projectName)
                     newline = newline.replace('##PROJECTNAME_TOLOWER##', self._projectName.lower())
                     newline = newline.replace('##DOCPATH##', self._doc_path)
-
-                    if self._plugin:
-                        try:
-                            newline = self._plugin.new_replace_line(newline)
-                        except AttributeError:
-                            pass
                 except UnicodeDecodeError as exc:
                     newline = line
 

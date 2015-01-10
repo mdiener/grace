@@ -59,3 +59,15 @@ class UnknownCommandError(Error):
 
 class SassError(Error):
     pass
+
+
+class WrongLoginCredentials(Error):
+    pass
+
+
+class GeneralError(Error):
+    pass
+
+
+class FileUploadError(Error):
+    pass

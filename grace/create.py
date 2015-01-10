@@ -7,37 +7,11 @@ from pkg_resources import resource_filename
 from utils import get_path
 
 
-class New:
-    def __init__(self, projectName, pluginName='default'):
+class Assets(object):
+    def __init__(self, projectName):
         self._projectName = projectName
         self._root = get_path()
         self._cwd = os.getcwd()
-        self._type = pluginName
-
-        if pluginName != 'default':
-            module = __import__('grace-' + pluginName + '.plugin')
-            try:
-                plugin = getattr(module.plugin, self._type.title())()
-            except:
-                raise
-        else:
-            plugin = None
-
-        self._plugin = plugin
-
-        if plugin:
-            try:
-                self._skeleton_path = plugin.skeleton_path()
-            except NotImplementedError:
-                try:
-                    self._skeleton_path = resource_filename(__name__, os.path.join('skeleton', 'default'))
-                except NotImplementedError:
-                    self._skeleton_path = os.path.join(sys.prefix, 'skeleton', 'default')
-        else:
-            try:
-                self._skeleton_path = resource_filename(__name__, os.path.join('skeleton', 'default'))
-            except NotImplementedError:
-                self._skeleton_path = os.path.join(sys.prefix, 'skeleton', 'default')
 
         try:
             self._assetPath = os.path.join(resource_filename(__name__, os.path.join('assets', 'manage.py')))
@@ -46,15 +20,33 @@ class New:
 
         self._projectPath = os.path.join(self._cwd, self._projectName)
 
-        try:
-            self._copy_structure()
-        except:
-            raise
+        self._copy_assets()
+
+    def _copy_assets(self):
+        if not os.path.exists(self._assetPath):
+            raise FileNotFoundError('Could not find the manage.py asset.')
 
         try:
-            self._replace_strings()
+            copy(self._assetPath, os.path.join(self._cwd, self._projectName))
         except:
-            raise
+            raise FileNotWritableError('Could not create the manage.py file.')
+
+
+class New(object):
+    def __init__(self, projectName):
+        self._projectName = projectName
+        self._root = get_path()
+        self._cwd = os.getcwd()
+
+        try:
+            self._skeleton_path = resource_filename(__name__, os.path.join('skeleton', 'default'))
+        except NotImplementedError:
+            self._skeleton_path = os.path.join(sys.prefix, 'skeleton', 'default')
+
+        self._projectPath = os.path.join(self._cwd, self._projectName)
+
+        self._copy_structure()
+        self._replace_strings()
 
     def _copy_structure(self):
         if os.path.exists(os.path.join(self._cwd, self._projectName)):
@@ -63,18 +55,10 @@ class New:
         if not os.path.exists(self._skeleton_path):
             raise FolderNotFoundError('Could not find the skeleton: ', self._skeleton_path)
 
-        if not os.path.exists(self._assetPath):
-            raise FileNotFoundError('Could not find the manage.py asset.')
-
         try:
             copytree(self._skeleton_path, os.path.join(self._cwd, self._projectName))
         except:
             raise CreateFolderError('Could not create the folders for the new project.')
-
-        try:
-            copy(self._assetPath, os.path.join(self._cwd, self._projectName))
-        except:
-            raise FileNotWritableError('Could not create the manage.py file.')
 
     def _replace_strings(self):
         file_list = []
@@ -102,12 +86,6 @@ class New:
             for line in infile:
                 newline = line.replace('##PROJECTNAME##', self._projectName)
                 newline = newline.replace('##PROJECTNAME_TOLOWER##', self._projectName.lower())
-
-                if self._plugin:
-                    try:
-                        newline = self._plugin.new_replace_line(newline)
-                    except AttributeError:
-                        pass
 
                 out.write(newline)
 

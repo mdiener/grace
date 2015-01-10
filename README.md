@@ -2,7 +2,7 @@
 Grace
 =====
 
-**Please know that Grace is still in a beta stage. If you discover a bug please report it the respective github page (grace/grace-dizmo).**
+**Please know that Grace is still in a beta stage. If you discover a bug please report it through the ticket system.**
 
 **Grace** is a development toolkit for JavaScript, HTML and SCSS (Sass CSS).
 The name **Grace** comes from a sweet puppy, which is always coming to my room whenever I start working to get the little attention that is left.
@@ -72,6 +72,7 @@ The first step would be to create a new project. This can be done by invoking **
 grace new
 ```
 After filling out the required information,**Grace** creates a new folder in your current folder with the correct structure and files needed. From here on you can go to your folder and start using **Grace** from in there.
+*grace new* can also be called with two parameters: --plugin=[plugin name] and --name=[project name] which supply the required information on the command line. If these two parameter (or one of them) is specified, the creation dialog will be skipped for the provided parameter.
 
 Porting
 -------
@@ -87,6 +88,8 @@ There are two configuration file present. The global one can be found in the cur
 * doc_path
 * minify_js
 * minify_css
+* urls
+* credentials
 
 All these values apply to all your **Grace** projects and can be overwritten on a project to project basis.
 
@@ -99,6 +102,12 @@ The other configuration file will be placed in the local directory of you projec
 * minify_js: Specify wether grace should try to minified your JavaScript
 * minify_css: Specify wether grace should try to minify your css files
 * js_name: The name that the result of the concatenation of all your JavaScript files will have
+* urls: A list of URLs that can be used by the project. Currently supported are:
+** upload: URL which is used by the upload command
+** login: URL used to login to a server if required (basic auth with cookies is supported). If this is not supplied, the upload url will be used to log in.
+* credentials: Contains two keys
+** username: The username used to log in. If empty or not specified, the user is then asked on the command line.
+** password: The password used to log in. If empty or not specified, the user is then asked on the command line.
 
 Building Your Project
 ---------------------
@@ -142,6 +151,7 @@ Commands
   clean           Clean the build output.
   test:deploy     Build and then deploy the tests.
   test:zip        Build and then zip the tests
+  upload          Upload the project to the specified server.
   st              Can be used with any command to show the full stack trace
                   (in case of an error).
 ```

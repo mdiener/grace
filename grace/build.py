@@ -9,13 +9,12 @@ import sys
 import tempfile
 
 
-class Build:
-    def __init__(self, global_config, config):
+class Build(object):
+    def __init__(self, config):
         self._cwd = os.getcwd()
-        self._global_config = global_config
         self._config = config
 
-    def build_project(self):
+    def run(self):
         if not os.path.exists(self._config['build_path']):
             try:
                 os.makedirs(self._config['build_path'])
