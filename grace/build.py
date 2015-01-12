@@ -192,6 +192,10 @@ class Build(object):
                         css_string = compiler.compile(scss_filename)
                     except scss.errors.SassEvaluationError as e:
                         raise e
+                    except scss.errors.SyntaxError as e:
+                        raise e
+                    except scss.errors.ParseError as e:
+                        raise e
                     except:
                         raise FileNotFoundError('Could not find your scss style file.')
 
