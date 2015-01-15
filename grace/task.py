@@ -217,7 +217,7 @@ class Task(object):
         else:
             d = Doc(self._config)
 
-        doc.run()
+        d.run()
 
         print 'Successfully built the JSDoc documentation.'
 

@@ -18,7 +18,7 @@ class Doc(object):
 
     def run(self, with_libs=False):
         source = os.path.join(self._cwd, 'src', 'javascript')
-        dest = os.path.join(self._cwd, self._config['build_path'], 'JSDocs')
+        dest = os.path.join(self._cwd, 'build', 'JSDocs')
 
         if not os.path.exists(self._config['build_path']):
             try:
@@ -38,11 +38,21 @@ class Doc(object):
             jsdoc = pyjsdoc.CodeBaseDoc([source])
 
         try:
+            os.makedirs(dest)
+        except:
+            raise CreateFolderError('Could not create the doc folder in your build directory.')
+
+        try:
             jsdoc.save_docs(output_dir=dest)
         except:
             raise FileNotWritableError('Could not write the docs to into the build directory.')
 
         if self._doc_path is not None:
+            try:
+                os.makedirs(self._doc_path)
+            except:
+                raise CreateFolderError('Could not create the doc folder at "' + self._doc_path + '".')
+
             try:
                 jsdoc.save_docs(output_dir=self._doc_path)
             except:
