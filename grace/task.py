@@ -37,7 +37,7 @@ class Task(object):
         task = tasks[0]
         if task == 'test' or task == 'test:deploy' or task == 'test:zip':
             if len(tasks) > 1:
-                self._test_cases = tasks[1]
+                self._test_cases = tasks[1].split(':')
             else:
                 self._test_cases = None
         else:
@@ -124,22 +124,23 @@ class Task(object):
                     self.exec_upload()
 
         if self._test:
-            testnames = self._config['test_cases']
+            if self._test_cases is None:
+                self._test_cases = self._config['test_cases']
 
-            if testnames is None:
-                testnames = []
-                for testname in os.listdir(os.path.join(os.getcwd(), 'test', 'tests')):
-                    testnames.append(testname[5:-3])
+            if self._test_cases is None:
+                self._test_cases = []
+                for test_case in os.listdir(os.path.join(os.getcwd(), 'test', 'tests')):
+                    self._test_cases.append(test_case[5:-3])
 
-            for testname in testnames:
-                self.exec_test(testname)
+            for test_case in self._test_cases:
+                self.exec_test(test_case)
 
                 self._config['test'] = True
 
                 if self._deploy:
-                    self.exec_deploy(testname)
+                    self.exec_deploy(test_case)
                 if self._zip:
-                    self.exec_zip(testname)
+                    self.exec_zip(test_case)
 
         if self._jsdoc:
             self.exec_jsdoc()

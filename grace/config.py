@@ -107,6 +107,9 @@ class Config(object):
                 if len(self._config['js_name']) == 0:
                     self._config['js_name'] = 'application'
 
+        if 'test_cases' not in self._config:
+            self._config['test_cases'] = None
+
         self._config['build_path'] = os.path.join(cwd, 'build', self._config['name'])
 
     def get_config(self):
