@@ -8,10 +8,12 @@ from shutil import copy
 from pkg_resources import resource_filename
 import logging
 import re
+import requests
 
 logging.basicConfig(level=0)
 logging.getLogger('requests').setLevel(logging.WARNING)
 logging.getLogger('urllib3').setLevel(logging.WARNING)
+requests.packages.urllib3.disable_warnings()
 
 
 def get_asset_path(asset):
