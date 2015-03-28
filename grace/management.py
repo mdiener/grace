@@ -150,7 +150,7 @@ def new_input(name, pluginName):
 
         if okay != 'y' and okay != '':
             print '\n'
-            args = new_input()
+            args = new_input('', '')
 
     return {
         'name': name,
