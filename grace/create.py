@@ -1,10 +1,13 @@
-from error import FileNotWritableError, FolderAlreadyExistsError, FolderNotFoundError, CreateFolderError, FileNotFoundError
+from error import FileNotWritableError, FolderAlreadyExistsError, FolderNotFoundError, CreateFolderError, FileNotFoundError, GeneralError
 import os
-from shutil import copytree, copy
+from shutil import copytree, copy, rmtree
 import sys
 import re
 from pkg_resources import resource_filename
 from utils import get_path
+import requests
+import tempfile
+import zipfile
 
 
 class Assets(object):
@@ -33,20 +36,45 @@ class Assets(object):
 
 
 class New(object):
-    def __init__(self, projectName):
+    def __init__(self, projectName, skeleton):
         self._projectName = projectName
         self._root = get_path()
         self._cwd = os.getcwd()
 
-        try:
-            self._skeleton_path = resource_filename(__name__, os.path.join('skeleton', 'default'))
-        except NotImplementedError:
-            self._skeleton_path = os.path.join(sys.prefix, 'skeleton', 'default')
+        if skeleton == 'default':
+            self._skeleton_url = 'https://github.com/mdiener/grace-skeleton/archive/default.zip'
+
+        self._download_skeleton()
 
         self._projectPath = os.path.join(self._cwd, self._projectName)
 
         self._copy_structure()
         self._replace_strings()
+
+        try:
+            rmtree(self._tmp_path)
+        except:
+            pass
+
+    def _download_skeleton(self):
+        self._tmp_path = tempfile.mkdtemp()
+        zip_path = os.path.join(self._tmp_path, 'skeleton.zip')
+
+        r = requests.get(self._skeleton_url, stream=True)
+        with open(zip_path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+                    f.flush()
+
+        try:
+            z = zipfile.ZipFile(zip_path, 'r')
+            z.extractall(self._tmp_path)
+        except:
+            raise GeneralError('Could not unzip the downloaded file. Something went wrong, please try again.')
+
+        self._skeleton_path = os.path.join(self._tmp_path, z.namelist()[0])
+        z.close()
 
     def _copy_structure(self):
         if os.path.exists(os.path.join(self._cwd, self._projectName)):

@@ -85,24 +85,40 @@ def execute_commands(cmds):
 def execute_new(args):
     name = ''
     plugin = ''
+    skeleton = ''
 
     try:
         if re.match('^--name=\w+$', args[2]):
             name = args[2][7:]
         elif re.match('^--plugin=\w+$', args[2]):
             plugin = args[2][9:]
+        elif re.match('^--skeleton=\w+$', args[2]):
+            skeleton = args[2][11:]
 
         try:
             if re.match('^--name=\w+$', args[3]):
                 name = args[3][7:]
             elif re.match('^--plugin=\w+$', args[3]):
                 plugin = args[3][9:]
+            elif re.match('^--skeleton=\w+$', args[3]):
+                skeleton = args[3][11:]
         except:
             pass
+
+        try:
+            if re.match('^--name=\w+$', args[4]):
+                name = args[4][7:]
+            elif re.match('^--plugin=\w+$', args[4]):
+                plugin = args[4][9:]
+            elif re.match('^--skeleton=\w+$', args[4]):
+                skeleton = args[4][11:]
+        except:
+            pass
+
     except:
         pass
 
-    inputs = new_input(name, plugin)
+    inputs = new_input(name, plugin, skeleton)
 
     module = None
     if inputs['pluginName'] is not 'default':
@@ -114,47 +130,54 @@ def execute_new(args):
 
     if module is not None:
         try:
-            getattr(module.plugin, 'New')(inputs['name'])
+            getattr(module.plugin, 'New')(inputs['name'], inputs['skeleton'])
         except AttributeError:
-            New(inputs['name'])
+            New(inputs['name'], inputs['skeleton'])
     else:
-        New(inputs['name'])
+        New(inputs['name'], inputs['skeleton'])
 
     Assets(inputs['name'])
-    print 'Created the project, type ' + inputs['pluginName'] + ', with name ' + inputs['name'] + '.'
+    print 'Created the project, type ' + inputs['pluginName'] + ', with name ' + inputs['name'] + ' and skeleton ' + inputs['skeleton'] + '.'
 
 
-def new_input(name, pluginName):
-    if name == '' and pluginName == '':
+def new_input(name, pluginName, skeleton):
+    if name == '' and pluginName == '' and skeleton == '':
         preset = False
         print 'To set up your project we need a bit more information.'
         print 'The values in brackets are the default values. You can just hit enter if you do not want to change them.\n'
     else:
         preset = True
 
-    if name is '':
+    if name == '':
         name = raw_input('Please provide a name for your project [MyProject]: ')
-        if name is '':
+        if name == '':
             name = 'MyProject'
 
-    if pluginName is '':
+    if pluginName == '':
         pluginName = raw_input('Select what type (plugin) of project you want to create [default]: ')
-        if pluginName is '':
+        if pluginName == '':
             pluginName = 'default'
+
+    if skeleton == '':
+        skeleton = raw_input('Please provide either a name of a known skeleton or an url where to get the skeleton from [default]: ')
+        if skeleton == '':
+            skeleton = 'default'
 
     if not preset:
         print '\nReview your information:'
         print 'Name: ' + name
         print 'Plugin: ' + pluginName
+        print 'Skeleton: ' + skeleton
         okay = raw_input('Are the options above correct? [y]: ')
 
         if okay != 'y' and okay != '':
             print '\n'
-            args = new_input('', '')
+            args = new_input('', '', '')
 
     return {
         'name': name,
-        'pluginName': pluginName
+        'pluginName': pluginName,
+        'skeleton': skeleton
     }
 
 
