@@ -6,13 +6,15 @@ import requests
 import getpass
 import json
 
+requests.packages.urllib3.disable_warnings()
+
 
 class Upload(object):
     def __init__(self, config):
         self._cwd = os.getcwd()
         self._root = get_path()
         self._config = config
-        self._verify_ssl = True
+        self._verify_ssl = False
 
         if 'urls' not in self._config:
             raise MissingKeyError('Could not find url settings in either global or local configuration file.')
