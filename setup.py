@@ -37,7 +37,6 @@ setup(
     long_description=open('README.txt').read(),
     classifiers=[
         'Topic :: Software Development :: Build Tools',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: JavaScript',
         'Operating System :: OS Independent',
