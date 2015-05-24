@@ -9,6 +9,20 @@ from upload import Upload
 import os
 from error import UnknownCommandError
 import sys
+import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+
+class ChangeHandler(FileSystemEventHandler):
+    def __init__(self, exec_build, exec_deploy):
+        self._exec_build = exec_build
+        self._exec_deploy = exec_deploy
+
+    def on_any_event(self, event):
+        print('Building and deploying project ...')
+        self._exec_build(True)
+        self._exec_deploy(None, True)
 
 
 class Task(object):
@@ -24,6 +38,7 @@ class Task(object):
         self._update_test = False
         self._update_target = None
         self._upload = False
+        self._autodeploy = False
 
         self._config = config
         self._module = module
@@ -35,6 +50,11 @@ class Task(object):
             raise UnknownCommandError('Need to have at least one task to operate on')
 
         task = tasks[0]
+
+        if task == 'help':
+            self._show_help()
+            return
+
         if task == 'test' or task == 'test:deploy' or task == 'test:zip':
             if len(tasks) > 1:
                 self._test_cases = tasks[1].split(':')
@@ -42,7 +62,7 @@ class Task(object):
                 self._test_cases = None
         else:
             if len(tasks) > 1:
-                print 'Only the first argument will be executed. All other arguments are being ignored (except "st" if supplied")'
+                print 'Only the first argument will be executed. All other arguments are being ignored (except "st" if supplied)'
 
         if task == 'clean':
             self._clean = True
@@ -101,9 +121,42 @@ class Task(object):
                 self._build = True
                 self._zip = True
                 self._upload = True
+            if task == 'autodeploy':
+                self._autodeploy = True
 
-            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update and not self._upload:
+            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update and not self._upload and not self._autodeploy:
                 raise UnknownCommandError('The provided argument(s) could not be recognized by the manage.py script: ' + ', '.join(tasks))
+
+    def _show_help(self):
+        graceconfig = os.path.join(os.path.expanduser('~'), '.graceconfig')
+
+        print 'Grace Help'
+        print '=========='
+        print 'Grace is a toolchain to work with rich JavaScript applications. It'
+        print 'provides several tools for developers to create applications in a'
+        print 'fast and clean manner.'
+        print '\nUsage'
+        print '-----'
+        print 'python manage.py [command]'
+        print '\nCommands'
+        print '--------'
+        print 'build\t\tBuilds the project and places the output in ./build/ProjectName.'
+        print 'deploy\t\tFirst build and then deploy the project to the path'
+        print '\t\tspecified in the deployment_path option in your project.cfg file.'
+        print 'jsdoc\t\tBuild the jsDoc of the project.'
+        print 'zip\t\tBuild and then zip the output and put it into the path'
+        print '\t\tspecified by the zip_path option in your project.cfg file.'
+        print 'clean\t\tClean the build output.'
+        print 'test\t\tBuild all the tests.'
+        print 'test:deploy\tBuild and then deploy the tests.'
+        print 'test:zip\tBuild and then zip the tests'
+        print 'upload\t\tUpload the project to the specified server.'
+        print 'st\t\tCan be used with any command to show the full stack trace'
+        print '\t\t(in case of an error).'
+        print '\nThe global configuration file can be found at: ' + graceconfig
+        print '\nFurther Reading'
+        print '---------------'
+        print 'For more information visit https://www.github.com/mdiener/grace'
 
     def execute(self):
         if self._clean:
@@ -148,7 +201,25 @@ class Task(object):
         if self._update:
             self.exec_update(self._update_target)
 
-    def exec_build(self):
+        if self._autodeploy:
+            print('Watching the source directory for any changes ... (Hit Ctrl+c to exit)\n')
+
+            self._config['build'] = True
+            src_dir = os.path.join(os.getcwd(), 'src')
+            event_handler = ChangeHandler(self.exec_build, self.exec_deploy)
+            observer = Observer()
+            observer.schedule(event_handler, src_dir, recursive=True)
+            observer.start()
+
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                observer.stop()
+
+            observer.join()
+
+    def exec_build(self, silent=False):
         if self._module is not None:
             try:
                 b = getattr(self._module.plugin, 'Build')(self._config)
@@ -159,9 +230,10 @@ class Task(object):
 
         b.run()
 
-        print 'Successfully built the project.'
+        if not silent:
+            print('Successfully built the project.')
 
-    def exec_deploy(self, testname):
+    def exec_deploy(self, testname, silent=False):
         if self._module is not None:
             try:
                 d = getattr(self._module.plugin, 'Deploy')(self._config)
@@ -172,12 +244,13 @@ class Task(object):
 
         d.run(testname)
 
-        if testname is not None:
-            print 'Successfully deployed the test: ' + testname + '.'
-        else:
-            print 'Successfully deployed the project.'
+        if not silent:
+            if testname is not None:
+                print 'Successfully deployed the test: ' + testname + '.'
+            else:
+                print 'Successfully deployed the project.'
 
-    def exec_zip(self, testname):
+    def exec_zip(self, testname, silent=False):
         if self._module is not None:
             try:
                 z = getattr(self._module.plugin, 'Zip')(self._config)
@@ -188,12 +261,13 @@ class Task(object):
 
         z.run(testname)
 
-        if testname is not None:
-            print 'Successfully zipped the test: ' + testname + '.'
-        else:
-            print 'Successfully zipped the project.'
+        if not silent:
+            if testname is not None:
+                print 'Successfully zipped the test: ' + testname + '.'
+            else:
+                print 'Successfully zipped the project.'
 
-    def exec_test(self, testname):
+    def exec_test(self, testname, silent=False):
         if self._module is not None:
             try:
                 t = getattr(self._module.plugin, 'Test')(self._config)
@@ -204,12 +278,13 @@ class Task(object):
 
         t.run(testname)
 
-        if testname is not None:
-            print 'Successfully built the test: ' + testname + '.'
-        else:
-            print 'Successfully built the test.'
+        if not silent:
+            if testname is not None:
+                print 'Successfully built the test: ' + testname + '.'
+            else:
+                print 'Successfully built the test.'
 
-    def exec_jsdoc(self):
+    def exec_jsdoc(self, silent=False):
         if self._module is not None:
             try:
                 d = getattr(self._module.plugin, 'Doc')(self._config)
@@ -220,9 +295,10 @@ class Task(object):
 
         d.run()
 
-        print 'Successfully built the JSDoc documentation.'
+        if not silent:
+            print 'Successfully built the JSDoc documentation.'
 
-    def exec_upload(self):
+    def exec_upload(self, silent=False):
         if self._module is not None:
             try:
                 u = getattr(self._module.plugin, 'Upload')(self._config)
@@ -233,7 +309,8 @@ class Task(object):
 
         u.run()
 
-        print 'Successfully uploaded the project.'
+        if not silent:
+            print 'Successfully uploaded the project.'
 
     def exec_update(self, target):
         print 'Please be aware that an update will replace anything you have done to the files.'

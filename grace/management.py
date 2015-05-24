@@ -13,6 +13,7 @@ import requests
 logging.basicConfig(level=0)
 logging.getLogger('requests').setLevel(logging.WARNING)
 logging.getLogger('urllib3').setLevel(logging.WARNING)
+logging.getLogger('watchdog').setLevel(logging.WARNING)
 
 
 def get_asset_path(asset):
@@ -63,10 +64,6 @@ def port_grace():
 
 
 def execute_commands(cmds):
-    if 'help' in cmds:
-        print_help()
-        return
-
     try:
         cmds.remove('st')
         show_stacktrace = True
@@ -158,8 +155,21 @@ def new_input(name, pluginName, skeleton):
         if pluginName == '':
             pluginName = 'default'
 
+    skeletons = ['default']
+    if pluginName != 'default':
+        try:
+            module = __import__('grace-' + pluginName + '.plugin')
+            skeletons = getattr(module.plugin, 'get_skeleton_names')()
+        except AttributeError:
+            pass
+
+    skeleton_string = ''
+    for s in skeletons:
+        skeleton_string += s + ', '
+    skeleton_string = skeleton_string[:-2]
+
     if skeleton == '':
-        skeleton = raw_input('Please provide either a name of a known skeleton or an url where to get the skeleton from [default]: ')
+        skeleton = raw_input('Please provide an URL to a skeleton or chose from the list of known skeletons:\nSkeletons: ' + skeleton_string + '. [default]: ')
         if skeleton == '':
             skeleton = 'default'
 
@@ -253,38 +263,6 @@ def execute(args, show_stacktrace=False):
             print_error_msg(e.msg)
         except Exception as e:
             print_error_msg('Could not execute the given task. Something went wrong, please try again!')
-
-
-def print_help():
-    userhome = os.path.join(os.path.expanduser('~'), '.graceconfig')
-
-    print 'Grace Help'
-    print '=========='
-    print 'Grace is a toolchain to work with rich JavaScript applications. It'
-    print 'provides several tools for developers to create applications in a'
-    print 'fast and clean manner.'
-    print '\nUsage'
-    print '-----'
-    print 'python manage.py [command]'
-    print '\nCommands'
-    print '--------\n'
-    print 'build\t\tBuilds the project and places the output in ./build/ProjectName.'
-    print 'deploy\t\tFirst build and then deploy the project to the path'
-    print '\t\tspecified in the deployment_path option in your project.cfg file.'
-    print 'jsdoc\t\tBuild the jsDoc of the project.'
-    print 'zip\t\tBuild and then zip the output and put it into the path'
-    print '\t\tspecified by the zip_path option in your project.cfg file.'
-    print 'clean\t\tClean the build output.'
-    print 'test\t\tBuild all the tests.'
-    print 'test:deploy\tBuild and then deploy the tests.'
-    print 'test:zip\tBuild and then zip the tests'
-    print 'upload\tUpload the project to the specified server.'
-    print 'st\t\tCan be used with any command to show the full stack trace'
-    print '\t\t(in case of an error).'
-    print '\nThe global configuration file can be found at: ' + userhome
-    print '\nFurther Reading'
-    print '---------------'
-    print 'For more information visit http://www.github.com/mdiener/grace'
 
 
 def print_error_msg(msg):
