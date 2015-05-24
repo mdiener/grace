@@ -143,6 +143,7 @@ class Task(object):
         print 'build\t\tBuilds the project and places the output in ./build/ProjectName.'
         print 'deploy\t\tFirst build and then deploy the project to the path'
         print '\t\tspecified in the deployment_path option in your project.cfg file.'
+        print 'autodeploy\tWatch the "src" directory for chances and deploy when anything new has been detected.'
         print 'jsdoc\t\tBuild the jsDoc of the project.'
         print 'zip\t\tBuild and then zip the output and put it into the path'
         print '\t\tspecified by the zip_path option in your project.cfg file.'
