@@ -66,7 +66,7 @@ class Config(object):
                 raise WrongFormatError('The lintoptions key has to be a dict (object).')
 
         if 'autolint' not in self._global_config:
-            self._global_config['autolint'] = False
+            self._global_config['autolint'] = True
         else:
             if not isinstance(self._global_config['autolint'], bool):
                 raise WrongFormatError('The autolint key has to be a boolean.')

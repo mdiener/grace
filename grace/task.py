@@ -339,6 +339,8 @@ class Task(object):
 
         l.run()
 
+        return l.lint_valid
+
     def exec_update(self, target):
         print 'Please be aware that an update will replace anything you have done to the files.'
         ack = raw_input('Continue: yes/[no] ')

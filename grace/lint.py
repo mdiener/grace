@@ -4,11 +4,24 @@ import subprocess
 from error import NoExectuableError, FolderNotFoundError
 from tempfile import NamedTemporaryFile
 import json
+import copy
+import collections
 
 try:
     from urllib2 import urlopen  # Python 2
 except ImportError:
     from urllib.request import urlopen  # Python 3
+
+
+def update(d, u):
+    for k, v in u.iteritems():
+        if isinstance(v, collections.Mapping):
+            r = update(d.get(k, {}), v)
+            d[k] = r
+        else:
+            d[k] = u[k]
+    return d
+
 
 class Lint(object):
     def __init__(self, config):
@@ -32,7 +45,7 @@ src = readFileSync(process.argv[2], "utf8");
 options = '%s';
 options = JSON.parse(options);
 
-jshint(src, options, ['dizmo', 'viewer', 'bundle']);
+jshint(src, options);
 
 data = jshint.data();
 
@@ -121,14 +134,22 @@ if (lint.warnings.length > 0) {
                 'jshint': os.path.join(os.path.expanduser('~'), '.grace-lint', 'jshint.js'),
                 'jsoptions': {
                     'maxerr': 100,
-                    'browser': True
+                    'browser': True,
+                    'undef': True,
+                    'predef': {
+                        'dizmo': True,
+                        'viewer': True,
+                        'bundle': True,
+                        'jQuery': True,
+                        'console': True,
+                        'Class': True,
+                        'events': True
+                    }
                 },
                 'node': 'node'
             }
 
-        tmp = self._options['jsoptions'].copy()
-        tmp.update(self._config['lintoptions'])
-
+        tmp = update(copy.deepcopy(self._options['jsoptions']), self._config['lintoptions'])
         self._options['jsoptions'] = json.dumps(tmp)
 
         if self._check_executable('nodejs'):
