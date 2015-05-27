@@ -71,3 +71,6 @@ class GeneralError(Error):
 
 class FileUploadError(Error):
     pass
+
+class NoExectuableError(Error):
+    pass

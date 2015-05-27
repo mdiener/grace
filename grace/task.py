@@ -6,6 +6,7 @@ from create import New
 from doc import Doc
 from update import Update
 from upload import Upload
+from lint import Lint
 import os
 from error import UnknownCommandError
 import sys
@@ -39,6 +40,7 @@ class Task(object):
         self._update_target = None
         self._upload = False
         self._autodeploy = False
+        self._lint = False
 
         self._config = config
         self._module = module
@@ -123,8 +125,10 @@ class Task(object):
                 self._upload = True
             if task == 'autodeploy':
                 self._autodeploy = True
+            if task == 'lint':
+                self._lint = True
 
-            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update and not self._upload and not self._autodeploy:
+            if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update and not self._upload and not self._autodeploy and not self._lint:
                 raise UnknownCommandError('The provided argument(s) could not be recognized by the manage.py script: ' + ', '.join(tasks))
 
     def _show_help(self):
@@ -220,6 +224,11 @@ class Task(object):
 
             observer.join()
 
+        if self._lint:
+            print('Linting the source directory.')
+
+            self.exec_lint()
+
     def exec_build(self, silent=False):
         if self._module is not None:
             try:
@@ -312,6 +321,17 @@ class Task(object):
 
         if not silent:
             print 'Successfully uploaded the project.'
+
+    def exec_lint(self, silent=False):
+        if self._module is not None:
+            try:
+                l = getattr(self._module.plugin, 'Lint')(self._config)
+            except AttributeError:
+                l = Lint(self._config)
+        else:
+            l = Lint(self._config)
+
+        l.run()
 
     def exec_update(self, target):
         print 'Please be aware that an update will replace anything you have done to the files.'
