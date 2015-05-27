@@ -152,13 +152,6 @@ if (lint.warnings.length > 0) {
         tmp = update(copy.deepcopy(self._options['jsoptions']), self._config['lintoptions'])
         self._options['jsoptions'] = json.dumps(tmp)
 
-        if self._check_executable('nodejs'):
-            self._options['node'] = 'nodejs'
-        elif self._check_executable('node'):
-            self._options['node'] = 'node'
-        else:
-            raise NoExectuableError('Could not find a node js executable on the system.')
-
     def _check_executable(self, program):
         def is_exe(fpath):
             return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -177,6 +170,13 @@ if (lint.warnings.length > 0) {
         return False
 
     def run(self):
+        if self._check_executable('nodejs'):
+            self._options['node'] = 'nodejs'
+        elif self._check_executable('node'):
+            self._options['node'] = 'node'
+        else:
+            raise NoExectuableError('Could not find a node js executable on the system.')
+
         if not os.path.exists(os.path.join(self._cwd, 'src')):
             raise FolderNotFoundError('Could not find the source folder for the project.')
 

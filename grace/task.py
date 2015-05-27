@@ -8,7 +8,7 @@ from update import Update
 from upload import Upload
 from lint import Lint
 import os
-from error import UnknownCommandError
+from error import UnknownCommandError, NoExectuableError
 import sys
 import time
 from watchdog.observers import Observer
@@ -170,7 +170,7 @@ class Task(object):
 
         if self._build:
             if self._config['autolint']:
-                valid = self.exec_lint()
+                valid = self.exec_lint(True)
                 if not valid:
                     print 'The JavaScript could not be linted and therefor no building will happen. Fix all errors mentioned by autolint (or be evil and remove the autolint option).'
                     return
@@ -337,7 +337,12 @@ class Task(object):
         else:
             l = Lint(self._config)
 
-        l.run()
+        try:
+            l.run()
+        except NoExectuableError:
+            if not silent:
+                print 'No node executable found. Make sure either nodejs or node is executable from the command line.'
+            return True
 
         return l.lint_valid
 
