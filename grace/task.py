@@ -169,6 +169,12 @@ class Task(object):
             return
 
         if self._build:
+            if self._config['autolint']:
+                valid = self.exec_lint()
+                if not valid:
+                    print 'The JavaScript could not be linted and therefor no building will happen. Fix all errors mentioned by autolint (or be evil and remove the autolint option).'
+                    return
+
             self.exec_build()
 
             self._config['build'] = True

@@ -49,6 +49,28 @@ class Config(object):
             if not isinstance(self._global_config['minify_css'], bool):
                 self._global_config['minify_css'] = False
 
+        if 'linter' not in self._global_config:
+            self._global_config['linter'] = 'jshint'
+        else:
+            if not isinstance(self._global_config['linter'], unicode):
+                raise WrongFormatError('The linter key has to be a string.')
+
+            if self._global_config['linter'] != 'jslint':
+                if self._global_config['linter'] != 'jshint':
+                    raise WrongFormatError('The linter key has to be either "jslint", "jshint" or undfined (missing).')
+
+        if 'lintoptions' not in self._global_config:
+            self._global_config['lintoptions'] = {}
+        else:
+            if not isinstance(self._global_config['lintoptions'], dict):
+                raise WrongFormatError('The lintoptions key has to be a dict (object).')
+
+        if 'autolint' not in self._global_config:
+            self._global_config['autolint'] = False
+        else:
+            if not isinstance(self._global_config['autolint'], bool):
+                raise WrongFormatError('The autolint key has to be a boolean.')
+
     def _parse_local_config(self):
         cwd = os.getcwd()
 
@@ -88,6 +110,28 @@ class Config(object):
         else:
             if not isinstance(self._config['minify_css'], bool):
                 self._config['minify_css'] = False
+
+        if 'linter' not in self._config:
+            self._config['linter'] = self._global_config['linter']
+        else:
+            if not isinstance(self._config['linter'], unicode):
+                raise WrongFormatError('The linter key has to be a string.')
+
+            if self._config['linter'] != 'jslint':
+                if self._config['linter'] != 'jshint':
+                    raise WrongFormatError('The linter key has to be either "jslint", "jshint" or undfined (missing).')
+
+        if 'lintoptions' not in self._config:
+            self._config['lintoptions'] = self._global_config['lintoptions']
+        else:
+            if not isinstance(self._config['lintoptions'], dict):
+                raise WrongFormatError('The lintoptions key has to be a dict (object).')
+
+        if 'autolint' not in self._config:
+            self._config['autolint'] = self._global_config['autolint']
+        else:
+            if not isinstance(self._config['autolint'], bool):
+                raise WrongFormatError('The key autolint has to be a boolean.')
 
         if 'type' not in self._config:
             self._config['type'] = 'default'
