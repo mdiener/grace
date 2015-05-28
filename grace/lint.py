@@ -98,7 +98,7 @@ src = readFileSync(process.argv[2], "utf8");
 options = '%s';
 options = JSON.parse(options);
 
-lint = jslint(src, options, ['dizmo', 'viewer', 'bundle', 'window']);
+lint = jslint(src, options, ['dizmo', 'viewer', 'bundle', 'window', 'Class', 'jQuery', 'console']);
 
 for (i = 0; i < lint.warnings.length; i++ ) {
     error = lint.warnings[i];
@@ -137,13 +137,9 @@ if (lint.warnings.length > 0) {
                     'browser': True,
                     'undef': True,
                     'predef': {
-                        'dizmo': True,
-                        'viewer': True,
-                        'bundle': True,
                         'jQuery': True,
                         'console': True,
-                        'Class': True,
-                        'events': True
+                        'Class': True
                     }
                 },
                 'node': 'node'
