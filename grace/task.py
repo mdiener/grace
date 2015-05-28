@@ -8,7 +8,7 @@ from update import Update
 from upload import Upload
 from lint import Lint
 import os
-from error import UnknownCommandError, NoExectuableError
+from error import UnknownCommandError, NoExectuableError, FolderNotFoundError
 import sys
 import time
 from watchdog.observers import Observer
@@ -188,6 +188,14 @@ class Task(object):
                     self.exec_upload()
 
         if self._test:
+            if not os.path.exists(os.path.join(os.getcwd(), 'test')):
+                print 'No tests to build found.'
+                return
+            else:
+                if not os.path.exists(os.path.join(os.getcwd(), 'test', 'tests')):
+                    print 'No tests to build found.'
+                    return
+
             if self._test_cases is None:
                 self._test_cases = self._config['test_cases']
 
