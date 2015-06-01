@@ -21,7 +21,6 @@ class Lint(object):
 
         self._jshint_node_script = r"""
 var jshint = require("%s").JSHINT;
-var print = require("sys").print;
 var readFileSync = require("fs").readFileSync;
 var warnings = null;
 var i = 0;
@@ -30,7 +29,7 @@ var src = null;
 var data = null;
 var options = null;
 
-print("Analyzing file " + process.argv[2] + "\n");
+process.stdout.write("Analyzing file " + process.argv[2] + "\n");
 src = readFileSync(process.argv[2], "utf8");
 options = '%s';
 options = JSON.parse(options);
@@ -40,29 +39,29 @@ jshint(src, options);
 data = jshint.data();
 
 if (data.errors && data.errors.length > 0) {
-    print('\nErrors\n------\n')
+    process.stdout.write('\nErrors\n------\n')
     for (index in data.errors) {
         error = data.errors[index];
-        print('Error ' + error.code + ' on line ' + error.line + ' character ' + error.character + ': ' + error.reason + '\n');
-        print('\t' + error.evidence.trim() + '\n');
+        process.stdout.write('Error ' + error.code + ' on line ' + error.line + ' character ' + error.character + ': ' + error.reason + '\n');
+        process.stdout.write('\t' + error.evidence.trim() + '\n');
     };
 
-    print('\n' + data.errors.length + ' Error(s) found.\n');
-    print(' \n');
+    process.stdout.write('\n' + data.errors.length + ' Error(s) found.\n');
+    process.stdout.write(' \n');
 } else {
-    print('No errors found.\n');
-    print(' \n');
+    process.stdout.write('No errors found.\n');
+    process.stdout.write(' \n');
 }
 
 /*
 if (data.unused && data.unused.length > 0) {
-    print('Unused\n------\n')
+    process.stdout.write('Unused\n------\n')
     for (index in data.unused) {
         unused = data.unused[index]
-        print('Unused \'' + unused.name + '\' on line ' + unused.line + ' character ' + unused.character + '\n');
+        process.stdout.write('Unused \'' + unused.name + '\' on line ' + unused.line + ' character ' + unused.character + '\n');
     };
 } else {
-    print('No unused found.')
+    process.stdout.write('No unused found.')
 }
 */
 
@@ -75,7 +74,6 @@ if (data.errors) {
 
         self._jslint_node_script = r"""
 var jslint = require("%s").jslint;
-var print = require("sys").print;
 var readFileSync = require("fs").readFileSync;
 var warnings = null;
 var i = 0;
@@ -83,7 +81,7 @@ var lint = null;
 var src = null;
 var options = null;
 
-print("Analyzing file " + process.argv[2] + "\n");
+process.stdout.write("Analyzing file " + process.argv[2] + "\n");
 src = readFileSync(process.argv[2], "utf8");
 options = '%s';
 options = JSON.parse(options);
@@ -93,17 +91,17 @@ lint = jslint(src, options, ['dizmo', 'viewer', 'bundle', 'window', 'Class', 'jQ
 for (i = 0; i < lint.warnings.length; i++ ) {
     error = lint.warnings[i];
     if (error !== null) {
-        print(' \n')
-        print('Lint Warning at line ' + error.line + ' column ' + error.column + ': ' + error.message + '\n');
-        print('\t' + lint.lines[error.line].trim() + '\n');
+        process.stdout.write(' \n')
+        process.stdout.write('Lint Warning at line ' + error.line + ' column ' + error.column + ': ' + error.message + '\n');
+        process.stdout.write('\t' + lint.lines[error.line].trim() + '\n');
     }
 }
 
 if (lint.warnings.length > 0) {
-    print("\n" + lint.warnings.length + " Error(s) found.\n");
+    process.stdout.write("\n" + lint.warnings.length + " Error(s) found.\n");
     process.exit(1);
 } else {
-    print("\nNo warnings found.\n");
+    process.stdout.write("\nNo warnings found.\n");
     process.exit(0);
 }
 """
