@@ -1,7 +1,7 @@
 import os
 from error import WrongFormatError, MissingKeyError, FileNotFoundError
+from utils import update, load_json
 import re
-import json
 
 class Config(object):
     def __init__(self):
@@ -18,7 +18,7 @@ class Config(object):
                 strings.append(line)
 
         try:
-            return json.loads(''.join(strings))
+            return load_json(''.join(strings))
         except:
             raise WrongFormatError('The provided configuration file could not be parsed.')
 
@@ -52,7 +52,7 @@ class Config(object):
         if 'linter' not in self._global_config:
             self._global_config['linter'] = 'jshint'
         else:
-            if not isinstance(self._global_config['linter'], unicode):
+            if not isinstance(self._global_config['linter'], str):
                 raise WrongFormatError('The linter key has to be a string.')
 
             if self._global_config['linter'] != 'jslint':
@@ -87,7 +87,7 @@ class Config(object):
         if 'name' not in self._config:
             raise MissingKeyError('Name of the project needs to be in the config file.')
         else:
-            if not isinstance(self._config['name'], unicode):
+            if not isinstance(self._config['name'], str):
                 raise WrongFormatError('The name key in your config file must be a string!')
             else:
                 if len(self._config['name']) == 0:
@@ -96,7 +96,7 @@ class Config(object):
         if 'version' not in self._config:
             raise MissingKeyError('Please specify a version in your config file.')
         else:
-            if not isinstance(self._config['version'], unicode):
+            if not isinstance(self._config['version'], str):
                 raise WrongFormatError('The version key in your config file needs to be a string!')
 
         if 'minify_js' not in self._config:
@@ -114,7 +114,7 @@ class Config(object):
         if 'linter' not in self._config:
             self._config['linter'] = self._global_config['linter']
         else:
-            if not isinstance(self._config['linter'], unicode):
+            if not isinstance(self._config['linter'], str):
                 raise WrongFormatError('The linter key has to be a string.')
 
             if self._config['linter'] != 'jslint':
@@ -136,7 +136,7 @@ class Config(object):
         if 'type' not in self._config:
             self._config['type'] = 'default'
         else:
-            if not isinstance(self._config['type'], unicode):
+            if not isinstance(self._config['type'], str):
                 self._config['type'] = 'default'
             else:
                 if len(self._config['type']) == 0:
@@ -145,7 +145,7 @@ class Config(object):
         if 'js_name' not in self._config:
             self._config['js_name'] = 'application'
         else:
-            if not isinstance(self._config['js_name'], unicode):
+            if not isinstance(self._config['js_name'], str):
                 self._config['js_name'] = 'application'
             else:
                 if len(self._config['js_name']) == 0:
@@ -157,5 +157,5 @@ class Config(object):
         self._config['build_path'] = os.path.join(cwd, 'build', self._config['name'])
 
     def get_config(self):
-        config = dict(self._global_config.items() + self._config.items())
+        config = update(self._global_config, self._config);
         return config

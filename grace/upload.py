@@ -1,10 +1,9 @@
 import os
-from utils import get_path
+from utils import get_path, write_json
 from error import MissingKeyError, WrongLoginCredentials, FileNotFoundError, FileUploadError
 from pkg_resources import resource_filename
 import requests
 import getpass
-import json
 
 requests.packages.urllib3.disable_warnings()
 
@@ -60,7 +59,7 @@ class Upload(object):
             data['password'] = self._password
 
         r = requests.post(self._login_url,
-            data=json.dumps(data),
+            data=write_json(data),
             headers={'Content-Type': 'application/json'},
             verify=self._verify_ssl
         )

@@ -3,7 +3,7 @@ import sys
 import subprocess
 from error import NoExectuableError, FolderNotFoundError
 from tempfile import NamedTemporaryFile
-import json
+from utils import update, write_json
 import copy
 import collections
 
@@ -11,16 +11,6 @@ try:
     from urllib2 import urlopen  # Python 2
 except ImportError:
     from urllib.request import urlopen  # Python 3
-
-
-def update(d, u):
-    for k, v in u.iteritems():
-        if isinstance(v, collections.Mapping):
-            r = update(d.get(k, {}), v)
-            d[k] = r
-        else:
-            d[k] = u[k]
-    return d
 
 
 class Lint(object):
@@ -146,7 +136,7 @@ if (lint.warnings.length > 0) {
             }
 
         tmp = update(copy.deepcopy(self._options['jsoptions']), self._config['lintoptions'])
-        self._options['jsoptions'] = json.dumps(tmp)
+        self._options['jsoptions'] = write_json(tmp)
 
     def _check_executable(self, program):
         def is_exe(fpath):
