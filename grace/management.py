@@ -70,11 +70,6 @@ def execute_commands(cmds):
     except ValueError:
         show_stacktrace = False
 
-    if len(cmds) < 1:
-        print 'Need to provide at least one argument to the manage.py script.\n'
-        print_help()
-        return
-
     global_config()
     execute(cmds, show_stacktrace)
 

@@ -49,7 +49,7 @@ class Task(object):
         self._config['test'] = False
 
         if len(tasks) == 0:
-            raise UnknownCommandError('Need to have at least one task to operate on')
+            raise UnknownCommandError('Need to have at least one task to operate on.')
 
         task = tasks[0]
 
