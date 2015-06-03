@@ -6,11 +6,7 @@ from tempfile import NamedTemporaryFile
 from utils import update, write_json
 import copy
 import collections
-
-try:
-    from urllib2 import urlopen  # Python 2
-except ImportError:
-    from urllib.request import urlopen  # Python 3
+import requests
 
 
 class Lint(object):
@@ -108,7 +104,7 @@ if (lint.warnings.length > 0) {
 
         if self._config['linter'] == 'jslint':
             self._options = {
-                'jslint': os.path.join(os.path.expanduser('~'), '.grace-lint', 'jslint.js'),
+                'jslint': os.path.join(os.path.expanduser('~'), '.grace', 'lint', 'jslint.js'),
                 'jsoptions': {
                     'maxerr': 100,
                     'browser': True,
@@ -119,7 +115,7 @@ if (lint.warnings.length > 0) {
             }
         else:
             self._options = {
-                'jshint': os.path.join(os.path.expanduser('~'), '.grace-lint', 'jshint.js'),
+                'jshint': os.path.join(os.path.expanduser('~'), '.grace', 'lint', 'jshint.js'),
                 'jsoptions': {
                     'maxerr': 100,
                     'browser': True,
@@ -197,14 +193,24 @@ if (lint.warnings.length > 0) {
 
     def _get_jshint(self):
         jshint_path = self._options['jshint']
-        response = urlopen('https://raw.githubusercontent.com/jshint/jshint/master/dist/jshint.js')
 
-        if not os.path.exists(os.path.dirname(jshint_path)):
-            os.makedirs(os.path.dirname(jshint_path))
+        try:
+            response = requests.get('https://raw.githubusercontent.com/jshint/jshint/master/dist/jshint.js', stream=True)
 
-        with open(jshint_path, 'w') as f:
-            f.write(response.read())
-            response.close()
+            if not response.ok:
+                raise requests.exceptions.ConnectionError
+
+            if not os.path.exists(os.path.dirname(jshint_path)):
+                os.makedirs(os.path.dirname(jshint_path))
+
+            with open(jshint_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk: # filter out keep-alive new chunks
+                        f.write(chunk)
+                        f.flush()
+
+        except requests.exceptions.ConnectionError as e:
+            pass
 
         jshint = NamedTemporaryFile('w+')
         jshint.write(self._jshint_node_script % (jshint_path, self._options['jsoptions']))
@@ -213,15 +219,25 @@ if (lint.warnings.length > 0) {
 
     def _get_jslint(self):
         jslint_path = self._options['jslint']
-        response = urlopen('https://raw.github.com/douglascrockford/JSLint/master/jslint.js')
 
-        if not os.path.exists(os.path.dirname(jslint_path)):
-            os.makedirs(os.path.dirname(jslint_path))
+        try:
+            response = requests.get('https://raw.github.com/douglascrockford/JSLint/master/jslint.js', stream=True)
 
-        with open(jslint_path, 'w') as f:
-            f.write(response.read())
-            response.close()
-            f.write('\n\nexports.jslint = jslint')
+            if not response.ok:
+                raise requests.exceptions.ConnectionError
+
+            if not os.path.exists(os.path.dirname(jslint_path)):
+                os.makedirs(os.path.dirname(jslint_path))
+
+            with open(jslint_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk: # filter out keep-alive new chunks
+                        f.write(chunk)
+                        f.flush()
+                f.write('\n\nexports.jslint = jslint')
+
+        except requests.exceptions.ConnectionError as e:
+            pass
 
         jslint = NamedTemporaryFile('w+')
         jslint.write(self._jslint_node_script % (jslint_path, self._options['jsoptions']))
