@@ -23,7 +23,7 @@ class Config(object):
             raise WrongFormatError('The provided configuration file could not be parsed.')
 
     def _parse_global_config(self):
-        config_path = os.path.join(os.path.expanduser('~'), '.graceconfig')
+        config_path = os.path.join(os.path.expanduser('~'), '.grace', 'grace.cfg')
 
         try:
             config_file = open(os.path.join(config_path))

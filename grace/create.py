@@ -8,6 +8,7 @@ from utils import get_path
 import requests
 import tempfile
 import zipfile
+import hashlib
 
 
 class Assets(object):
@@ -41,8 +42,14 @@ class New(object):
         self._root = get_path()
         self._cwd = os.getcwd()
 
+        self._skeleton_parent_folder = os.path.join(os.path.expanduser('~'), '.grace', 'skeletons', 'custom')
+        self._skeleton_path = os.path.join(self._skeleton_parent_folder, hashlib.md5(skeleton).hexdigest())
+        self._skeleton_url = skeleton
+
         if skeleton == 'default':
             self._skeleton_url = 'https://github.com/mdiener/grace-skeleton/archive/default.zip'
+            self._skeleton_parent_folder = os.path.join(os.path.expanduser('~'), '.grace', 'skeletons', 'grace')
+            self._skeleton_path = os.path.join(self._skeleton_parent_folder, 'default')
 
         self._download_skeleton()
 
@@ -51,16 +58,18 @@ class New(object):
         self._copy_structure()
         self._replace_strings()
 
-        try:
-            rmtree(self._tmp_path)
-        except:
-            pass
-
     def _download_skeleton(self):
-        self._tmp_path = tempfile.mkdtemp()
-        zip_path = os.path.join(self._tmp_path, 'skeleton.zip')
+        tmp_path = tempfile.mkdtemp()
+        zip_path = os.path.join(tmp_path, 'skeleton.zip')
 
-        r = requests.get(self._skeleton_url, stream=True)
+        try:
+            r = requests.get(self._skeleton_url, stream=True)
+        except requests.exceptions.ConnectionError as e:
+            rmtree(tmp_path)
+            if not os.path.exists(self._skeleton_path):
+                raise FolderNotFoundError('Could not download the skeleton and no downloaded skeleton was found.')
+            return
+
         with open(zip_path, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk: # filter out keep-alive new chunks
@@ -69,11 +78,36 @@ class New(object):
 
         try:
             z = zipfile.ZipFile(zip_path, 'r')
-            z.extractall(self._tmp_path)
+            z.extractall(tmp_path)
         except:
+            rmtree(tmp_path)
+            z.close()
             raise GeneralError('Could not unzip the downloaded file. Something went wrong, please try again.')
 
-        self._skeleton_path = os.path.join(self._tmp_path, z.namelist()[0])
+        if not os.path.exists(self._skeleton_parent_folder):
+            try:
+                os.makedirs(self._skeleton_parent_folder)
+            except:
+                rmtree(tmp_path)
+                z.close()
+                raise FolderNotWritableError('Could not create the skeleton parent folder.')
+
+        if os.path.exists(self._skeleton_path):
+            try:
+                rmtree(self._skeleton_path)
+            except:
+                rmtree(tmp_path)
+                z.close()
+                raise FolderNotWritableError('Could not remove the saved skeleton.')
+
+        try:
+            copytree(os.path.join(tmp_path, z.namelist()[0]), self._skeleton_path)
+        except:
+            rmtree(tmp_path)
+            z.close()
+            raise FolderNotFoundError('Could not find the folder to save the skeleton.')
+
+        rmtree(tmp_path)
         z.close()
 
     def _copy_structure(self):

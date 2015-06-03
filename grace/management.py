@@ -4,7 +4,7 @@ from grace.config import Config
 from grace.error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError, WrongLoginCredentials, FileUploadError
 import sys
 import os
-from shutil import copy
+from shutil import copy, move
 from pkg_resources import resource_filename
 import logging
 import re
@@ -29,8 +29,15 @@ def get_asset_path(asset):
 
 
 def global_config():
-    global_config_path = os.path.join(os.path.expanduser('~'), '.graceconfig')
+    global_config_path = os.path.join(os.path.expanduser('~'), '.grace', 'grace.cfg')
+    old_global_config_path = os.path.join(os.path.expanduser('~'), '.graceconfig')
     assetPath = get_asset_path('grace.cfg')
+
+    if not os.path.exists(os.path.join(os.path.expanduser('~'), '.grace')):
+        os.makedirs(os.path.join(os.path.expanduser('~'), '.grace'))
+
+    if os.path.exists(old_global_config_path):
+        move(old_global_config_path, global_config_path)
 
     if not os.path.isfile(global_config_path):
         deployment_path = os.path.join(os.path.expanduser('~'))
