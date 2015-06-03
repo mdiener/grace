@@ -175,6 +175,12 @@ def new_input(name, pluginName, skeleton):
         if skeleton == '':
             skeleton = 'default'
 
+    args = {
+        'name': name,
+        'pluginName': pluginName,
+        'skeleton': skeleton
+    }
+
     if not preset:
         print '\nReview your information:'
         print 'Name: ' + name
@@ -186,11 +192,7 @@ def new_input(name, pluginName, skeleton):
             print '\n'
             args = new_input('', '', '')
 
-    return {
-        'name': name,
-        'pluginName': pluginName,
-        'skeleton': skeleton
-    }
+    return args
 
 
 def execute(args, show_stacktrace=False):
