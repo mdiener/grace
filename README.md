@@ -88,6 +88,7 @@ There are two configuration file present. The global one can be found in the cur
 * doc_path
 * minify_js
 * minify_css
+* autolint
 * urls
 * credentials
 
@@ -95,13 +96,16 @@ All these values apply to all your **Grace** projects and can be overwritten on 
 
 The other configuration file will be placed in the local directory of you project. This file has a few mandatory options and can be used to further adjust **Grace** commands to your need. The following is a list with mandatory (in bold) and optional keys:
 * **name**: The name of your project, will be prefilled with what you put on the command line when creating a new project with *grace new*
-* **version**: The version of your project, will be prefilled with "0.1"
-* deployment_path: The path where your project should be deployed, upon calling *python manage.py deploy*
-* zip_path: The path where the zip file should be placed upon calling *python manage.py zip*
-* doc_path: The path where the JavaScript docs will be built to. Called with *python manage.py doc*
-* minify_js: Specify wether grace should try to minified your JavaScript
-* minify_css: Specify wether grace should try to minify your css files
-* js_name: The name that the result of the concatenation of all your JavaScript files will have
+* **version**: The version of your project, will be prefilled with "0.1".
+* deployment_path: The path where your project should be deployed, upon calling *python manage.py deploy*.
+* zip_path: The path where the zip file should be placed upon calling *python manage.py zip*.
+* doc_path: The path where the JavaScript docs will be built to. Called with *python manage.py doc*.
+* minify_js: Specify wether grace should try to minified your JavaScript.
+* minify_css: Specify wether grace should try to minify your css files.
+* js_name: The name that the result of the concatenation of all your JavaScript files will have.
+* autolint: Set this to false to prevent automatic linting on building of the project.
+* lintoptions: A set of options provided to the chosen linter. See http://jshint.com/docs/ or http://jslint.com/help.html for more information.
+* linter: Specify which linter should be used: jslint or jshint. The default is jshint.
 * urls: A list of URLs that can be used by the project. Currently supported are:
 ** upload: URL which is used by the upload command
 ** login: URL used to login to a server if required (basic auth with cookies is supported). If this is not supplied, the upload url will be used to log in.
@@ -116,6 +120,7 @@ To build your project, you have to use the provided manage.py file with the buil
 ```shell
 python manage.py build
 ```
+If the options autolint has not been set to false, each build will be preceeded by a full lint of the project. The project will then only be built if there are no errors. This option can be disabled through the project.cfg file by adding: _autolint: false_.
 
 Building Tests
 --------------
@@ -152,6 +157,7 @@ Commands
   test:deploy     Build and then deploy the tests.
   test:zip        Build and then zip the tests
   upload          Upload the project to the specified server.
+  lint            Lint the source folder of the project.
   st              Can be used with any command to show the full stack trace
                   (in case of an error).
 ```
