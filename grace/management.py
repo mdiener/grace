@@ -71,15 +71,8 @@ def port_grace():
         print 'Could not create the manage.py file.'
 
 
-def execute_commands(cmds):
-    try:
-        cmds.remove('st')
-        show_stacktrace = True
-    except ValueError:
-        show_stacktrace = False
-
-    global_config()
-    execute(cmds, show_stacktrace)
+def execute_commands(*args):
+    execute()
 
 
 def execute_new(args):
