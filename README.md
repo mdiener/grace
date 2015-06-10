@@ -82,7 +82,7 @@ If you have an older version of **Grace** (<0.2.0) you can update it using the c
 Config
 ------
 
-There are two configuration file present. The global one can be found in the current user's home directory (*.graceconfig*) and contains (more about each value further down):
+There are two configuration file present. The global one can be found in the current user's home directory (*.grace/grace.cfg*) and contains (more about each value further down):
 * deployment_path
 * zip_path
 * doc_path
@@ -112,6 +112,11 @@ The other configuration file will be placed in the local directory of you projec
 * credentials: Contains two keys
 ** username: The username used to log in. If empty or not specified, the user is then asked on the command line.
 ** password: The password used to log in. If empty or not specified, the user is then asked on the command line.
+
+Most values can be overwritten on the console by supplying -o option=value. However, some are restricted: **name** and **version** can not be changed on the command line. To set the username on the command line for example one can issue the command:
+```shell
+python manage.py upload -o credentials:username=MyUserName
+```
 
 Building Your Project
 ---------------------
@@ -143,9 +148,9 @@ Commands
 
 For the manage.py file
 ```
-usage: python manage.py [command]
+usage: python manage.py task [--test-cases TEST_CASES] [--overwrite OVERWRITE] [--stack-trace] [-h]
 
-Commands
+Accepted tasks
   build           Builds the project and places the output in ./build/ProjectName.
   deploy          First build and then deploy the project to the path
                   specified in the deployment_path option in your project.cfg file.
@@ -158,8 +163,6 @@ Commands
   test:zip        Build and then zip the tests
   upload          Upload the project to the specified server.
   lint            Lint the source folder of the project.
-  st              Can be used with any command to show the full stack trace
-                  (in case of an error).
 ```
 
 Additional Options
