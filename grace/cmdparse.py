@@ -85,7 +85,7 @@ For more information visit https://www.github.com/mdiener/grace'
                         if len(keychain) == 1:
                             holder[keychain[0]] = value
                         else:
-                            if not isinstance(holder[keychain[0]], dict):
+                            if keychain[0] not in holder:
                                 holder[keychain[0]] = {}
                             parse_nested_key(holder[keychain[0]], keychain[1:], value)
 
