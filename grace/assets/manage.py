@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from grace.management import execute_commands
-import sys
+from grace.management import execute
 
-args = sys.argv
-execute_commands(args[1:])
+execute()

@@ -27,7 +27,7 @@ class ChangeHandler(FileSystemEventHandler):
 
 
 class Task(object):
-    def __init__(self, tasks, config, module):
+    def __init__(self, task, config, module, test_cases):
         self._build = False
         self._jsdoc = False
         self._test = False
@@ -41,30 +41,14 @@ class Task(object):
         self._upload = False
         self._autodeploy = False
         self._lint = False
+        self._overwrite_args = []
 
         self._config = config
         self._module = module
 
         self._config['build'] = False
         self._config['test'] = False
-
-        if len(tasks) == 0:
-            raise UnknownCommandError('Need to have at least one task to operate on.')
-
-        task = tasks[0]
-
-        if task == 'help':
-            self._show_help()
-            return
-
-        if task == 'test' or task == 'test:deploy' or task == 'test:zip':
-            if len(tasks) > 1:
-                self._test_cases = tasks[1].split(':')
-            else:
-                self._test_cases = None
-        else:
-            if len(tasks) > 1:
-                print 'Only the first argument will be executed. All other arguments are being ignored (except "st" if supplied)'
+        self._test_cases = test_cases
 
         if task == 'clean':
             self._clean = True
@@ -130,38 +114,6 @@ class Task(object):
 
             if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update and not self._upload and not self._autodeploy and not self._lint:
                 raise UnknownCommandError('The provided argument(s) could not be recognized by the manage.py script: ' + ', '.join(tasks))
-
-    def _show_help(self):
-        graceconfig = os.path.join(os.path.expanduser('~'), '.graceconfig')
-
-        print 'Grace Help'
-        print '=========='
-        print 'Grace is a toolchain to work with rich JavaScript applications. It'
-        print 'provides several tools for developers to create applications in a'
-        print 'fast and clean manner.'
-        print '\nUsage'
-        print '-----'
-        print 'python manage.py [command]'
-        print '\nCommands'
-        print '--------'
-        print 'build\t\tBuilds the project and places the output in ./build/ProjectName.'
-        print 'deploy\t\tFirst build and then deploy the project to the path'
-        print '\t\tspecified in the deployment_path option in your project.cfg file.'
-        print 'autodeploy\tWatch the "src" directory for chances and deploy when anything new has been detected.'
-        print 'jsdoc\t\tBuild the jsDoc of the project.'
-        print 'zip\t\tBuild and then zip the output and put it into the path'
-        print '\t\tspecified by the zip_path option in your project.cfg file.'
-        print 'clean\t\tClean the build output.'
-        print 'test\t\tBuild all the tests.'
-        print 'test:deploy\tBuild and then deploy the tests.'
-        print 'test:zip\tBuild and then zip the tests'
-        print 'upload\t\tUpload the project to the specified server.'
-        print 'st\t\tCan be used with any command to show the full stack trace'
-        print '\t\t(in case of an error).'
-        print '\nThe global configuration file can be found at: ' + graceconfig
-        print '\nFurther Reading'
-        print '---------------'
-        print 'For more information visit https://www.github.com/mdiener/grace'
 
     def execute(self):
         if self._clean:

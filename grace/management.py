@@ -1,7 +1,8 @@
 from grace.task import Task
 from grace.create import New, Assets
 from grace.config import Config
-from grace.error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError, WrongLoginCredentials, FileUploadError
+from grace.cmdparse import CommandLineParser
+from grace.error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError, WrongLoginCredentials, FileUploadError, KeyNotAllowedError
 import sys
 import os
 from shutil import copy, move
@@ -195,62 +196,61 @@ def new_input(name, pluginName, skeleton):
     return args
 
 
-def execute(args, show_stacktrace=False):
-    if show_stacktrace:
-        c = Config()
-        config = c.get_config()
+def execute(*args):
+    global_config()
+    config = Config()
+    parsedConfig = None
+    module = None
 
-        module = None
-        if config['type'] is not 'default':
-            module = __import__('grace-' + config['type'] + '.plugin')
-            try:
-                c = getattr(module.plugin, 'Config')(config)
-                config = c.get_config()
-            except AttributeError:
-                pass
+    if config.get_type() is not 'default':
+        try:
+            module = __import__('grace-' + config.get_type() + '.plugin')
+        except:
+            print_error_msg('Could not load the module of type ' + config.get_type() + '.')
+            return
 
         try:
-            task = getattr(module.plugin, 'Task')(args, config, module)
+            config = getattr(module.plugin, 'Config')()
         except AttributeError:
-            task = Task(args, config, module)
+            pass
+
+    if config.get_type() is not 'default':
+        parser = None
+        try:
+            parser = getattr(module.plugin, 'CommandLineParser')()
+            task, test_cases, overwrites, show_stacktrace = parser.get_arguments()
+        except AttributeError:
+            parser = CommandLineParser()
+            task, test_cases, overwrites, show_stacktrace = parser.get_arguments()
+
+    try:
+        config.load_overwrites(overwrites)
+    except KeyNotAllowedError as e:
+        print_error_msg(e.msg)
+        return;
+
+    try:
+        parsedConfig = config.get_config()
+    except (WrongFormatError, MissingKeyError, FileNotFoundError) as e:
+        print_error_msg(e.msg)
+        return
+
+    if show_stacktrace:
+        try:
+            task = getattr(module.plugin, 'Task')(task, parsedConfig, module, test_cases)
+        except AttributeError:
+            task = Task(task, parsedConfig, module, test_cases)
 
         task.execute()
     else:
         try:
-            c = Config()
-            config = c.get_config()
-        except (WrongFormatError, MissingKeyError, FileNotFoundError) as e:
-            print_error_msg(e.msg)
-            return
-
-        module = None
-        if config['type'] is not 'default':
-            try:
-                module = __import__('grace-' + config['type'] + '.plugin')
-            except:
-                print_error_msg('Could not load the module of type ' + config['type'] + '.')
-                return
-
-            try:
-                c = getattr(module.plugin, 'Config')(config)
-                config = c.get_config()
-            except AttributeError:
-                pass
-            except (WrongFormatError, MissingKeyError) as e:
-                print_error_msg(e.msg)
-                return
-            except:
-                print_error_msg('Could not load the plugin (' + config['type'] + ') configuration.')
-                return
-
-        try:
-            task = getattr(module.plugin, 'Task')(args, config, module)
+            task = getattr(module.plugin, 'Task')(task, parsedConfig, module, test_cases)
         except UnknownCommandError as e:
             print_error_msg(e.msg)
             return
         except AttributeError:
             try:
-                task = Task(args, config, module)
+                task = Task(task, parsedConfig, module, test_cases)
             except UnknownCommandError as e:
                 print_error_msg(e.msg)
                 return
@@ -271,4 +271,4 @@ def execute(args, show_stacktrace=False):
 
 def print_error_msg(msg):
     print msg
-    print '\nFor more information type: python manage.py help'
+    print '\nFor more information type: python manage.py -h'

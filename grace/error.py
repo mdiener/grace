@@ -74,3 +74,6 @@ class FileUploadError(Error):
 
 class NoExectuableError(Error):
     pass
+
+class KeyNotAllowedError(Error):
+    pass
