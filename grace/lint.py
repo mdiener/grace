@@ -171,9 +171,10 @@ if (lint.warnings.length > 0) {
         if os.path.exists(os.path.join(self._cwd, 'src', 'javascript')):
             for dirname, subdirs, files in os.walk(os.path.join('src', 'javascript')):
                 for filename in files:
-                    valid = self._lint_file(os.path.join(dirname, filename))
-                    if not valid:
-                        self.lint_valid = False
+                    if os.path.splitext(filename)[1] == '.js':
+                        valid = self._lint_file(os.path.join(dirname, filename))
+                        if not valid:
+                            self.lint_valid = False
 
     def _lint_file(self, jsfile):
         if 'jslint' in self._options:
