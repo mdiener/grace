@@ -207,14 +207,17 @@ def execute(*args):
         except AttributeError:
             pass
 
+    parser = None
     if config.get_type() is not 'default':
-        parser = None
         try:
             parser = getattr(module.plugin, 'CommandLineParser')()
             task, test_cases, overwrites, show_stacktrace = parser.get_arguments()
         except AttributeError:
             parser = CommandLineParser()
             task, test_cases, overwrites, show_stacktrace = parser.get_arguments()
+    else:
+        parser = CommandLineParser()
+        task, test_cases, overwrites, show_stacktrace = parser.get_arguments()
 
     try:
         config.load_overwrites(overwrites)
