@@ -127,6 +127,11 @@ python manage.py build
 ```
 If the options autolint has not been set to false, each build will be preceeded by a full lint of the project. The project will then only be built if there are no errors. This option can be disabled through the project.cfg file by adding: _autolint: false_.
 
+Important Notes
+---------------
+
+It is important to note that if you want your files to be available in your built project, they have to be under their respective folders: For any files regarding styles (images on a website, stylesheets, etc.) you should use the folder `src/styles/` and `src/styles/images`, for any other files that are important during runtime of your project you can use the `assets/` folder in the root of your project. Any files that are not in these folders, and are not part of a JavaScript include or your base html file will not be copied over.
+
 Building Tests
 --------------
 
