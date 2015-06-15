@@ -113,7 +113,7 @@ class Task(object):
                 self._lint = True
 
             if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update and not self._upload and not self._autodeploy and not self._lint:
-                raise UnknownCommandError('The provided argument(s) could not be recognized by the manage.py script: ' + ', '.join(tasks))
+                raise UnknownCommandError('The provided argument could not be recognized by the manage.py script: ' + task)
 
     def execute(self):
         if self._clean:
