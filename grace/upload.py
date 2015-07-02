@@ -44,7 +44,7 @@ class Upload(object):
     def run(self):
         self._login()
 
-    def _login(self):
+    def _get_login_information(self):
         data = {}
 
         if self._username == '':
@@ -57,6 +57,11 @@ class Upload(object):
             data['username'] = self._username
         if self._password != '':
             data['password'] = self._password
+
+        return data
+
+    def _login(self):
+        data = self._get_login_information()
 
         r = requests.post(self._login_url,
             data=write_json(data),
