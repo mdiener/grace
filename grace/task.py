@@ -13,6 +13,11 @@ import sys
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+import git
+from tempfile import mkdtemp
+from subprocess import call
+import zipfile
+import tarfile
 
 
 class ChangeHandler(FileSystemEventHandler):
@@ -115,7 +120,48 @@ class Task(object):
             if not self._build and not self._test and not self._deploy and not self._zip and not self._jsdoc and not self._update and not self._upload and not self._autodeploy and not self._lint:
                 raise UnknownCommandError('The provided argument could not be recognized by the manage.py script: ' + task)
 
+    def _execute_subproject(self, project):
+        if 'source' not in project:
+            return
+
+        if self._build || self._autodeploy:
+            options = self._gather_option_string(project['options'])
+            if project['source']['type'] == 'file':
+                sourcedir = project['source']['url']
+                self._build_subproject(sourcedir, options)
+            if project['source']['type'] == 'git':
+                sourcedir = mkdtemp()
+                try:
+                    repo = git.Repo.clone_from(project['source']['url'], sourcedir, branch=project['source']['branch'])
+                except git.exc.GitCommandNotFound:
+                    raise UnknownCommandError('Could not find the git executable in your path. Please make sure git is installed and accessible through the console.')
+                except git.exc.GitCommandError as e:
+                    raise UnknownCommandError('Something went wrong while executing git.')
+                except:
+                    raise UnknownCommandError('Failed for an unknown reason. Please try again.')
+                self._build_subproject(sourcedir, options)
+            if project['source']['type'] == 'tar' || :
+
+
+
+
+    def _build_subproject(self, path, options):
+        cwd = os.getcwd()
+        os.chdir(path)
+        call('./manage.py build ' + options)
+        os.chdir(cwd)
+
+    def _gather_option_string(self, options):
+        string = ''
+        for key, value in options:
+            string += '-o ' + key + '=' + value + ' '
+
+        return string
+
     def execute(self):
+        for project in self._config['embedded_projects']:
+            self._execute_subproject(project)
+
         if self._clean:
             clean()
             return

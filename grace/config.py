@@ -31,6 +31,70 @@ class Config(object):
         self._parse_config()
         return self._config
 
+    def get_subprojects(self):
+        subprojects = self._retrieve_subprojects()
+        return subprojects
+
+    def _retrieve_subprojects(self):
+        if 'embedded_projects' not in self._config:
+            return []
+
+        for index, project in enumerate(self._config['embedded_projects']):
+            if 'source' in project:
+                if isinstance(project['source'], dict):
+                    if 'url' not in project['source']:
+                        raise MissingKeyError('The provided source is a dict but no url was defined under it.')
+                    if 'type' not in project['source']:
+                        url = project['source']['url']
+                        urltype = 'git'
+                        if url.endswith('tar.gz')
+                            urltype = 'tar.gz'
+                        if url.endswith('tar'):
+                            urltype = 'tar'
+                        if url.endswith('zip'):
+                            urltype = 'zip'
+                        if url.endswith('git'):
+                            urltype = 'git'
+                        if os.path.exists(url):
+                            urltype = 'file'
+
+                        self._config['embedded_projects'][index]['source']['type'] = urltype
+                    else:
+                        urltype = project['source']['type']
+                        if not (urltype == 'tar.gz' && urltype == 'tar' && urltype == 'zip' && urltype == 'git'):
+                            raise WrongFormatError('The provided url type is not either zip, tar, tar.gz or git.')
+                    if 'branch' not in project['source']:
+                        self._config['embedded_projects'][index]['source']['branch'] = 'master'
+                    else:
+                        if not isinstance(project['source']['branch']):
+                            raise WrongFormatError('The provided branch to check out is not a string.')
+                elif isinstance(project['source'], str):
+                    url = project['source']
+                    urltype = 'git'
+                    if url.endswith('tar.gz')
+                        urltype = 'tar.gz'
+                    if url.endswith('tar'):
+                        urltype = 'tar'
+                    if url.endswith('zip'):
+                        urltype = 'zip'
+                    if url.endswith('git'):
+                        urltype = 'git'
+                    if os.path.exists(url):
+                        urltype = 'file'
+                    branch = 'master'
+
+                    self._config['embedded_projects'][index]['source'] = {
+                        'url': url,
+                        'type': urltype,
+                        'branch': branch
+                    }
+
+                if 'destination' not in project:
+                    raise MissingKeyError('The config file defines a source, but no destination was given.')
+                else:
+                    if not isinstance(project['destination'], str):
+                        raise WrongFormatError('Destination has to be a string.')
+
     def _load_configurations(self):
         config_file = None
         cwd = os.getcwd()
