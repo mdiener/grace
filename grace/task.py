@@ -125,36 +125,70 @@ class Task(object):
             return
 
         if self._build || self._autodeploy:
-            options = self._gather_option_string(project['options'])
+            options = self._gather_option_string(project['options'], project['copyas'])
             if project['source']['type'] == 'file':
                 sourcedir = project['source']['url']
-                self._build_subproject(sourcedir, options)
+                self._build_subproject(sourcedir, project['destination'], options)
             if project['source']['type'] == 'git':
                 sourcedir = mkdtemp()
                 try:
                     repo = git.Repo.clone_from(project['source']['url'], sourcedir, branch=project['source']['branch'])
+                    self._build_subproject(sourcedir, project['destination'], options)
                 except git.exc.GitCommandNotFound:
                     raise UnknownCommandError('Could not find the git executable in your path. Please make sure git is installed and accessible through the console.')
                 except git.exc.GitCommandError as e:
                     raise UnknownCommandError('Something went wrong while executing git.')
                 except:
                     raise UnknownCommandError('Failed for an unknown reason. Please try again.')
-                self._build_subproject(sourcedir, options)
-            if project['source']['type'] == 'tar' || :
+                finally:
+                    rmtree(sourcedir)
+            if project['source']['type'] == 'tar' || project['source']['type'] == 'zip' || project['source']['type'] == 'tar.gz':
+                sourcedir = mkdtemp()
+                sourcearchive = os.path.join(sourcedir, 'source')
+                projecttype = project['source']['type']
+                try:
+                    r = requests.get(project['source']['url'], stream=True)
 
+                    with open(sourcearchive, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size=1024):
+                            if chunk: # filter out keep-alive new chunks
+                                f.write(chunk)
+                                f.flush()
 
+                        if projecttype == 'tar':
+                            tf = tarfile.open(mode='r', fileobj=f)
+                            dirname = os.path.join(sourcedir, tf.getnames()[0])
+                            tf.extractall(sourcedir)
+                        if projecttype == 'tar.gz':
+                            tf = tarfile.open(mode='r:gz', fileobj=f)
+                            dirname = os.path.join(sourcedir, tf.getnames()[0])
+                            tf.extractall(sourcedir)
+                        if projecttype == 'zip':
+                            z = zipfile.ZipFile(f, 'r')
+                            dirname = os.path.join(sourcedir, z.namelist()[0])
+                            z.extractall(sourcedir)
 
+                    self._build_subproject(dirname, project['destination'], options)
 
-    def _build_subproject(self, path, options):
+                except requests.exceptions.ConnectionError as e:
+                    raise GeneralError('Could not download the source tar file.')
+                    return
+                finally:
+                    rmtree(sourcedir)
+
+    def _build_subproject(self, path, destination, options):
         cwd = os.getcwd()
         os.chdir(path)
-        call('./manage.py build ' + options)
+        options += '-o zip_path=' + destination
+        call('./manage.py zip ' + options)
         os.chdir(cwd)
 
     def _gather_option_string(self, options):
         string = ''
+
         for key, value in options:
-            string += '-o ' + key + '=' + value + ' '
+            if key != 'zip_path':
+                string += '-o ' + key + '=' + value + ' '
 
         return string
 
