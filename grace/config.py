@@ -124,7 +124,10 @@ class Config(object):
         except:
             raise
 
-        return update(global_config, local_config)
+        return self._preparse_config(update(global_config, local_config))
+
+    def _preparse_config(self, config):
+        return config
 
     def _check_update_keys(self, updates):
         if 'name' in updates:
