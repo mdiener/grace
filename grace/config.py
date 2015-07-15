@@ -9,6 +9,7 @@ class Config(object):
 
         try:
             self._config = self._load_configurations()
+            self._parse_subprojects()
         except:
             raise
 
@@ -31,13 +32,9 @@ class Config(object):
         self._parse_config()
         return self._config
 
-    def get_subprojects(self):
-        subprojects = self._retrieve_subprojects()
-        return subprojects
-
-    def _retrieve_subprojects(self):
+    def _parse_subprojects(self):
         if 'embedded_projects' not in self._config:
-            return []
+            self._config['embedded_projects'] = []
 
         for index, project in enumerate(self._config['embedded_projects']):
             if 'source' in project:
@@ -47,7 +44,7 @@ class Config(object):
                     if 'type' not in project['source']:
                         url = project['source']['url']
                         urltype = 'git'
-                        if url.endswith('tar.gz')
+                        if url.endswith('tar.gz'):
                             urltype = 'tar.gz'
                         if url.endswith('tar'):
                             urltype = 'tar'
@@ -61,7 +58,7 @@ class Config(object):
                         self._config['embedded_projects'][index]['source']['type'] = urltype
                     else:
                         urltype = project['source']['type']
-                        if not (urltype == 'tar.gz' && urltype == 'tar' && urltype == 'zip' && urltype == 'git'):
+                        if not (urltype == 'tar.gz' and urltype == 'tar' and urltype == 'zip' and urltype == 'git'):
                             raise WrongFormatError('The provided url type is not either zip, tar, tar.gz or git.')
                     if 'branch' not in project['source']:
                         self._config['embedded_projects'][index]['source']['branch'] = 'master'
@@ -71,7 +68,7 @@ class Config(object):
                 elif isinstance(project['source'], str):
                     url = project['source']
                     urltype = 'git'
-                    if url.endswith('tar.gz')
+                    if url.endswith('tar.gz'):
                         urltype = 'tar.gz'
                     if url.endswith('tar'):
                         urltype = 'tar'
@@ -94,6 +91,9 @@ class Config(object):
                 else:
                     if not isinstance(project['destination'], str):
                         raise WrongFormatError('Destination has to be a string.')
+
+                if 'options' not in project:
+                    self._config['embedded_projects'][index]['options'] = {}
 
     def _load_configurations(self):
         config_file = None

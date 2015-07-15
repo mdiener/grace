@@ -8,16 +8,19 @@ from update import Update
 from upload import Upload
 from lint import Lint
 import os
-from error import UnknownCommandError, NoExectuableError, FolderNotFoundError
+from error import UnknownCommandError, NoExectuableError, FolderNotFoundError, SubProjectError
 import sys
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import git
 from tempfile import mkdtemp
-from subprocess import call
+import subprocess
+import shlex
 import zipfile
 import tarfile
+from shutil import rmtree
+import requests
 
 
 class ChangeHandler(FileSystemEventHandler):
@@ -124,8 +127,9 @@ class Task(object):
         if 'source' not in project:
             return
 
-        if self._build || self._autodeploy:
-            options = self._gather_option_string(project['options'], project['copyas'])
+        if self._build or self._autodeploy:
+            options = self._gather_option_string(project['options'])
+            print('Building sub-project located at: ' + project['source']['url'])
             if project['source']['type'] == 'file':
                 sourcedir = project['source']['url']
                 self._build_subproject(sourcedir, project['destination'], options)
@@ -142,7 +146,7 @@ class Task(object):
                     raise UnknownCommandError('Failed for an unknown reason. Please try again.')
                 finally:
                     rmtree(sourcedir)
-            if project['source']['type'] == 'tar' || project['source']['type'] == 'zip' || project['source']['type'] == 'tar.gz':
+            if project['source']['type'] == 'tar' or project['source']['type'] == 'zip' or project['source']['type'] == 'tar.gz':
                 sourcedir = mkdtemp()
                 sourcearchive = os.path.join(sourcedir, 'source')
                 projecttype = project['source']['type']
@@ -155,18 +159,18 @@ class Task(object):
                                 f.write(chunk)
                                 f.flush()
 
-                        if projecttype == 'tar':
-                            tf = tarfile.open(mode='r', fileobj=f)
-                            dirname = os.path.join(sourcedir, tf.getnames()[0])
-                            tf.extractall(sourcedir)
-                        if projecttype == 'tar.gz':
-                            tf = tarfile.open(mode='r:gz', fileobj=f)
-                            dirname = os.path.join(sourcedir, tf.getnames()[0])
-                            tf.extractall(sourcedir)
-                        if projecttype == 'zip':
-                            z = zipfile.ZipFile(f, 'r')
-                            dirname = os.path.join(sourcedir, z.namelist()[0])
-                            z.extractall(sourcedir)
+                    if projecttype == 'tar':
+                        tf = tarfile.open(sourcearchive, mode='r')
+                        dirname = os.path.join(sourcedir, tf.getnames()[0])
+                        tf.extractall(sourcedir)
+                    if projecttype == 'tar.gz':
+                        tf = tarfile.open(sourcearchive, mode='r:gz')
+                        dirname = os.path.join(sourcedir, tf.getnames()[0])
+                        tf.extractall(sourcedir)
+                    if projecttype == 'zip':
+                        z = zipfile.ZipFile(sourcearchive, 'r')
+                        dirname = os.path.join(sourcedir, z.namelist()[0])
+                        z.extractall(sourcedir)
 
                     self._build_subproject(dirname, project['destination'], options)
 
@@ -178,10 +182,25 @@ class Task(object):
 
     def _build_subproject(self, path, destination, options):
         cwd = os.getcwd()
+        if not os.path.isabs(path):
+            path = os.path.abspath(path)
+        if not os.path.isabs(destination):
+            destination = os.path.abspath(destination)
         os.chdir(path)
-        options += '-o zip_path=' + destination
-        call('./manage.py zip ' + options)
-        os.chdir(cwd)
+        options += '-o zip_path=' + destination + ' -o autolint=false'
+        args = 'python manage.py zip ' + options
+
+        n = open(os.devnull, 'w')
+        try:
+            popen = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output, error = popen.communicate()
+            if error != '':
+                raise Exception()
+        except:
+            raise SubProjectError('Could not execute the sub project at location: "' + path + '". Pleas try again.')
+        finally:
+            n.close()
+            os.chdir(cwd)
 
     def _gather_option_string(self, options):
         string = ''
@@ -195,6 +214,9 @@ class Task(object):
     def execute(self):
         for project in self._config['embedded_projects']:
             self._execute_subproject(project)
+
+        if len(self._config['embedded_projects']) > 0:
+            print('')
 
         if self._clean:
             clean()

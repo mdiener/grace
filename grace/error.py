@@ -72,8 +72,14 @@ class GeneralError(Error):
 class FileUploadError(Error):
     pass
 
+
 class NoExectuableError(Error):
     pass
 
+
 class KeyNotAllowedError(Error):
+    pass
+
+
+class SubProjectError(Error):
     pass
