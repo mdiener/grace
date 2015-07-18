@@ -206,6 +206,9 @@ def execute(*args):
             config = getattr(module.plugin, 'Config')()
         except AttributeError:
             pass
+        except MissingKeyError as e:
+            print e.msg
+            return
 
     parser = None
     if config.get_type() is not 'default':

@@ -95,6 +95,9 @@ class Config(object):
                 if 'options' not in project:
                     self._config['embedded_projects'][index]['options'] = {}
 
+                if self._config['embedded_projects'][index]['source']['type'] == 'file':
+                    self._config['embedded_projects'][index]['source']['url'] = os.path.abspath(self._config['embedded_projects'][index]['source']['url'])
+
     def _load_configurations(self):
         config_file = None
         cwd = os.getcwd()

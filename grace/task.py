@@ -7,6 +7,7 @@ from doc import Doc
 from update import Update
 from upload import Upload
 from lint import Lint
+from utils import update
 import os
 from error import UnknownCommandError, NoExectuableError, FolderNotFoundError, SubProjectError
 import sys
@@ -21,6 +22,7 @@ import zipfile
 import tarfile
 from shutil import rmtree
 import requests
+import json
 
 
 class ChangeHandler(FileSystemEventHandler):
@@ -128,7 +130,7 @@ class Task(object):
             return
 
         if self._build or self._autodeploy:
-            options = self._gather_option_string(project['options'])
+            options = self._gather_option_string(project)
             print('Building sub-project located at: ' + project['source']['url'])
             if project['source']['type'] == 'file':
                 sourcedir = project['source']['url']
@@ -187,7 +189,7 @@ class Task(object):
         if not os.path.isabs(destination):
             destination = os.path.abspath(destination)
         os.chdir(path)
-        options += '-o zip_path=' + destination + ' -o autolint=false'
+        options += ' -o zip_path=' + destination
         args = 'python manage.py zip ' + options
 
         n = open(os.devnull, 'w')
@@ -202,21 +204,70 @@ class Task(object):
             n.close()
             os.chdir(cwd)
 
-    def _gather_option_string(self, options):
+    def _gather_option_string(self, project):
         string = ''
 
-        for key, value in options:
-            if key != 'zip_path':
-                string += '-o ' + key + '=' + value + ' '
+        if 'options' in project:
+            for key, value in project['options']:
+                if key != 'zip_path':
+                    string += '-o ' + key + '=' + value + ' '
 
+        string += '-o autolint=false'
         return string
 
-    def execute(self):
-        for project in self._config['embedded_projects']:
-            self._execute_subproject(project)
-
+    def _build_subprojects(self):
+        subproject_infos = os.path.join(os.path.expanduser('~'), '.grace', 'subprojects.json')
         if len(self._config['embedded_projects']) > 0:
-            print('')
+            with open(subproject_infos, 'w+') as f:
+                try:
+                    infos = json.load(f)
+                except:
+                    infos = {
+                        'parent': os.getcwd()
+                    }
+
+            new_subprojects = []
+            for project in self._config['embedded_projects']:
+                build_it = True
+                if infos['parent'] == project['source']['url']:
+                    build_it = False
+                else:
+                    if 'subprojects' in infos:
+                        for processed_project in infos['subprojects']:
+                            if processed_project == project['source']:
+                                build_it = False
+                                break
+
+                new_subprojects.append(project['source'])
+
+                if build_it:
+                    infos['subprojects'] = new_subprojects
+
+                    if os.path.exists(subproject_infos):
+                        os.remove(subproject_infos)
+
+                    with open(subproject_infos, 'w+') as f:
+                        f.write(json.dumps(infos))
+
+                    self._execute_subproject(project)
+
+            if self._build or self._autodeploy:
+                print('')
+
+        with open(subproject_infos, 'w+') as f:
+            try:
+                infos = json.load(f)
+            except:
+                infos = {}
+
+        if 'parent' in infos:
+            if infos['parent'] == os.getcwd():
+                os.remove(subproject_infos)
+        else:
+            os.remove(subproject_infos)
+
+    def execute(self):
+        self._build_subprojects()
 
         if self._clean:
             clean()
