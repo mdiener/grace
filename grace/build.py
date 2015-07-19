@@ -15,11 +15,16 @@ class Build(object):
         self._config = config
 
     def run(self):
-        if not os.path.exists(self._config['build_path']):
+        if os.path.exists(self._config['build_path']):
             try:
-                os.makedirs(self._config['build_path'])
+                rmtree(self._config['build_path'])
             except:
-                raise CreateFolderError('Could not create the project folder.')
+                raise RemoveFolderError('Could not remove existing build directory.')
+
+        try:
+            os.makedirs(self._config['build_path'])
+        except:
+            raise CreateFolderError('Could not create the project folder.')
 
         try:
             self._build_javascript()
@@ -44,12 +49,6 @@ class Build(object):
             self._js_string = self._concat_javascript(source)
         except:
             raise
-
-        if os.path.exists(dest):
-            try:
-                os.remove(dest)
-            except:
-                raise RemoveFileError('Could not delete the existing javascript application file.')
 
         try:
             f = open(dest, 'w+')
@@ -125,12 +124,6 @@ class Build(object):
         if not os.path.exists(source):
             return
 
-        if os.path.exists(dest):
-            try:
-                os.remove(dest)
-            except:
-                raise RemoveFileError('Could not remove the existing html build file.')
-
         try:
             copy2(source, dest)
         except:
@@ -142,12 +135,6 @@ class Build(object):
 
         if not os.path.exists(source):
             return
-
-        if os.path.exists(destination):
-            try:
-                rmtree(destination)
-            except:
-                raise RemoveFolderError('Could not remove the existing style folder.')
 
         temp_style_dir = tempfile.mkdtemp()
 
@@ -247,12 +234,6 @@ class Build(object):
         if not os.path.exists(source):
             return
 
-        if os.path.exists(dest):
-            try:
-                rmtree(dest)
-            except:
-                raise RemoveFolderError('Could not remove the existing libraries folder.')
-
         try:
             copytree(source, dest)
         except:
@@ -264,12 +245,6 @@ class Build(object):
 
         if not os.path.exists(source):
             return;
-
-        if os.path.exists(dest):
-            try:
-                rmtree(dest)
-            except:
-                raise RemoveFolderError('Could not remove the existing assets folder.')
 
         try:
             copytree(source, dest)
