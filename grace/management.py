@@ -2,7 +2,7 @@ from grace.task import Task
 from grace.create import New, Assets
 from grace.config import Config
 from grace.cmdparse import CommandLineParser
-from grace.error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError, WrongLoginCredentials, FileUploadError, KeyNotAllowedError, SubProjectError
+from grace.error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, UnknownCommandError, WrongLoginCredentials, RemoteServerError, KeyNotAllowedError, SubProjectError
 import sys
 import os
 from shutil import copy, move
@@ -262,8 +262,10 @@ def execute(*args):
 
         try:
             task.execute()
-        except (FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, WrongLoginCredentials, FileUploadError, SubProjectError) as e:
+        except (FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, SassError, WrongLoginCredentials, SubProjectError) as e:
             print_error_msg(e.msg)
+        except RemoteServerError as e:
+            print(e.msg)
         except Exception as e:
             print_error_msg('Could not execute the given task. Something went wrong, please try again!')
 

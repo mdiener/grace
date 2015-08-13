@@ -69,7 +69,7 @@ class GeneralError(Error):
     pass
 
 
-class FileUploadError(Error):
+class RemoteServerError(Error):
     pass
 
 

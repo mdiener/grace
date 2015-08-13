@@ -1,6 +1,6 @@
 import os
 from utils import get_path, write_json
-from error import MissingKeyError, WrongLoginCredentials, FileNotFoundError, FileUploadError
+from error import MissingKeyError, WrongLoginCredentials, FileNotFoundError, RemoteServerError
 from pkg_resources import resource_filename
 import requests
 import getpass
@@ -99,4 +99,4 @@ class Upload(object):
     def _upload_response(self, r):
         if r.status_code != 201:
             print r.text
-            raise FileUploadError('Could not upload the file to the server. Please try again.')
+            raise RemoteServerError('Could not upload the file to the server. Please try again.')
