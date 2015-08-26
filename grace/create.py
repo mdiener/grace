@@ -80,35 +80,35 @@ class New(object):
             z = zipfile.ZipFile(zip_path, 'r')
             z.extractall(tmp_path)
         except:
-            rmtree(tmp_path)
             z.close()
+            rmtree(tmp_path)
             raise GeneralError('Could not unzip the downloaded file. Something went wrong, please try again.')
 
         if not os.path.exists(self._skeleton_parent_folder):
             try:
                 os.makedirs(self._skeleton_parent_folder)
             except:
-                rmtree(tmp_path)
                 z.close()
+                rmtree(tmp_path)
                 raise FolderNotWritableError('Could not create the skeleton parent folder.')
 
         if os.path.exists(self._skeleton_path):
             try:
                 rmtree(self._skeleton_path)
             except:
-                rmtree(tmp_path)
                 z.close()
+                rmtree(tmp_path)
                 raise FolderNotWritableError('Could not remove the saved skeleton.')
 
         try:
             copytree(os.path.join(tmp_path, z.namelist()[0]), self._skeleton_path)
         except:
-            rmtree(tmp_path)
             z.close()
+            rmtree(tmp_path)
             raise FolderNotFoundError('Could not find the folder to save the skeleton.')
 
-        rmtree(tmp_path)
         z.close()
+        rmtree(tmp_path)
 
     def _copy_structure(self):
         if os.path.exists(os.path.join(self._cwd, self._projectName)):
