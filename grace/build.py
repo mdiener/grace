@@ -7,6 +7,7 @@ import re
 import scss
 import sys
 import tempfile
+import coffeescript
 
 
 class Build(object):
@@ -39,16 +40,31 @@ class Build(object):
         js_name = self._config['js_name'] + '.js'
         source = os.path.join(self._cwd, 'src', js_name)
         dest = os.path.join(self._config['build_path'], js_name)
+        js_string = ''
 
         if not os.path.exists(source):
             source = os.path.join(self._cwd, 'src', 'application.js')
             if not os.path.exists(source):
-                return
+                source = os.path.join(self._cwd, 'src', 'application.coffee')
+                if not os.path.exists(source):
+                    return
+
+        if source.endswith('coffee'):
+            as_coffee = True
+        else:
+            as_coffee = False
 
         try:
-            self._js_string = self._concat_javascript(source)
-        except:
-            raise
+            f = open(source)
+            self._included_files = []
+
+            js_string = self._gather_javascript(f, as_coffee)
+        # except FileNotFoundError:
+            # raise
+        # except:
+            # raise FileNotFoundError('The specified file does not exist: ', source)
+        finally:
+            f.close()
 
         try:
             f = open(dest, 'w+')
@@ -56,29 +72,80 @@ class Build(object):
             raise FileNotWritableError('Could not write the javascript file.')
 
         if self._config['minify_js']:
-            self._js_string = minify(self._js_string, mangle=True, mangle_toplevel=False)
+            js_string = minify(js_string, mangle=True, mangle_toplevel=False)
 
-        f.write(self._js_string.encode('utf-8'))
+        f.write(js_string.encode('utf-8'))
         f.close()
 
-    def _concat_javascript(self, source):
+    def _concat_javascript(self, source, as_coffee=False):
         f = None
-        lines = []
+        js_string = ''
 
         try:
             f = open(source)
         except:
             raise FileNotFoundError('The specified file does not exist: ', source)
 
-        self._included_js_files = []
+        self._included_files = []
         try:
-            lines = self._gather_javascript_lines(f)
+            js_string = self._gather_javascript(f)
         except FileNotFoundError:
             raise
         finally:
             f.close()
 
-        return ''.join(lines)
+        return js_string
+
+    def _gather_javascript(self, f, as_coffee=False):
+        lines = []
+        include_string = ''
+        index = 0
+        js_string = ''
+
+        for line in f:
+            line = line.decode('utf-8')
+
+            if as_coffee:
+                match = re.match('#= require ([a-zA-Z\/-_]+)', line)
+            else:
+                match = re.match('\/\/= require ([a-zA-Z\/-_]+)', line)
+
+            if match:
+                include_f = None
+                include_path = match.group(1)
+                if sys.platform.startswith('win32'):
+                    include_path = include_path.replace('/', '\\')
+                include_path = os.path.join(self._cwd, 'src', 'javascript', include_path)
+
+                if os.path.exists(include_path + '.js'):
+                    include_path = include_path + '.js'
+                    include_as_coffee = False
+                elif os.path.exists(include_path + '.coffee'):
+                    include_path = include_path + '.coffee'
+                    include_as_coffee = True
+                else:
+                    raise FileNotFoundError('The specified file does not exist (as either .js or .coffee): ', include_path)
+
+                if include_path not in self._included_files:
+                    self._included_files.append(include_path)
+
+                    include_f = open(include_path)
+
+                    try:
+                        include_string = include_string + self._gather_javascript(include_f, include_as_coffee)
+                        index += 1
+                    except FileNotFoundError:
+                        raise
+                    finally:
+                        include_f.close()
+            else:
+                lines.append(line)
+
+        js_string = ''.join(lines)
+        if as_coffee:
+            js_string = coffeescript.compile(js_string)
+
+        return include_string + js_string
 
     def _gather_javascript_lines(self, f):
         lines = []

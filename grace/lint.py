@@ -164,9 +164,10 @@ if (lint.warnings.length > 0) {
 
         self.lint_valid = True
 
-        valid = self._lint_file(application)
-        if not valid:
-            self.lint_valid = False
+        if os.path.exists(application):
+            valid = self._lint_file(application)
+            if not valid:
+                self.lint_valid = False
 
         if os.path.exists(os.path.join(self._cwd, 'src', 'javascript')):
             for dirname, subdirs, files in os.walk(os.path.join('src', 'javascript')):
