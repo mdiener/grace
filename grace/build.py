@@ -59,10 +59,10 @@ class Build(object):
             self._included_files = []
 
             js_string = self._gather_javascript(f, as_coffee)
-        # except FileNotFoundError:
-            # raise
-        # except:
-            # raise FileNotFoundError('The specified file does not exist: ', source)
+        except FileNotFoundError:
+            raise
+        except:
+            raise FileNotFoundError('The specified file does not exist: ', source)
         finally:
             f.close()
 
@@ -104,6 +104,7 @@ class Build(object):
 
         for line in f:
             line = line.decode('utf-8')
+            line = line.replace('##BUILDVERSION##', self._config['version'])
 
             if as_coffee:
                 match = re.match('#= require ([a-zA-Z\/-_]+)', line)
@@ -146,43 +147,6 @@ class Build(object):
             js_string = coffeescript.compile(js_string)
 
         return include_string + js_string
-
-    def _gather_javascript_lines(self, f):
-        lines = []
-
-        for line in f:
-            line = line.decode('utf-8')
-            line = line.replace('##BUILDVERSION##', self._config['version'])
-
-            match = re.match('\/\/= require ([a-zA-Z\/-_]+)', line)
-            if match:
-                sub_f = None
-
-                sub_path = match.group(1)
-                if sys.platform.startswith('win32'):
-                    sub_path = sub_path.replace('/', '\\')
-                sub_path = os.path.join(self._cwd, 'src', 'javascript', sub_path)
-                sub_path = sub_path + '.js'
-
-                if sub_path not in self._included_js_files:
-                    self._included_js_files.append(sub_path)
-
-                    try:
-                        sub_f = open(sub_path)
-                    except:
-                        raise FileNotFoundError('The specified file does not exist: ', sub_path)
-
-                    try:
-                        lines = lines + self._gather_javascript_lines(sub_f)
-                    except FileNotFoundError:
-                        raise
-                    finally:
-                        sub_f.close()
-            else:
-                lines.append(line)
-
-        lines.append('\n')
-        return lines
 
     def _build_html(self):
         source = os.path.join(self._cwd, 'src', 'index.html')
