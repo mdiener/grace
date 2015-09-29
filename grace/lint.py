@@ -25,7 +25,7 @@ var src = null;
 var data = null;
 var options = null;
 
-process.stdout.write("Analyzing file " + process.argv[2] + "\n");
+//process.stdout.write("Analyzing file " + process.argv[2] + "\n");
 src = readFileSync(process.argv[2], "utf8");
 options = '%s';
 options = JSON.parse(options);
@@ -38,6 +38,7 @@ if (data.errors && data.errors.length > 0) {
     process.stdout.write('\nErrors\n------\n')
     for (index in data.errors) {
         error = data.errors[index];
+        process.stdout.write('File ' + process.argv[2] + '\n');
         process.stdout.write('Error ' + error.code + ' on line ' + error.line + ' character ' + error.character + ': ' + error.reason + '\n');
         process.stdout.write('\t' + error.evidence.trim() + '\n');
     };
@@ -45,8 +46,8 @@ if (data.errors && data.errors.length > 0) {
     process.stdout.write('\n' + data.errors.length + ' Error(s) found.\n');
     process.stdout.write(' \n');
 } else {
-    process.stdout.write('No errors found.\n');
-    process.stdout.write(' \n');
+    //process.stdout.write('No errors found.\n');
+    //process.stdout.write(' \n');
 }
 
 /*
@@ -57,7 +58,7 @@ if (data.unused && data.unused.length > 0) {
         process.stdout.write('Unused \'' + unused.name + '\' on line ' + unused.line + ' character ' + unused.character + '\n');
     };
 } else {
-    process.stdout.write('No unused found.')
+    //process.stdout.write('No unused found.')
 }
 */
 
