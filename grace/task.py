@@ -23,17 +23,16 @@ import tarfile
 from shutil import rmtree
 import requests
 import json
+import threading
 
 
 class ChangeHandler(FileSystemEventHandler):
-    def __init__(self, exec_build, exec_deploy):
-        self._exec_build = exec_build
-        self._exec_deploy = exec_deploy
+    def __init__(self, exec_autodeploy):
+        self._exec_autodeploy = exec_autodeploy
 
     def on_any_event(self, event):
-        print('Building and deploying project ...')
-        self._exec_build(True)
-        self._exec_deploy(None, True)
+        t = threading.Thread(target=self._exec_autodeploy)
+        t.start()
 
 
 class Task(object):
@@ -275,7 +274,7 @@ class Task(object):
 
         if self._build:
             if self._config['autolint']:
-                valid = self.exec_lint(True)
+                valid = self.exec_lint(False)
                 if not valid:
                     print 'The JavaScript could not be linted and therefore no building will happen. Fix all errors mentioned by autolint (or be evil and remove the autolint option).'
                     return
@@ -328,9 +327,16 @@ class Task(object):
         if self._autodeploy:
             print('Watching the source directory for any changes ... (Hit Ctrl+c to exit)\n')
 
+            autodeploy_dir = os.path.join(os.path.expanduser('~'), '.grace', 'autodeploy')
+            if not os.path.exists(autodeploy_dir):
+                os.mkdir(autodeploy_dir)
+            else:
+                rmtree(autodeploy_dir)
+                os.mkdir(autodeploy_dir)
+
             self._config['build'] = True
             src_dir = os.path.join(os.getcwd(), 'src')
-            event_handler = ChangeHandler(self.exec_build, self.exec_deploy)
+            event_handler = ChangeHandler(self.exec_autodeploy)
             observer = Observer()
             observer.schedule(event_handler, src_dir, recursive=True)
             observer.start()
@@ -347,6 +353,42 @@ class Task(object):
             print('Linting the source directory.')
 
             self.exec_lint()
+
+    def exec_autodeploy(self):
+        deploying_flag = os.path.join(os.path.expanduser('~'), '.grace', 'autodeploy', 'deploying')
+        changes_flag = os.path.join(os.path.expanduser('~'), '.grace', 'autodeploy', 'changes_detected')
+
+        if os.path.exists(deploying_flag):
+            if not os.path.exists(changes_flag):
+                f = open(changes_flag, 'a')
+                try:
+                    os.utime(changes_flag, None)
+                finally:
+                    f.close()
+
+            return
+        else:
+            f = open(deploying_flag, 'a')
+            try:
+                os.utime(deploying_flag, None)
+            finally:
+                f.close()
+
+        if self._config['autolint']:
+            valid = self.exec_lint(True)
+            if not valid:
+                os.remove(deploying_flag)
+                print 'The JavaScript could not be linted and therefore no building/deploying will happen.'
+                return
+
+        self.exec_build()
+        self.exec_deploy(None)
+
+        os.remove(deploying_flag)
+
+        if os.path.exists(changes_flag):
+            os.remove(changes_flag)
+            self.exec_autodeploy()
 
     def exec_build(self, silent=False):
         if self._module is not None:
@@ -449,6 +491,9 @@ class Task(object):
                 l = Lint(self._config)
         else:
             l = Lint(self._config)
+
+        if not silent:
+            print('Linting source directory ...')
 
         try:
             l.run()
