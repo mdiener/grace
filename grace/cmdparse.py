@@ -29,7 +29,7 @@ The following tasks can be specified through the task command.
     jsdoc       Build the jsDoc of the project.
     zip         Build and then zip the output and put it into the path
                 specified by the zip_path option in your project.cfg file.
-    Clean       Clean the build output.
+    clean       Clean the build output.
     test        Build all the tests.
     test:deploy Build and then deploy the tests.
     test:zip    Build and then zip the tests
