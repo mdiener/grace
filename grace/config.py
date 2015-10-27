@@ -150,7 +150,7 @@ class Config(object):
         strings = []
         for line in config_file:
             if not re.search('^\s*//.*', line):
-                strings.append(line)
+                strings.append(line.strip())
 
         try:
             return load_json(''.join(strings))
