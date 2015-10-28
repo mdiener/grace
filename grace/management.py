@@ -10,6 +10,7 @@ from pkg_resources import resource_filename
 import logging
 import re
 import requests
+import pip
 
 logging.basicConfig(level=0)
 logging.getLogger('requests').setLevel(logging.WARNING)
@@ -75,6 +76,18 @@ def execute_commands(*args):
     execute()
 
 
+def get_installed_plugins():
+    all_dists = pip.commands.list.get_installed_distributions()
+    plugins = []
+
+    for dist in all_dists:
+        name = dist.project_name.replace('grace_', 'grace-')
+        if name.startswith('grace-'):
+            plugins.append(name.strip('grace-'))
+
+    return plugins;
+
+
 def execute_new(args):
     name = ''
     plugin = ''
@@ -114,7 +127,7 @@ def execute_new(args):
     inputs = new_input(name, plugin, skeleton)
 
     module = None
-    if inputs['pluginName'] is not 'default':
+    if inputs['pluginName'] != 'default':
         try:
             module = __import__('grace-' + inputs['pluginName'] + '.plugin')
         except:
@@ -147,27 +160,17 @@ def new_input(name, pluginName, skeleton):
             name = 'MyProject'
 
     if pluginName == '':
-        pluginName = raw_input('Select what type (plugin) of project you want to create [default]: ')
-        if pluginName == '':
-            pluginName = 'default'
+        pluginName = plugin_name_input()
 
-    skeletons = ['default']
+    module = None
     if pluginName != 'default':
         try:
             module = __import__('grace-' + pluginName + '.plugin')
-            skeletons = getattr(module.plugin, 'get_skeleton_names')()
         except AttributeError:
             pass
 
-    skeleton_string = ''
-    for s in skeletons:
-        skeleton_string += s + ', '
-    skeleton_string = skeleton_string[:-2]
-
     if skeleton == '':
-        skeleton = raw_input('Please provide an URL to a skeleton or chose from the list of known skeletons:\nSkeletons: ' + skeleton_string + '. [default]: ')
-        if skeleton == '':
-            skeleton = 'default'
+        skeleton = skeleton_input(module)
 
     args = {
         'name': name,
@@ -187,6 +190,55 @@ def new_input(name, pluginName, skeleton):
             args = new_input('', '', '')
 
     return args
+
+
+def plugin_name_input():
+    name = 'default'
+    plugins = get_installed_plugins()
+
+    output = 'Select what type (plugin) of project you want to create:'
+
+    if len(plugins) == 0:
+        name = raw_input(output + ' default. [default]: ')
+        if name == '':
+            name = 'default'
+    else:
+        plugin_string = ''
+        for plugin in plugins:
+            plugin_string += plugin + ', '
+        plugin_string = plugin_string.rstrip(', ')
+
+        if 'dizmo' in plugins:
+            name = raw_input(output + ' default, ' + plugin_string + '. [dizmo]: ')
+            if name == '':
+                name = 'dizmo'
+        else:
+            name = raw_input(output + ' default, ' + plugin_string + '. [default]: ')
+            if name == '':
+                name = 'default'
+
+    return name
+
+
+def skeleton_input(module=None):
+    skeletons = ['default']
+    if module is not None:
+        try:
+            skeletons = getattr(module.plugin, 'get_skeleton_names')()
+        except AttributeError:
+            pass
+
+    skeleton_string = ''
+    for s in skeletons:
+        skeleton_string += s + ', '
+    skeleton_string = skeleton_string[:-2]
+
+    print('Please provide an URL to a skeleton or chose from the list of known skeletons:')
+    skeleton = raw_input('Skeletons: ' + skeleton_string + '. [' + skeletons[0] + ']: ')
+    if skeleton == '':
+        skeleton = skeletons[0]
+
+    return skeleton
 
 
 def execute(*args):
