@@ -55,6 +55,13 @@ To use **Grace** on a Mac OS X system you first need to install the command line
 3. Get **Grace**: *sudo pip install grace*
 4. **Grace** can now be used from the command line with: *grace new*
 
+#### MacOS X 10.11 (and greater)
+If you are running ElCapitan or greater, you have to add the switch --ignore-installed six to the call to install and upgrade grace dizmo. The commands would then look like:
+```
+sudo pip install grace-dizmo --ignore-installed six
+sudo pip install --upgrade grace-dizmo --ignore-installed six
+```
+
 ### Linux
 
 On any newer Linux distribution, there should be a python installation present. If it is lower than 2.7.4 these instructions might not work for you, but grace itself will still work.
