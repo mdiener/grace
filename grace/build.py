@@ -1,8 +1,9 @@
 import os
-from error import FileNotFoundError, CreateFolderError, FileNotWritableError, FileNotReadableError, RemoveFolderError, RemoveFileError, SassError
+from error import FileNotFoundError, CreateFolderError, FileNotWritableError, FileNotReadableError, RemoveFolderError, RemoveFileError, SassError, ParseError
 from shutil import copy2, copytree, rmtree
 from slimit import minify
 from cssmin import cssmin
+from execjs import ProgramError
 import re
 import scss
 import sys
@@ -61,6 +62,8 @@ class Build(object):
             js_string = self._gather_javascript(f, as_coffee)
         except FileNotFoundError:
             raise
+        except ProgramError as e:
+            raise ParseError('Error while parsing CoffeeScript\n' + e.message)
         except:
             raise FileNotFoundError('The specified file does not exist: ', source)
         finally:

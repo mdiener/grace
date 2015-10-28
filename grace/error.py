@@ -83,3 +83,7 @@ class KeyNotAllowedError(Error):
 
 class SubProjectError(Error):
     pass
+
+
+class ParseError(Error):
+    pass
