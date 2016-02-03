@@ -191,6 +191,9 @@ class Task(object):
         options += ' -o zip_path=' + destination
         args = 'python manage.py zip ' + options
 
+        if not os.path.exists(destination):
+            os.makedirs(destination)
+
         n = open(os.devnull, 'w')
         try:
             popen = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
