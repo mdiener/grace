@@ -20,8 +20,8 @@ if 'port' in sys.argv and len(sys.argv) == 2:
 if 'help' in sys.argv and 'config' in sys.argv and len(sys.argv) == 3:
     print 'Grace Config'
     print '============\n'
-    print 'The global configuration file is written to you users home directory in the file .graceconfig. The options set in their are global over all projects built with grace. Each option can, if there\'s a need, be specified on a per-project basis in the project.cfg file in each project.'
-    print 'The .graceconfig file will be created upon first calling new or port or any command from inside a project. It will never be overwritten and once created must be edited by hand.'
+    print 'The global configuration file is written to the users home directory in the file .grace/grace.cfg. The options set in their are global over all projects built with grace. Each option can, if there\'s a need, be specified on a per-project basis in the project.cfg file in each project.'
+    print 'The .grace/grace.cfg file will be created upon first calling new or port or any command from inside a project. It will never be overwritten and once created must be edited by hand.'
     sys.exit()
 
 if 'help' in sys.argv and 'new' in sys.argv and len(sys.argv) == 3:

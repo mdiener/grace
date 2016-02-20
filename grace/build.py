@@ -204,7 +204,7 @@ class Build(object):
                     def dashboard(val):
                         return scss.types.Function(val.render(), u'dashboard-region', quotes=None)
 
-                    compiler = scss.compiler.Compiler(namespace=ns, undefined_variables_fatal=False)
+                    compiler = scss.compiler.Compiler(namespace=ns, undefined_variables_fatal=True)
 
                     scss_filename = os.path.join(root, f)
                     css_filename = os.path.join(root, f[:-4] + 'css')
@@ -212,11 +212,23 @@ class Build(object):
                     try:
                         css_string = compiler.compile(scss_filename)
                     except scss.errors.SassEvaluationError as e:
-                        raise e
-                    except scss.errors.SyntaxError as e:
-                        raise e
-                    except scss.errors.ParseError as e:
-                        raise e
+                        # print('evaluation error')
+                        # print(dir(e))
+                        # print(scss.errors.add_error_marker(e.expression, e.expression_pos or -1))
+                        # raise e
+                        print(str(e))
+                    except scss.errors.SassSyntaxError as e:
+                        # print('syntax error')
+                        # print(e.exc[0], e.args, e.expression_pos, e.expression)
+                        # sys.exit()
+                        # raise e
+                        print(e)
+                    except scss.errors.SassParseError as e:
+                        # print('parse error')
+                        # print(e.exc[0], e.args, e.expression_pos, e.expression)
+                        # sys.exit()
+                        # raise e
+                        print(e)
                     except:
                         raise FileNotFoundError('Could not find your scss style file.')
 
