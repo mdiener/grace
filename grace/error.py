@@ -57,7 +57,7 @@ class UnknownCommandError(Error):
     pass
 
 
-class SassError(Error):
+class ScssError(Error):
     pass
 
 

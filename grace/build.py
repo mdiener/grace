@@ -1,5 +1,5 @@
 import os
-from error import FileNotFoundError, CreateFolderError, FileNotWritableError, FileNotReadableError, RemoveFolderError, RemoveFileError, SassError, ParseError
+from error import FileNotFoundError, CreateFolderError, FileNotWritableError, FileNotReadableError, RemoveFolderError, RemoveFileError, ScssError, ParseError
 from shutil import copy2, copytree, rmtree
 from slimit import minify
 from cssmin import cssmin
@@ -9,6 +9,7 @@ import scss
 import sys
 import tempfile
 import coffeescript
+import traceback
 
 
 class Build(object):
@@ -194,41 +195,25 @@ class Build(object):
             for f in files:
                 if f.endswith('.scss'):
 
-                    ns = scss.namespace.Namespace()
+                    namespace = scss.namespace.Namespace()
 
-                    @ns.declare_alias('dashboard-region')
+                    @namespace.declare_alias('dashboard-region')
                     def dashboard():
                         return scss.types.Function(u'control rectangle', u'dashboard-region', quotes=None)
 
-                    @ns.declare_alias('dashboard-region')
+                    @namespace.declare_alias('dashboard-region')
                     def dashboard(val):
                         return scss.types.Function(val.render(), u'dashboard-region', quotes=None)
 
-                    compiler = scss.compiler.Compiler(namespace=ns, undefined_variables_fatal=True)
+                    compiler = scss.compiler.Compiler(namespace=namespace)
 
                     scss_filename = os.path.join(root, f)
                     css_filename = os.path.join(root, f[:-4] + 'css')
 
                     try:
                         css_string = compiler.compile(scss_filename)
-                    except scss.errors.SassEvaluationError as e:
-                        # print('evaluation error')
-                        # print(dir(e))
-                        # print(scss.errors.add_error_marker(e.expression, e.expression_pos or -1))
-                        # raise e
-                        print(str(e))
-                    except scss.errors.SassSyntaxError as e:
-                        # print('syntax error')
-                        # print(e.exc[0], e.args, e.expression_pos, e.expression)
-                        # sys.exit()
-                        # raise e
-                        print(e)
-                    except scss.errors.SassParseError as e:
-                        # print('parse error')
-                        # print(e.exc[0], e.args, e.expression_pos, e.expression)
-                        # sys.exit()
-                        # raise e
-                        print(e)
+                    except (scss.errors.SassEvaluationError, scss.errors.SassSyntaxError, scss.errors.SassParseError) as e:
+                        raise ScssError(traceback.format_exc(0))
                     except:
                         raise FileNotFoundError('Could not find your scss style file.')
 
