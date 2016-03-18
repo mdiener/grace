@@ -63,8 +63,8 @@ class Build(object):
             js_string = self._gather_javascript(f, as_coffee)
         except FileNotFoundError:
             raise
-        except ProgramError as e:
-            raise ParseError('Error while parsing CoffeeScript\n' + e.message)
+        except ParseError:
+            raise
         except:
             raise FileNotFoundError('The specified file does not exist: ', source)
         finally:
@@ -148,7 +148,13 @@ class Build(object):
 
         js_string = ''.join(lines)
         if as_coffee:
-            js_string = coffeescript.compile(js_string)
+            try:
+                js_string = coffeescript.compile(js_string)
+            except ProgramError as e:
+                filename = f.name.replace(self._cwd, '')[1:]
+                msg = e.message.replace('stdin', filename)
+
+                raise ParseError('Error while parsing CoffeeScript\n' + msg)
 
         return include_string + js_string
 
