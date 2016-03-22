@@ -38,9 +38,13 @@ if (data.errors && data.errors.length > 0) {
     process.stdout.write('\nErrors\n------\n')
     for (index in data.errors) {
         error = data.errors[index];
-        process.stdout.write('File ' + process.argv[2] + '\n');
-        process.stdout.write('Error ' + error.code + ' on line ' + error.line + ' character ' + error.character + ': ' + error.reason + '\n');
-        process.stdout.write('\t' + error.evidence.trim() + '\n');
+        try {
+            process.stdout.write('File ' + process.argv[2] + '\n');
+            process.stdout.write('Error ' + error.code + ' on line ' + error.line + ' character ' + error.character + ': ' + error.reason + '\n');
+            process.stdout.write('\t' + error.evidence.trim() + '\n');
+        } catch (err) {
+            process.stdout.write()
+        }
     };
 
     process.stdout.write('\n' + data.errors.length + ' Error(s) found.\n');
@@ -118,7 +122,7 @@ if (lint.warnings.length > 0) {
             self._options = {
                 'jshint': os.path.join(os.path.expanduser('~'), '.grace', 'lint', 'jshint.js'),
                 'jsoptions': {
-                    'maxerr': 100,
+                    'maxerr': 200,
                     'browser': True,
                     'undef': True,
                     'predef': {
@@ -129,6 +133,10 @@ if (lint.warnings.length > 0) {
                 },
                 'node': 'node'
             }
+
+        if 'ignore' in self._config['lintoptions']:
+            self._options['ignore'] = copy.deepcopy(self._config['lintoptions']['ignore'])
+            self._config['lintoptions'].pop('ignore')
 
         tmp = update(copy.deepcopy(self._options['jsoptions']), self._config['lintoptions'])
         self._options['jsoptions'] = write_json(tmp)
@@ -173,7 +181,16 @@ if (lint.warnings.length > 0) {
         if os.path.exists(os.path.join(self._cwd, 'src', 'javascript')):
             for dirname, subdirs, files in os.walk(os.path.join('src', 'javascript')):
                 for filename in files:
+                    lint = True
                     if os.path.splitext(filename)[1] == '.js':
+                        if 'ignore' in self._options:
+                            for ignorename in self._options['ignore']:
+                                if os.path.join(dirname, filename) == ignorename:
+                                    lint = False
+                    else:
+                        lint = False
+
+                    if lint:
                         valid = self._lint_file(os.path.join(dirname, filename))
                         if not valid:
                             self.lint_valid = False
