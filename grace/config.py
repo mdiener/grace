@@ -58,7 +58,7 @@ class Config(object):
                         self._config['embedded_projects'][index]['source']['type'] = urltype
                     else:
                         urltype = project['source']['type']
-                        if not (urltype == 'tar.gz' and urltype == 'tar' and urltype == 'zip' and urltype == 'git'):
+                        if not (urltype == 'tar.gz' or urltype == 'tar' or urltype == 'zip' or urltype == 'git'):
                             raise WrongFormatError('The provided url type is not either zip, tar, tar.gz or git.')
                     if 'branch' not in project['source']:
                         self._config['embedded_projects'][index]['source']['branch'] = 'master'

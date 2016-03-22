@@ -210,7 +210,8 @@ class Task(object):
         string = ''
 
         if 'options' in project:
-            for key, value in project['options']:
+            print(project['options'])
+            for key, value in project['options'].iteritems():
                 if key != 'zip_path':
                     string += '-o ' + key + '=' + value + ' '
 
