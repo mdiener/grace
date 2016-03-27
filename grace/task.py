@@ -497,7 +497,7 @@ class Task(object):
             l = Lint(self._config)
 
         if not silent:
-            print('Linting source directory ...')
+            print('Linting js files in source directory ...')
 
         try:
             l.run()

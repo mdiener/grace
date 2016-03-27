@@ -14,7 +14,7 @@ class Zip(object):
             self._zip_path = os.path.join(self._config['zip_path'])
 
         if 'zip_name' not in self._config:
-            self._zip_name = self._config['name'] + '_' + self._config['version'] + '.zip'
+            self._zip_name = self._config['name'] + '-' + self._config['version'] + '.zip'
         else:
             self._zip_name = self._config['zip_name']
 

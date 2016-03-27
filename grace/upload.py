@@ -28,17 +28,20 @@ class Upload(object):
         else:
             self._login_url = self._config['login_url']
 
-        if 'username' not in self._config['urls']:
-            self._username = raw_input('Please provide the username for your upload server (or leave blank if none is required): ')
-        else:
-            self._username = self._config['urls']['username'].encode()
+        self._username = None
+        self._password = None
 
-        if 'password' not in self._config['urls']:
-            self._password = getpass.getpass('Please provide the password for your upload server (or leave blank if none is required): ')
-        else:
-            self._password = self._config['urls']['password'].encode()
+        if 'credentials' in self._config:
+            if 'username' in self._config['credentials']:
+                self._username = self._config['credentials']['username'].encode()
+            if 'password' in self._config['credentials']:
+                self._password = self._config['credentials']['password'].encode()
 
-        self._zip_name = self._config['name'] + '_v' + self._config['version'] + '.zip'
+        if 'zip_name' not in self._config:
+            self._zip_name = self._config['name'] + '-' + self._config['version'] + '.zip'
+        else
+            self._zip_name = self._config['zip_name']
+
         self._zip_path = os.path.join(self._cwd, 'build', self._zip_name)
 
     def run(self):
@@ -47,10 +50,10 @@ class Upload(object):
     def _get_login_information(self):
         data = {}
 
-        if self._username == '':
+        if self._username is None:
             self._username = raw_input('Please provide the username for your upload server (or leave blank if none is required): ')
 
-        if self._password == '':
+        if self._password is None:
             self._password = getpass.getpass('Please provide the password for your upload server (or leave blank if none is required): ')
 
         if self._username != '':
