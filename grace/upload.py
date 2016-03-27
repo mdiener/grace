@@ -15,21 +15,24 @@ class Upload(object):
         self._config = config
         self._verify_ssl = False
 
+        self._username = None
+        self._password = None
+
+        self._check_config()
+
+    def _check_config(self):
         if 'urls' not in self._config:
             raise MissingKeyError('Could not find url settings in either global or local configuration file.')
 
         if 'upload' not in self._config['urls']:
             raise MissingKeyError('Could not find an upload url in either the global or local configuration file.')
         else:
-            self._upload_url = self._config['upload_url']
+            self._upload_url = self._config['urls']['upload']
 
-        if 'login_url' not in self._config['urls']:
+        if 'login' not in self._config['urls']:
             self._login_url = self._upload_url
         else:
-            self._login_url = self._config['login_url']
-
-        self._username = None
-        self._password = None
+            self._login_url = self._config['urls']['login']
 
         if 'credentials' in self._config:
             if 'username' in self._config['credentials']:
@@ -39,7 +42,7 @@ class Upload(object):
 
         if 'zip_name' not in self._config:
             self._zip_name = self._config['name'] + '-' + self._config['version'] + '.zip'
-        else
+        else:
             self._zip_name = self._config['zip_name']
 
         self._zip_path = os.path.join(self._cwd, 'build', self._zip_name)
