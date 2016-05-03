@@ -7,6 +7,7 @@ from utils import update, write_json
 import copy
 import collections
 import requests
+import time
 
 
 class Lint(object):
@@ -214,23 +215,24 @@ if (lint.warnings.length > 0) {
     def _get_jshint(self):
         jshint_path = self._options['jshint']
 
-        try:
-            response = requests.get('https://raw.githubusercontent.com/jshint/jshint/master/dist/jshint.js', stream=True)
+        if self._day_old(jshint_path):
+            try:
+                response = requests.get('https://raw.githubusercontent.com/jshint/jshint/master/dist/jshint.js', stream=True)
 
-            if not response.ok:
-                raise requests.exceptions.ConnectionError
+                if not response.ok:
+                    raise requests.exceptions.ConnectionError
 
-            if not os.path.exists(os.path.dirname(jshint_path)):
-                os.makedirs(os.path.dirname(jshint_path))
+                if not os.path.exists(os.path.dirname(jshint_path)):
+                    os.makedirs(os.path.dirname(jshint_path))
 
-            with open(jshint_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=1024):
-                    if chunk: # filter out keep-alive new chunks
-                        f.write(chunk)
-                        f.flush()
+                with open(jshint_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=1024):
+                        if chunk: # filter out keep-alive new chunks
+                            f.write(chunk)
+                            f.flush()
 
-        except requests.exceptions.ConnectionError as e:
-            pass
+            except requests.exceptions.ConnectionError as e:
+                pass
 
         jshint = NamedTemporaryFile('w+')
         jshint.write(self._jshint_node_script % (jshint_path, self._options['jsoptions']))
@@ -240,26 +242,40 @@ if (lint.warnings.length > 0) {
     def _get_jslint(self):
         jslint_path = self._options['jslint']
 
-        try:
-            response = requests.get('https://raw.github.com/douglascrockford/JSLint/master/jslint.js', stream=True)
+        if self._day_old(jslint_path):
+            try:
+                response = requests.get('https://raw.github.com/douglascrockford/JSLint/master/jslint.js', stream=True)
 
-            if not response.ok:
-                raise requests.exceptions.ConnectionError
+                if not response.ok:
+                    raise requests.exceptions.ConnectionError
 
-            if not os.path.exists(os.path.dirname(jslint_path)):
-                os.makedirs(os.path.dirname(jslint_path))
+                if not os.path.exists(os.path.dirname(jslint_path)):
+                    os.makedirs(os.path.dirname(jslint_path))
 
-            with open(jslint_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=1024):
-                    if chunk: # filter out keep-alive new chunks
-                        f.write(chunk)
-                        f.flush()
-                f.write('\n\nexports.jslint = jslint')
+                with open(jslint_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=1024):
+                        if chunk: # filter out keep-alive new chunks
+                            f.write(chunk)
+                            f.flush()
+                    f.write('\n\nexports.jslint = jslint')
 
-        except requests.exceptions.ConnectionError as e:
-            pass
+            except requests.exceptions.ConnectionError as e:
+                pass
 
         jslint = NamedTemporaryFile('w+')
         jslint.write(self._jslint_node_script % (jslint_path, self._options['jsoptions']))
         jslint.file.flush()
         return jslint
+
+    def _day_old(self, path):
+        try:
+            last_modified = os.path.getmtime(path)
+        except:
+            last_modified = 0
+
+        day_ago = time.time() - (24 * 60 * 60)
+
+        if last_modified < day_ago:
+            return True
+        else:
+            return False
