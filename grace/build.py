@@ -220,8 +220,11 @@ class Build(object):
                         css_string = compiler.compile(scss_filename)
                     except (scss.errors.SassEvaluationError, scss.errors.SassSyntaxError, scss.errors.SassParseError) as e:
                         raise ScssError(traceback.format_exc(0))
+                    except scss.errors.SassError as e:
+                        elist = traceback.format_exception_only(type(e), e)
+                        raise ScssError(''.join(elist))
                     except:
-                        raise FileNotFoundError('Could not find your scss style file.')
+                        raise FileNotFoundError('Could not compile your scss style file.')
 
                     try:
                         css_file = open(css_filename, 'w+')
