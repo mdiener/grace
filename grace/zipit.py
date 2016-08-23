@@ -1,4 +1,7 @@
-from error import FileNotWritableError, RemoveFileError, MissingKeyError
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import object
+from .error import FileNotWritableError, RemoveFileError, MissingKeyError
 import os
 import zipfile
 
@@ -21,7 +24,7 @@ class Zip(object):
     def run(self, testname):
         if self._config['test']:
             if testname is None:
-                print 'No tests to build.'
+                print('No tests to build.')
                 return
 
             name = self._config['name'] + '_' + testname

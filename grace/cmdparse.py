@@ -1,6 +1,8 @@
+from __future__ import absolute_import
+from builtins import object
 import argparse
 import textwrap
-from utils import load_json
+from .utils import load_json
 
 
 class CommandLineParser(object):

@@ -1,5 +1,8 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import object
 import os
-from error import FileNotFoundError, CreateFolderError, RemoveFolderError, FileNotWritableError, RemoveFileError
+from .error import FileNotFoundError, CreateFolderError, RemoveFolderError, FileNotWritableError, RemoveFileError
 import re
 from shutil import rmtree, copy2, copytree
 import sys
@@ -12,7 +15,7 @@ class Test(object):
 
     def run(self, testname):
         if testname is None:
-            print 'No tests to build.'
+            print('No tests to build.')
             return
 
         build_path = os.path.join(self._cwd, 'build', self._config['name'] + '_' + testname)

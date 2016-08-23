@@ -1,7 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import input
+from builtins import object
 import os
-from utils import get_path
+from .utils import get_path
 from shutil import copytree, rmtree
-from error import FolderNotFoundError, FolderNotWritableError, FileNotFoundError, FileNotWritableError
+from .error import FolderNotFoundError, FolderNotWritableError, FileNotFoundError, FileNotWritableError
 from pkg_resources import resource_filename
 import sys
 
@@ -40,34 +44,34 @@ class Update(object):
 
     def run(self):
         if self._target is None:
-            print 'Do you really want to update all files? Changes to any files you might have done will be lost in the process!'
-            ack = raw_input('Continue: yes/[no] ')
+            print('Do you really want to update all files? Changes to any files you might have done will be lost in the process!')
+            ack = input('Continue: yes/[no] ')
             if ack is not 'yes':
-                print 'Canceling update.'
+                print('Canceling update.')
                 sys.exit()
 
-            print 'Updating everything ...'
+            print('Updating everything ...')
 
             self._update_all()
 
         if self._target is 'libs':
-            print 'Updating libs directory ...'
+            print('Updating libs directory ...')
             self._update_libs()
 
         if self._target is 'html':
-            print 'Updating index.html file ...'
+            print('Updating index.html file ...')
             self._update_html()
 
         if self._target is 'config':
-            print 'Update project.cfg file ...'
+            print('Update project.cfg file ...')
             self._update_config()
 
         if self._target is 'javascript':
-            print 'Update JavaScript files ...'
+            print('Update JavaScript files ...')
             self._update_javascript()
 
         if self._target is 'css':
-            print 'Update css files ...'
+            print('Update css files ...')
             self._update_css()
 
     def _update_all(self):

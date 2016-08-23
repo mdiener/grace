@@ -21,23 +21,32 @@ for root, dirs, files in os.walk(os.path.join('grace', 'assets')):
                 package_data['grace'].append(f[6:])
             previous = root
 
+for root, dirs, files in os.walk(os.path.join('grace', 'py27')):
+    for filename in files:
+        if previous != root:
+            filelist = glob(root + '/*.*')
+            for f in filelist:
+                package_data['grace'].append(f[6:])
+            previous = root
+
 setup(
     name='grace',
     description='A tool to simplify JavaScript development.',
     author='Michael Diener',
     author_email='michael@webdiener.ch',
     url='https://github.com/mdiener/grace',
-    version='0.4.37',
+    version='0.5',
     license='LICENSE.txt',
     scripts=['bin/grace'],
     packages=['grace'],
-    install_requires=['pyScss', 'argparse', 'setuptools', 'slimit', 'cssmin', 'pyjsdoc', 'requests', 'watchdog', 'gitpython', 'CoffeeScript', 'pip'],
+    install_requires=['pyScss', 'argparse', 'setuptools', 'slimit', 'cssmin', 'pyjsdoc', 'requests', 'watchdog', 'gitpython', 'CoffeeScript', 'pip', 'future'],
     package_data=package_data,
     keywords='toolchain javascript dizmo js buildtool',
     long_description=open('README.txt').read(),
     classifiers=[
         'Topic :: Software Development :: Build Tools',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: JavaScript',
         'Operating System :: OS Independent',
         'Natural Language :: English',

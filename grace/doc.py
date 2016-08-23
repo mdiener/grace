@@ -1,5 +1,7 @@
-from error import CreateFolderError, FileNotWritableError, RemoveFolderError
-import pyjsdoc
+from __future__ import absolute_import
+from builtins import object
+from .error import CreateFolderError, FileNotWritableError, RemoveFolderError
+import grace.py27.pyjsdoc
 import os
 from shutil import rmtree
 

@@ -1,8 +1,12 @@
+from __future__ import print_function
+from builtins import input
+from past.builtins import basestring
 from grace.task import Task
 from grace.create import New, Assets
 from grace.config import Config
 from grace.cmdparse import CommandLineParser
 from grace.error import FileNotFoundError, WrongFormatError, MissingKeyError, CreateFolderError, FolderNotFoundError, FileNotWritableError, RemoveFolderError, RemoveFileError, FolderAlreadyExistsError, ScssError, UnknownCommandError, WrongLoginCredentials, RemoteServerError, KeyNotAllowedError, SubProjectError, ParseError
+from grace.utils import isstring
 import sys
 import os
 from shutil import copy, move
@@ -19,7 +23,7 @@ logging.getLogger('watchdog').setLevel(logging.WARNING)
 
 
 def get_asset_path(asset):
-    if not isinstance(asset, basestring):
+    if not isstring(asset):
         raise WrongFormatError('Asset needs to be a string.')
 
     try:
@@ -69,7 +73,7 @@ def port_grace():
     try:
         copy(assetPath, os.getcwd())
     except:
-        print 'Could not create the manage.py file.'
+        print('Could not create the manage.py file.')
 
 
 def execute_commands(*args):
@@ -143,19 +147,19 @@ def execute_new(args):
         New(inputs['name'], inputs['skeleton'])
 
     Assets(inputs['name'])
-    print 'Created the project, type ' + inputs['pluginName'] + ', with name ' + inputs['name'] + ' and skeleton ' + inputs['skeleton'] + '.'
+    print('Created the project, type ' + inputs['pluginName'] + ', with name ' + inputs['name'] + ' and skeleton ' + inputs['skeleton'] + '.')
 
 
 def new_input(name, pluginName, skeleton):
     if name == '' and pluginName == '' and skeleton == '':
         preset = False
-        print 'To set up your project we need a bit more information.'
-        print 'The values in brackets are the default values. You can just hit enter if you do not want to change them.\n'
+        print('To set up your project we need a bit more information.')
+        print('The values in brackets are the default values. You can just hit enter if you do not want to change them.\n')
     else:
         preset = True
 
     if name == '':
-        name = raw_input('Please provide a name for your project [MyProject]: ')
+        name = input('Please provide a name for your project [MyProject]: ')
         if name == '':
             name = 'MyProject'
 
@@ -179,14 +183,14 @@ def new_input(name, pluginName, skeleton):
     }
 
     if not preset:
-        print '\nReview your information:'
-        print 'Name: ' + name
-        print 'Plugin: ' + pluginName
-        print 'Skeleton: ' + skeleton
-        okay = raw_input('Are the options above correct? [y]: ')
+        print('\nReview your information:')
+        print('Name: ' + name)
+        print('Plugin: ' + pluginName)
+        print('Skeleton: ' + skeleton)
+        okay = input('Are the options above correct? [y]: ')
 
         if okay != 'y' and okay != '':
-            print '\n'
+            print('\n')
             args = new_input('', '', '')
 
     return args
@@ -199,7 +203,7 @@ def plugin_name_input():
     output = 'Select what type (plugin) of project you want to create:'
 
     if len(plugins) == 0:
-        name = raw_input(output + ' default. [default]: ')
+        name = input(output + ' default. [default]: ')
         if name == '':
             name = 'default'
     else:
@@ -209,11 +213,11 @@ def plugin_name_input():
         plugin_string = plugin_string.rstrip(', ')
 
         if 'dizmo' in plugins:
-            name = raw_input(output + ' default, ' + plugin_string + '. [dizmo]: ')
+            name = input(output + ' default, ' + plugin_string + '. [dizmo]: ')
             if name == '':
                 name = 'dizmo'
         else:
-            name = raw_input(output + ' default, ' + plugin_string + '. [default]: ')
+            name = input(output + ' default, ' + plugin_string + '. [default]: ')
             if name == '':
                 name = 'default'
 
@@ -234,7 +238,7 @@ def skeleton_input(module=None):
     skeleton_string = skeleton_string[:-2]
 
     print('Please provide an URL to a skeleton or chose from the list of known skeletons:')
-    skeleton = raw_input('Skeletons: ' + skeleton_string + '. [' + skeletons[0] + ']: ')
+    skeleton = input('Skeletons: ' + skeleton_string + '. [' + skeletons[0] + ']: ')
     if skeleton == '':
         skeleton = skeletons[0]
 
@@ -259,7 +263,7 @@ def execute(*args):
         except AttributeError:
             pass
         except MissingKeyError as e:
-            print e.msg
+            print(e.msg)
             return
 
     parser = None
@@ -323,5 +327,5 @@ def execute(*args):
 
 
 def print_error_msg(msg):
-    print msg
-    print '\nFor more information type: python manage.py -h'
+    print(msg)
+    print('\nFor more information type: python manage.py -h')

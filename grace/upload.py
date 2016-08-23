@@ -1,6 +1,10 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import input
+from builtins import object
 import os
-from utils import get_path, write_json
-from error import MissingKeyError, WrongLoginCredentials, FileNotFoundError, RemoteServerError
+from .utils import get_path, write_json
+from .error import MissingKeyError, WrongLoginCredentials, FileNotFoundError, RemoteServerError
 from pkg_resources import resource_filename
 import requests
 import getpass
@@ -36,9 +40,9 @@ class Upload(object):
 
         if 'credentials' in self._config:
             if 'username' in self._config['credentials']:
-                self._username = self._config['credentials']['username'].encode()
+                self._username = self._config['credentials']['username']
             if 'password' in self._config['credentials']:
-                self._password = self._config['credentials']['password'].encode()
+                self._password = self._config['credentials']['password']
 
         if 'zip_name' not in self._config:
             self._zip_name = self._config['name'] + '-' + self._config['version'] + '.zip'
@@ -54,7 +58,7 @@ class Upload(object):
         data = {}
 
         if self._username is None:
-            self._username = raw_input('Please provide the username for your upload server (or leave blank if none is required): ')
+            self._username = input('Please provide the username for your upload server (or leave blank if none is required): ')
 
         if self._password is None:
             self._password = getpass.getpass('Please provide the password for your upload server (or leave blank if none is required): ')
@@ -104,5 +108,5 @@ class Upload(object):
 
     def _upload_response(self, r):
         if r.status_code != 201:
-            print r.text
+            print(r.text)
             raise RemoteServerError('Could not upload the file to the server. Please try again.')

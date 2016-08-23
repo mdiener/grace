@@ -1,8 +1,10 @@
+from __future__ import absolute_import
+from builtins import object
 import os
-from error import FileNotFoundError, CreateFolderError, FileNotWritableError, FileNotReadableError, RemoveFolderError, RemoveFileError, ScssError, ParseError
+from .error import FileNotFoundError, CreateFolderError, FileNotWritableError, FileNotReadableError, RemoveFolderError, RemoveFileError, ScssError, ParseError
 from shutil import copy2, copytree, rmtree
-from slimit import minify
-from cssmin import cssmin
+from grace.py27.slimit import minify
+from grace.py27.cssmin import cssmin
 from execjs import ProgramError
 import re
 import scss
@@ -61,12 +63,14 @@ class Build(object):
             self._included_files = []
 
             js_string = self._gather_javascript(f, as_coffee)
-        except FileNotFoundError:
-            raise
-        except ParseError:
-            raise
         except:
-            raise FileNotFoundError('The specified file does not exist: ', source)
+            raise
+        # except FileNotFoundError:
+        #     raise
+        # except ParseError:
+        #     raise
+        # except:
+        #     raise FileNotFoundError('The specified file does not exist: ', source)
         finally:
             f.close()
 
@@ -78,7 +82,7 @@ class Build(object):
         if self._config['minify_js']:
             js_string = minify(js_string, mangle=True, mangle_toplevel=False)
 
-        f.write(js_string.encode('utf-8'))
+        f.write(js_string)
         f.close()
 
     def _concat_javascript(self, source, as_coffee=False):
@@ -107,7 +111,6 @@ class Build(object):
         js_string = ''
 
         for line in f:
-            line = line.decode('utf-8')
             line = line.replace('##BUILDVERSION##', self._config['version'])
 
             if as_coffee:
@@ -152,7 +155,7 @@ class Build(object):
                 js_string = coffeescript.compile(js_string)
             except ProgramError as e:
                 filename = f.name.replace(self._cwd, '')[1:]
-                msg = e.message.replace('stdin', filename)
+                msg = ''.join(map(str, e.args)).replace('stdin', filename)
 
                 raise ParseError('Error while parsing CoffeeScript\n' + msg)
 

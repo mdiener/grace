@@ -1,10 +1,12 @@
-from error import FileNotWritableError, FolderAlreadyExistsError, FolderNotFoundError, CreateFolderError, FileNotFoundError, GeneralError
+from __future__ import absolute_import
+from builtins import object
+from .error import FileNotWritableError, FolderAlreadyExistsError, FolderNotFoundError, CreateFolderError, FileNotFoundError, GeneralError
 import os
 from shutil import copytree, copy, rmtree
 import sys
 import re
 from pkg_resources import resource_filename
-from utils import get_path
+from .utils import get_path
 import requests
 import tempfile
 import zipfile
@@ -43,7 +45,7 @@ class New(object):
         self._cwd = os.getcwd()
 
         self._skeleton_parent_folder = os.path.join(os.path.expanduser('~'), '.grace', 'skeletons', 'custom')
-        self._skeleton_path = os.path.join(self._skeleton_parent_folder, hashlib.md5(skeleton).hexdigest())
+        self._skeleton_path = os.path.join(self._skeleton_parent_folder, hashlib.md5(skeleton.encode(sys.getfilesystemencoding())).hexdigest())
         self._skeleton_url = skeleton
 
         if skeleton == 'default':

@@ -1,15 +1,19 @@
-from build import Build, clean
-from deploy import Deploy
-from zipit import Zip
-from testit import Test
-from create import New
-from doc import Doc
-from update import Update
-from upload import Upload
-from lint import Lint
-from utils import update
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import input
+from builtins import object
+from .build import Build, clean
+from .deploy import Deploy
+from .zipit import Zip
+from .testit import Test
+from .create import New
+from .doc import Doc
+from .update import Update
+from .upload import Upload
+from .lint import Lint
+from .utils import update
 import os
-from error import UnknownCommandError, NoExectuableError, FolderNotFoundError, SubProjectError
+from .error import UnknownCommandError, NoExectuableError, FolderNotFoundError, SubProjectError
 import sys
 import time
 from watchdog.observers import Observer
@@ -211,7 +215,7 @@ class Task(object):
 
         if 'options' in project:
             print(project['options'])
-            for key, value in project['options'].iteritems():
+            for key, value in project['options'].items():
                 if key != 'zip_path':
                     string += '-o ' + key + '=' + value + ' '
 
@@ -280,7 +284,7 @@ class Task(object):
             if self._config['autolint']:
                 valid = self.exec_lint(False)
                 if not valid:
-                    print 'The JavaScript could not be linted and therefore no building will happen. Fix all errors mentioned by autolint (or be evil and remove the autolint option).'
+                    print('The JavaScript could not be linted and therefore no building will happen. Fix all errors mentioned by autolint (or be evil and remove the autolint option).')
                     return
 
             self.exec_build()
@@ -297,11 +301,11 @@ class Task(object):
 
         if self._test:
             if not os.path.exists(os.path.join(os.getcwd(), 'test')):
-                print 'No tests to build found.'
+                print('No tests to build found.')
                 return
             else:
                 if not os.path.exists(os.path.join(os.getcwd(), 'test', 'tests')):
-                    print 'No tests to build found.'
+                    print('No tests to build found.')
                     return
 
             if self._test_cases is None:
@@ -382,7 +386,7 @@ class Task(object):
             valid = self.exec_lint(True)
             if not valid:
                 os.remove(deploying_flag)
-                print 'The JavaScript could not be linted and therefore no building/deploying will happen.'
+                print('The JavaScript could not be linted and therefore no building/deploying will happen.')
                 return
 
         self.exec_build()
@@ -421,9 +425,9 @@ class Task(object):
 
         if not silent:
             if testname is not None:
-                print 'Successfully deployed the test: ' + testname + '.'
+                print('Successfully deployed the test: ' + testname + '.')
             else:
-                print 'Successfully deployed the project.'
+                print('Successfully deployed the project.')
 
     def exec_zip(self, testname, silent=False):
         if self._module is not None:
@@ -438,9 +442,9 @@ class Task(object):
 
         if not silent:
             if testname is not None:
-                print 'Successfully zipped the test: ' + testname + '.'
+                print('Successfully zipped the test: ' + testname + '.')
             else:
-                print 'Successfully zipped the project.'
+                print('Successfully zipped the project.')
 
     def exec_test(self, testname, silent=False):
         if self._module is not None:
@@ -455,9 +459,9 @@ class Task(object):
 
         if not silent:
             if testname is not None:
-                print 'Successfully built the test: ' + testname + '.'
+                print('Successfully built the test: ' + testname + '.')
             else:
-                print 'Successfully built the test.'
+                print('Successfully built the test.')
 
     def exec_jsdoc(self, silent=False):
         if self._module is not None:
@@ -471,7 +475,7 @@ class Task(object):
         d.run()
 
         if not silent:
-            print 'Successfully built the JSDoc documentation.'
+            print('Successfully built the JSDoc documentation.')
 
     def exec_upload(self, silent=False):
         if self._module is not None:
@@ -485,7 +489,7 @@ class Task(object):
         u.run()
 
         if not silent:
-            print 'Successfully uploaded the project.'
+            print('Successfully uploaded the project.')
 
     def exec_lint(self, silent=False):
         if self._module is not None:
@@ -503,17 +507,17 @@ class Task(object):
             l.run()
         except NoExectuableError:
             if not silent:
-                print 'No node executable found. Make sure either nodejs or node is executable from the command line.'
+                print('No node executable found. Make sure either nodejs or node is executable from the command line.')
             return True
 
         return l.lint_valid
 
     def exec_update(self, target):
-        print 'Please be aware that an update will replace anything you have done to the files.'
-        ack = raw_input('Continue: yes/[no] ')
+        print('Please be aware that an update will replace anything you have done to the files.')
+        ack = input('Continue: yes/[no] ')
 
         if ack != 'yes':
-            print 'Canceling update.'
+            print('Canceling update.')
             sys.exit()
 
         if self._module is not None:
@@ -526,4 +530,4 @@ class Task(object):
 
         u.run()
 
-        print 'Successfully updated the project.'
+        print('Successfully updated the project.')

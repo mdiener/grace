@@ -1,9 +1,11 @@
+from __future__ import absolute_import
+from builtins import object
 import os
 import sys
 import subprocess
-from error import NoExectuableError, FolderNotFoundError
+from .error import NoExectuableError, FolderNotFoundError
 from tempfile import NamedTemporaryFile
-from utils import update, write_json
+from .utils import update, write_json
 import copy
 import collections
 import requests

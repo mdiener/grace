@@ -1,6 +1,9 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import object
 import os
-from error import WrongFormatError, MissingKeyError, FileNotFoundError, KeyNotAllowedError
-from utils import update, load_json
+from .error import WrongFormatError, MissingKeyError, FileNotFoundError, KeyNotAllowedError
+from .utils import update, load_json, isstring
 import re
 
 class Config(object):
@@ -16,7 +19,7 @@ class Config(object):
         if 'type' not in self._config:
             self._config['type'] = 'default'
         else:
-            if not isinstance(self._config['type'], str):
+            if not isstring(self._config['type']):
                 self._config['type'] = 'default'
             else:
                 if len(self._config['type']) == 0:
@@ -63,9 +66,9 @@ class Config(object):
                     if 'branch' not in project['source']:
                         self._config['embedded_projects'][index]['source']['branch'] = 'master'
                     else:
-                        if not isinstance(project['source']['branch']):
+                        if not isstring(project['source']['branch']):
                             raise WrongFormatError('The provided branch to check out is not a string.')
-                elif isinstance(project['source'], str):
+                elif isstring(project['source']):
                     url = project['source']
                     urltype = 'git'
                     if url.endswith('tar.gz'):
@@ -89,7 +92,7 @@ class Config(object):
                 if 'destination' not in project:
                     raise MissingKeyError('The config file defines a source, but no destination was given.')
                 else:
-                    if not isinstance(project['destination'], str):
+                    if not isstring(project['destination']):
                         raise WrongFormatError('Destination has to be a string.')
 
                 if 'options' not in project:
@@ -163,7 +166,7 @@ class Config(object):
         if 'name' not in self._config:
             raise MissingKeyError('Name of the project needs to be in the config file.')
         else:
-            if not isinstance(self._config['name'], str):
+            if not isstring(self._config['name']):
                 raise WrongFormatError('The name key in your config file must be a string!')
             else:
                 if len(self._config['name']) == 0:
@@ -172,7 +175,7 @@ class Config(object):
         if 'version' not in self._config:
             raise MissingKeyError('Please specify a version in your config file.')
         else:
-            if not isinstance(self._config['version'], str):
+            if not isstring(self._config['version']):
                 raise WrongFormatError('The version key in your config file needs to be a string!')
 
         if 'minify_js' not in self._config:
@@ -190,7 +193,7 @@ class Config(object):
         if 'linter' not in self._config:
             self._config['linter'] = 'jshint'
         else:
-            if not isinstance(self._config['linter'], str):
+            if not isstring(self._config['linter']):
                 raise WrongFormatError('The linter key has to be a string.')
 
             if self._config['linter'] != 'jslint':
@@ -212,7 +215,7 @@ class Config(object):
         if 'js_name' not in self._config:
             self._config['js_name'] = 'application'
         else:
-            if not isinstance(self._config['js_name'], str):
+            if not isstring(self._config['js_name']):
                 self._config['js_name'] = 'application'
             else:
                 if len(self._config['js_name']) == 0:

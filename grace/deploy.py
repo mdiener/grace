@@ -1,4 +1,7 @@
-from error import MissingKeyError, RemoveFolderError, FolderNotWritableError
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import object
+from .error import MissingKeyError, RemoveFolderError, FolderNotWritableError
 import os
 from shutil import rmtree, copytree
 
@@ -16,7 +19,7 @@ class Deploy(object):
     def run(self, testname):
         if self._config['test']:
             if testname is None:
-                print 'No tests to build.'
+                print('No tests to build.')
                 return
 
             dest = os.path.join(self._deployment_path, self._config['name'] + '_' + testname)
