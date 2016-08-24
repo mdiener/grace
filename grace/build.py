@@ -121,9 +121,15 @@ class Build(object):
             if match:
                 include_f = None
                 include_path = match.group(1)
+                files_dir = os.path.join(self._cwd, 'src', 'javascript')
+                if not os.path.exists(files_dir):
+                    files_dir = os.path.join(self._cwd, 'src', 'coffeescript')
+                    if not os.path.exists(files_dir):
+                        raise FileNotFoundError('There is not javascript or coffeescript folder present in the src director.')
+
                 if sys.platform.startswith('win32'):
                     include_path = include_path.replace('/', '\\')
-                include_path = os.path.join(self._cwd, 'src', 'javascript', include_path)
+                include_path = os.path.join(files_dir, include_path)
 
                 if os.path.exists(include_path + '.js'):
                     include_path = include_path + '.js'
