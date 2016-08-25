@@ -87,3 +87,7 @@ class SubProjectError(Error):
 
 class ParseError(Error):
     pass
+
+
+class TranscryptError(Error):
+    pass

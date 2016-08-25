@@ -221,6 +221,12 @@ class Config(object):
                 if len(self._config['js_name']) == 0:
                     self._config['js_name'] = 'application'
 
+        if 'using_transcrypt' not in self._config:
+            self._config['using_transcrypt'] = False
+        else:
+            if not isinstance(self._config['using_transcrypt'], bool):
+                raise WrongFormatError('The using_transcrypt key has to be a boolean.')
+
         if 'test_cases' not in self._config:
             self._config['test_cases'] = None
 
