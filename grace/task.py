@@ -202,7 +202,8 @@ class Task(object):
         try:
             popen = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, error = popen.communicate()
-            if error != '':
+
+            if error != b'':
                 raise Exception()
         except:
             raise SubProjectError('Could not execute the sub project at location: "' + path + '". Pleas try again.')
@@ -214,7 +215,6 @@ class Task(object):
         string = ''
 
         if 'options' in project:
-            print(project['options'])
             for key, value in project['options'].items():
                 if key != 'zip_path':
                     string += '-o ' + key + '=' + value + ' '
