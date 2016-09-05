@@ -2,32 +2,21 @@ from glob import glob
 import os
 from setuptools import setup
 
-package_data = {'grace': []}
 
-previous = ''
-for root, dirs, files in os.walk(os.path.join('grace', 'skeleton')):
-    for filename in files:
-        if previous != root:
-            filelist = glob(root + '/*.*')
-            for f in filelist:
-                package_data['grace'].append(f[6:])
-            previous = root
+def gather_files(folder):
+    previous = ''
+    data = []
 
-for root, dirs, files in os.walk(os.path.join('grace', 'assets')):
-    for filename in files:
-        if previous != root:
-            filelist = glob(root + '/*.*')
-            for f in filelist:
-                package_data['grace'].append(f[6:])
-            previous = root
+    for root, dirs, files in os.walk(os.path.join('grace', folder)):
+        for filename in files:
+            if previous != root:
+                filelist = glob(root + '/*.*')
+                for f in filelist:
+                    data.append(f[6:])
+                    previous = root
 
-for root, dirs, files in os.walk(os.path.join('grace', 'py27')):
-    for filename in files:
-        if previous != root:
-            filelist = glob(root + '/*.*')
-            for f in filelist:
-                package_data['grace'].append(f[6:])
-            previous = root
+    return data
+
 
 setup(
     name='grace',
@@ -40,7 +29,9 @@ setup(
     scripts=['bin/grace'],
     packages=['grace'],
     install_requires=['pyScss', 'argparse', 'setuptools', 'slimit', 'cssmin', 'pyjsdoc', 'requests', 'watchdog', 'gitpython', 'CoffeeScript', 'pip', 'future', 'transcrypt'],
-    package_data=package_data,
+    package_data={
+        'grace': gather_files('assets') + gather_files('py27')
+    },
     keywords='toolchain javascript dizmo js buildtool',
     long_description=open('README.txt').read(),
     classifiers=[

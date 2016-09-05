@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from builtins import object
 import os
-from .error import FileNotFoundError, CreateFolderError, FileNotWritableError, FileNotReadableError, RemoveFolderError, RemoveFileError, ScssError, ParseError, TranscryptError
+from .error import FileNotFoundError, CreateFolderError, FileNotWritableError, FileNotReadableError, RemoveFolderError, ScssError, ParseError, TranscryptError
 from shutil import copy2, copytree, rmtree
 from grace.py27.slimit import minify
 from grace.py27.cssmin import cssmin
@@ -294,7 +294,7 @@ class Build(object):
                         css_string = cssmin(css_string)
 
                     css_file.write(css_string)
-                    css_file.close();
+                    css_file.close()
 
                     try:
                         os.remove(scss_filename)
@@ -343,7 +343,7 @@ class Build(object):
         dest = os.path.join(self._config['build_path'], 'assets')
 
         if not os.path.exists(source):
-            return;
+            return
 
         try:
             copytree(source, dest)
