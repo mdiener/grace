@@ -22,6 +22,10 @@ logging.getLogger('urllib3').setLevel(logging.WARNING)
 logging.getLogger('watchdog').setLevel(logging.WARNING)
 
 
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+
 def get_asset_path(asset):
     if not isstring(asset):
         raise WrongFormatError('Asset needs to be a string.')
