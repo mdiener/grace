@@ -22,8 +22,9 @@ logging.getLogger('urllib3').setLevel(logging.WARNING)
 logging.getLogger('watchdog').setLevel(logging.WARNING)
 
 
-reload(sys)
-sys.setdefaultencoding('utf8')
+if sys.version_info.major < 3:
+    reload(sys)
+    sys.setdefaultencoding('utf8')
 
 
 def get_asset_path(asset):
