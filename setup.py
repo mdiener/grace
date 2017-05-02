@@ -24,7 +24,7 @@ setup(
     author='Michael Diener',
     author_email='michael@webdiener.ch',
     url='https://github.com/mdiener/grace',
-    version='0.5.6',
+    version='0.5.7',
     license='LICENSE.txt',
     scripts=['bin/grace'],
     packages=['grace'],
