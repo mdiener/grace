@@ -34,63 +34,13 @@ class Build(object):
             raise CreateFolderError('Could not create the project folder.')
 
         try:
-            if self._config['using_transcrypt']:
-                self._build_transcrypt()
-            else:
-                self._build_javascript()
+            self._build_javascript()
             self._build_style()
             self._build_html()
             self._build_libraries()
             self._copy_assets()
         except:
             raise
-
-    def _build_transcrypt(self):
-        os.chdir('src')
-
-        js_name = self._config['js_name'] + '.py'
-        source = os.path.join(self._cwd, 'src', js_name)
-        dest = os.path.join(self._config['build_path'], self._config['js_name'] + '.js')
-
-        if not os.path.exists(source):
-            raise FileNotFoundError('Could not find the main script ("' + source + '") for transcrypt.')
-
-        args = 'transcrypt -b '
-        if not self._config['minify_js']:
-            args += '-n '
-        args += source
-
-        try:
-            popen = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            output, error = popen.communicate()
-
-            if error != b'':
-                raise TranscryptError('Could not transpile the file at ' + source)
-        except Exception as e:
-            raise e
-
-        if os.path.exists(dest):
-            os.remove(dest)
-
-        try:
-            if self._config['minify_js']:
-                built_js_name = self._config['js_name'] + '.min.js'
-            else:
-                built_js_name = self._config['js_name'] + '.js'
-
-            copy2(os.path.join(self._cwd, 'src', '__javascript__', built_js_name), dest)
-        except Exception as e:
-            raise FileNotFoundError('Could not find the transpiled javascript file.')
-
-        for root, dirs, files in os.walk(os.path.join(self._cwd, 'src')):
-            for d in dirs:
-                if d == '__javascript__':
-                    try:
-                        rmtree(os.path.join(root, d))
-                    except Exception as e:
-                        raise FolderNotFoundError('Could not delete a transcrypt generated folder: "' + os.path.join(root, d) + '"')
-
-        os.chdir(self._cwd)
 
     def _build_javascript(self):
         js_name = self._config['js_name'] + '.js'

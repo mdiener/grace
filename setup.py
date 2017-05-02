@@ -28,7 +28,7 @@ setup(
     license='LICENSE.txt',
     scripts=['bin/grace'],
     packages=['grace'],
-    install_requires=['pyScss', 'argparse', 'setuptools', 'slimit', 'cssmin', 'pyjsdoc', 'requests', 'watchdog', 'gitpython', 'CoffeeScript', 'pip', 'future', 'transcrypt'],
+    install_requires=['pyScss', 'argparse', 'setuptools', 'slimit', 'cssmin', 'pyjsdoc', 'requests', 'watchdog', 'gitpython', 'CoffeeScript', 'pip', 'future'],
     package_data={
         'grace': gather_files('assets') + gather_files('py27')
     },
